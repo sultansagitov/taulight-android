@@ -37,7 +37,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
           TauButton("Connect to hub", onPressed: () {
             var screen = ConnectionScreen(
               updateHome: () {
-                setState(() {});
+                if (mounted) setState(() {});
                 if (widget.updateHome != null) widget.updateHome!();
               },
             );

@@ -40,12 +40,13 @@ class _MessageFieldState extends State<MessageField> {
         Container(height: 1, color: Colors.grey),
         ...widget.replies.map(
           (r) => SwipeableTile(
-            color: Colors.white,
+            color: Colors.transparent,
             swipeThreshold: 0.2,
             isElevated: false,
             onSwiped: (_) => setState(() => widget.replies.remove(r)),
             backgroundBuilder: (_, __, ___) => Container(),
             key: UniqueKey(),
+            direction: SwipeDirection.horizontal,
             child: ReplyPreviewWidget(chat: widget.chat, reply: r),
           ),
         ),

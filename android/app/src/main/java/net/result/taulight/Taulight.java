@@ -32,12 +32,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import io.flutter.plugin.common.MethodChannel;
 
 public class Taulight {
     private static final Logger LOGGER = LogManager.getLogger(Taulight.class);
-    public final Map<String, MemberClient> clients = new HashMap<>();
+    public final Map<UUID, MemberClient> clients = new HashMap<>();
     public final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -53,12 +54,10 @@ public class Taulight {
         handler.post(() -> methodChannel.invokeMethod(method, obj));
     }
 
-    public void addClient(String uuid, String linkString) throws OutputStreamException,
+    public void addClient(UUID uuid, SandnodeLinkRecord link) throws OutputStreamException,
             ConnectionException, InputStreamException, ExpectedMessageException,
             InterruptedException, KeyNotCreatedException, UnprocessedMessagesException,
             CreatingKeyException, InvalidSandnodeLinkException {
-
-        SandnodeLinkRecord link = Links.parse(linkString);
 
         KeyStorageRegistry keyStorageRegistry = new KeyStorageRegistry();
         Agent agent = new AndroidAgent(keyStorageRegistry, this, uuid);
@@ -72,10 +71,14 @@ public class Taulight {
         ClientProtocol.sendSYM(client);
 
         LOGGER.debug("Saving client of {} with uuid {}", client.endpoint, uuid);
-        clients.put(uuid, new MemberClient(client, linkString));
+        clients.put(uuid, new MemberClient(client, link));
     }
 
     public MemberClient getClient(String uuid) throws ClientNotFoundException {
+        return getClient(UUID.fromString(uuid));
+    }
+
+    public MemberClient getClient(UUID uuid) throws ClientNotFoundException {
         if (clients.containsKey(uuid)) {
             return clients.get(uuid);
         }

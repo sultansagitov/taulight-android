@@ -132,7 +132,7 @@ class ChatScreenState extends State<ChatScreen> {
                     return SwipeableTile.swipeToTrigger(
                       behavior: HitTestBehavior.translucent,
                       isElevated: false,
-                      color: Colors.white,
+                      color: Colors.transparent,
                       swipeThreshold: 0.2,
                       direction: SwipeDirection.endToStart,
                       onSwiped: (_) {

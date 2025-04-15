@@ -3,55 +3,23 @@ package net.result.taulight;
 import android.annotation.TargetApi;
 import android.os.Build;
 
-import net.result.sandnode.chain.IChain;
-import net.result.sandnode.chain.sender.LogPasswdClientChain;
-import net.result.sandnode.chain.sender.LoginClientChain;
-import net.result.sandnode.chain.sender.RegistrationClientChain;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
-import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ChainNameRequest;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.chain.client.AndroidForwardRequestChain;
-import net.result.taulight.chain.sender.ChannelClientChain;
-import net.result.taulight.chain.sender.ChatClientChain;
-import net.result.taulight.chain.sender.CheckCodeClientChain;
-import net.result.taulight.chain.sender.DialogClientChain;
-import net.result.taulight.chain.sender.MembersClientChain;
-import net.result.taulight.chain.sender.MessageClientChain;
-import net.result.taulight.chain.sender.UseCodeClientChain;
-import net.result.taulight.code.TauCode;
-import net.result.taulight.db.ChatMessage;
-import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.ClientNotFoundException;
-import net.result.taulight.message.ChatInfo;
-import net.result.taulight.message.ChatInfoProp;
-import net.result.taulight.message.MemberRecord;
-import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.message.types.UUIDMessage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -70,6 +38,8 @@ public class MethodHandlers {
 
     private final ExecutorService executorService;
 
+    private final Runner runner;
+
     public MethodHandlers(FlutterEngine flutterEngine) {
         executorService = Executors.newCachedThreadPool();
 
@@ -80,6 +50,8 @@ public class MethodHandlers {
         methodChannel.setMethodCallHandler(this::onMethodCallHandler);
 
         taulight = new Taulight(methodChannel);
+
+        runner = new Runner(taulight);
 
         methodHandlerMap = new HashMap<>();
         methodHandlerMap.put("connect", this::connect);
@@ -109,9 +81,9 @@ public class MethodHandlers {
         executorService.execute(() -> {
             MethodHandler handler = methodHandlerMap.get(call.method);
             if (handler != null) {
-                Iterator<Entry<String, MemberClient>> iterator = taulight.clients.entrySet().iterator();
+                Iterator<Entry<UUID, MemberClient>> iterator = taulight.clients.entrySet().iterator();
                 while (iterator.hasNext()) {
-                    Entry<String, MemberClient> entry = iterator.next();
+                    Entry<UUID, MemberClient> entry = iterator.next();
                     if (!entry.getValue().client.io.isConnected()) {
                         LOGGER.debug("Removing client with uuid {}", entry.getKey());
                         iterator.remove();
@@ -150,12 +122,7 @@ public class MethodHandlers {
         SandnodeClient client = taulight.getClient(uuid).client;
         UUID chatID = UUID.fromString(chatIDStr);
 
-        MembersClientChain chain = new MembersClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        Collection<MemberRecord> members = chain.getMembers(chatID);
-        client.io.chainManager.removeChain(chain);
-
-        return taulight.objectMapper.convertValue(members, List.class);
+        return runner.members(client, chatID);
     }
 
     private Map<String, String> connect(MethodCall call) throws Exception {
@@ -166,9 +133,10 @@ public class MethodHandlers {
         assert linkString != null;
 
         SandnodeLinkRecord link = Links.parse(linkString);
-        taulight.addClient(uuid, linkString);
 
-        return Map.of("endpoint", link.endpoint().toString(52525));
+        UUID clientID = UUID.fromString(uuid);
+
+        return runner.connect(clientID, link);
     }
 
     private Map<String, String> login(MethodCall call) throws Exception {
@@ -176,17 +144,12 @@ public class MethodHandlers {
         String nickname = call.argument("nickname");
         String password = call.argument("password");
 
-        assert uuid != null;
         assert nickname != null;
         assert password != null;
 
         SandnodeClient client = taulight.getClient(uuid).client;
-        var chain = new LogPasswdClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        String token = chain.getToken(nickname, password);
-        client.io.chainManager.removeChain(chain);
 
-        return Map.of("token", token);
+        return runner.login(client, nickname, password);
     }
 
     private Map<String, String> register(MethodCall call) throws Exception {
@@ -194,24 +157,17 @@ public class MethodHandlers {
         String nickname = call.argument("nickname");
         String password = call.argument("password");
 
-        assert uuid != null;
         assert nickname != null;
         assert password != null;
 
         SandnodeClient client = taulight.getClient(uuid).client;
-        var chain = new RegistrationClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        String token = chain.getTokenFromRegistration(nickname, password);
-        client.io.chainManager.removeChain(chain);
 
-        return Map.of("token", token);
+        return runner.register(client, nickname, password);
     }
 
     private String disconnect(MethodCall call) throws ClientNotFoundException {
         String uuid = call.argument("uuid");
-        SandnodeClient client = taulight.getClient(uuid).client;
-        client.close();
-        return "disconnected";
+        return runner.disconnect(uuid);
     }
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -226,31 +182,14 @@ public class MethodHandlers {
         assert content != null;
         assert repliesString != null;
 
-        List<UUID> replies = repliesString.stream()
+        Set<UUID> replies = repliesString.stream()
                 .map(UUID::fromString)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         MemberClient mc = taulight.getClient(uuid);
         IOController io = mc.client.io;
 
-        Optional<IChain> fwdReq = io.chainManager.getChain("fwd_req");
-
-        AndroidForwardRequestChain androidChain;
-        if (fwdReq.isPresent()) {
-            androidChain = (AndroidForwardRequestChain) fwdReq.get();
-        } else {
-            androidChain = new AndroidForwardRequestChain(io);
-            io.chainManager.setName(androidChain, "fwd_req");
-            io.chainManager.linkChain(androidChain);
-        }
-
-        ChatMessage message = new ChatMessage()
-                .setChatID(UUID.fromString(chatID))
-                .setContent(content)
-                .setReplies(replies)
-                .setZtdNow();
-
-        return androidChain.sendMessage(message).toString();
+        return runner.send(io, chatID, content, replies);
     }
 
     private String groupAdd(MethodCall call) throws Exception {
@@ -262,9 +201,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        ClientProtocol.addToGroups(client.io, Set.of(group));
-
-        return "sent";
+        return runner.groupAdd(client, group);
     }
 
     /** @noinspection rawtypes*/
@@ -274,25 +211,7 @@ public class MethodHandlers {
         assert uuid != null;
 
         SandnodeClient client = taulight.getClient(uuid).client;
-        Optional<IChain> chat = client.io.chainManager.getChain("chat");
-
-        Optional<Collection<ChatInfo>> optChats;
-        if (chat.isPresent()) {
-            ChatClientChain chain = (ChatClientChain) chat.get();
-            optChats = chain.getByMember(ChatInfoProp.all());
-        } else {
-            ChatClientChain chain = new ChatClientChain(client.io);
-            client.io.chainManager.linkChain(chain);
-            optChats = chain.getByMember(ChatInfoProp.all());
-            chain.send(new ChainNameRequest("chat"));
-        }
-
-        if (optChats.isPresent()) {
-            Collection<ChatInfo> infos = optChats.get();
-            return taulight.objectMapper.convertValue(infos, List.class);
-        }
-
-        return new ArrayList<>();
+        return runner.getChats(client);
     }
 
     private Map<String, Object> loadMessages(MethodCall call) throws Exception {
@@ -309,53 +228,25 @@ public class MethodHandlers {
         SandnodeClient client = taulight.getClient(uuid).client;
         UUID chatID = UUID.fromString(chatID_str);
 
-        var chain = new MessageClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        chain.getMessages(chatID, index, size);
-        client.io.chainManager.removeChain(chain);
-        List<ServerChatMessage> messages = chain.getMessages();
-        return Map.of(
-            "count", chain.getCount(),
-            "messages", taulight.objectMapper.convertValue(messages, List.class)
-        );
+        return runner.loadMessages(client, chatID, index, size);
     }
 
     @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private List<Map<String, String>> loadClient(MethodCall ignoredCall) {
-        return taulight.clients
-                .entrySet().stream()
-                .map((entry) -> Map.of(
-                    "uuid", entry.getKey(),
-                    "endpoint", entry.getValue().client.endpoint.toString(),
-                    "link", entry.getValue().link
-                ))
-                .toList();
+        return runner.loadClient();
     }
 
     @TargetApi(Build.VERSION_CODES.N)
     private Object loadChat(MethodCall call) throws Exception {
         String uuid = call.argument("uuid");
-        String chatUuid = call.argument("chat-id");
+        String chat = call.argument("chat-id");
         assert uuid != null;
-        assert chatUuid != null;
-        Collection<UUID> chatID = List.of(UUID.fromString(chatUuid));
+        assert chat != null;
 
+        UUID chatID = UUID.fromString(chat);
         SandnodeClient client = taulight.getClient(uuid).client;
-        Optional<IChain> chat = client.io.chainManager.getChain("chat");
 
-        Collection<ChatInfo> optChats;
-        if (chat.isPresent()) {
-            ChatClientChain chain = (ChatClientChain) chat.get();
-            optChats = chain.getByID(chatID, ChatInfoProp.all());
-        } else {
-            ChatClientChain chain = new ChatClientChain(client.io);
-            client.io.chainManager.linkChain(chain);
-            optChats = chain.getByID(chatID, ChatInfoProp.all());
-            chain.send(new ChainNameRequest("chat"));
-        }
-
-        ChatInfo info = optChats.stream().findFirst().get();
-        return taulight.objectMapper.convertValue(info, Map.class);
+        return runner.loadChat(client, chatID);
     }
 
     private Map<String, String> createChannel(MethodCall call) throws Exception {
@@ -366,11 +257,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new ChannelClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        UUID chatID = chain.sendNewChannelRequest(title);
-        client.io.chainManager.removeChain(chain);
-        return Map.of("chat-id", chatID.toString());
+        return runner.createChannel(client, title);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -385,11 +272,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new ChannelClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        String code = chain.createInviteCode(chatID, otherNickname, Duration.ofDays(1));
-        client.io.chainManager.removeChain(chain);
-        return Map.of("code", code);
+        return runner.addMember(client, chatID, otherNickname);
     }
 
     private Map<String, String> token(MethodCall call) throws Exception {
@@ -400,12 +283,8 @@ public class MethodHandlers {
         assert token != null;
 
         SandnodeClient client = taulight.getClient(uuid).client;
-        LoginClientChain chain = new LoginClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        String nickname = chain.getNickname(token);
-        client.io.chainManager.removeChain(chain);
 
-        return Map.of("nickname", nickname);
+        return runner.token(client, token);
     }
 
     private Object checkCode(MethodCall call) throws Exception {
@@ -417,12 +296,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new CheckCodeClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        TauCode c = chain.check(code);
-        client.io.chainManager.removeChain(chain);
-
-        return taulight.objectMapper.convertValue(c, Map.class);
+        return runner.checkCode(client, code);
     }
 
     private String useCode(MethodCall call) throws Exception {
@@ -434,12 +308,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new UseCodeClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        chain.use(code);
-        client.io.chainManager.removeChain(chain);
-
-        return "success";
+        return runner.useCode(client, code);
     }
 
     private Map<String, String> dialog(MethodCall call) throws Exception {
@@ -451,12 +320,7 @@ public class MethodHandlers {
 
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new DialogClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        UUID chatID = chain.getDialogID(nickname);
-        client.io.chainManager.removeChain(chain);
-
-        return Map.of("chat-id", chatID.toString());
+        return runner.dialog(client, nickname);
     }
 
     private String leave(MethodCall call) throws Exception {
@@ -469,12 +333,7 @@ public class MethodHandlers {
         UUID chatID = UUID.fromString(chatIDStr);
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        ChannelClientChain chain = new ChannelClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        chain.sendLeaveRequest(chatID);
-        client.io.chainManager.removeChain(chain);
-
-        return "success";
+        return runner.leave(client, chatID);
     }
 
     /** @noinspection rawtypes*/
@@ -489,12 +348,7 @@ public class MethodHandlers {
         UUID chatID = UUID.fromString(chatIDStr);
         SandnodeClient client = taulight.getClient(uuid).client;
 
-        var chain = new ChannelClientChain(client.io);
-        client.io.chainManager.linkChain(chain);
-        Collection<TauCode> codes = chain.getChannelCodes(chatID);
-        client.io.chainManager.removeChain(chain);
-
-        return taulight.objectMapper.convertValue(codes, List.class);
+        return runner.channelCodes(client, chatID);
     }
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -504,26 +358,14 @@ public class MethodHandlers {
         String content = call.argument("content");
         List<String> replyIDs = call.argument("replies");
 
-        assert uuid != null;
         assert chatIDStr != null;
         assert content != null;
 
         MemberClient mc = taulight.getClient(uuid);
-        IOController io = mc.client.io;
 
-        Optional<IChain> fwdReq = io.chainManager.getChain("fwd_req");
-
-        AndroidForwardRequestChain androidChain;
-        if (fwdReq.isPresent()) {
-            androidChain = (AndroidForwardRequestChain) fwdReq.get();
-        } else {
-            androidChain = new AndroidForwardRequestChain(io);
-            io.chainManager.setName(androidChain, "fwd_req");
-            io.chainManager.linkChain(androidChain);
-        }
 
         UUID chatID = UUID.fromString(chatIDStr);
-        List<UUID> replies = new ArrayList<>();
+        Set<UUID> replies = new HashSet<>();
 
         if (replyIDs != null && !replyIDs.isEmpty()) {
             for (String replyID : replyIDs) {
@@ -531,16 +373,6 @@ public class MethodHandlers {
             }
         }
 
-        ChatMessage message = new ChatMessage()
-                .setChatID(chatID)
-                .setContent(content)
-                .setReplies(replies)
-                .setZtdNow();
-
-        androidChain.send(new ForwardRequest(message));
-        RawMessage raw = androidChain.queue.take();
-        raw.expect(MessageTypes.HAPPY);
-        UUIDMessage uuidMessage = new UUIDMessage(raw);
-        return uuidMessage.uuid.toString();
+        return runner.reply(mc, chatID, content, replies);
     }
 }
