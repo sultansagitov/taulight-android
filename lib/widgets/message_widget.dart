@@ -10,9 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MessageWidget extends StatefulWidget {
   final TauChat chat;
-  final Message message;
-  final Message? prev;
-  final Message? next;
+  final ChatMessageViewDTO message;
+  final ChatMessageViewDTO? prev;
+  final ChatMessageViewDTO? next;
 
   const MessageWidget({
     super.key,

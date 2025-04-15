@@ -11,20 +11,20 @@ import 'package:uuid/uuid.dart';
 class TauChat {
   final String id;
   final Client client;
-  ChatRecord? record;
+  ChatDTO? record;
   int? totalCount;
 
-  final List<Message> messages = [];
-  List<Message> get realMsg {
+  final List<ChatMessageViewDTO> messages = [];
+  List<ChatMessageViewDTO> get realMsg {
     return messages.where((m) => !m.text.startsWith("temp_")).toList();
   }
 
   TauChat(this.client, this.id);
-  factory TauChat.fromRecord(Client client, ChatRecord record) {
+  factory TauChat.fromRecord(Client client, ChatDTO record) {
     return TauChat(client, record.id)..record = record;
   }
 
-  void addMessage(Message message) {
+  void addMessage(ChatMessageViewDTO message) {
     if (!messages.any((m) => m.id == message.id)) {
       int index = messages.lowerBound(
         message,
@@ -51,7 +51,7 @@ class TauChat {
   ) async {
     var tempUuid = "temp_${Uuid().v4()}";
 
-    var message = Message(
+    var message = ChatMessageViewDTO(
       id: tempUuid,
       chatID: id,
       nickname: client.user!.nickname,

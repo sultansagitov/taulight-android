@@ -6,7 +6,7 @@ import 'package:taulight/widgets/message_replies_widget.dart';
 
 class MessageField extends StatefulWidget {
   final TauChat chat;
-  final List<Message> replies;
+  final List<ChatMessageViewDTO> replies;
   final void Function(String)? sendMessage;
 
   const MessageField({

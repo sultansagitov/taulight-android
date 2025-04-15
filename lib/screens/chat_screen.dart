@@ -19,12 +19,12 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<Message> replies = [];
+  List<ChatMessageViewDTO> replies = [];
 
   @override
   void initState() {
     super.initState();
-    List<Message> messages = widget.chat.messages;
+    List<ChatMessageViewDTO> messages = widget.chat.messages;
     int? messagesTotalCount = widget.chat.totalCount;
     if (messages.isEmpty || messages.length != (messagesTotalCount ?? 0)) {
       _loadMessages(0);
@@ -54,7 +54,7 @@ class ChatScreenState extends State<ChatScreen> {
     final messages = widget.chat.messages;
     final messagesTotalCount = widget.chat.totalCount;
 
-    final isDialog = widget.chat.record is DialogRecord;
+    final isDialog = widget.chat.record is DialogDTO;
     var d = 36;
 
     return Scaffold(
@@ -95,7 +95,7 @@ class ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              if (widget.chat.record is DialogRecord) {
+              if (widget.chat.record is DialogDTO) {
                 moveTo(context, DialogInfoScreen(widget.chat));
               } else {
                 moveTo(context, ChannelInfoScreen(widget.chat));
@@ -115,13 +115,13 @@ class ChatScreenState extends State<ChatScreen> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     var rev = messages.reversed;
-                    Message? prev = rev.elementAtOrNull(index + 1);
-                    Message? next;
+                    ChatMessageViewDTO? prev = rev.elementAtOrNull(index + 1);
+                    ChatMessageViewDTO? next;
                     if (index != 0) {
                       next = rev.elementAtOrNull(index - 1);
                     }
 
-                    Message message = rev.elementAt(index);
+                    ChatMessageViewDTO message = rev.elementAt(index);
 
                     if (messages.length < (messagesTotalCount ?? 0)) {
                       if (index + 1 >= messages.length) {

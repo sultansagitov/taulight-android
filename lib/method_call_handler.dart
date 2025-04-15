@@ -26,7 +26,7 @@ class MethodCallHandler {
       throw ClientNotFoundException(clientUUID);
     }
 
-    Message message = Message.fromMap(client, call.arguments["message"]);
+    ChatMessageViewDTO message = ChatMessageViewDTO.fromMap(client, call.arguments["message"]);
     TauChat chat = await client.getOrLoadChatByID(message.chatID);
     if (!message.isMe) chat.addMessage(message);
   }

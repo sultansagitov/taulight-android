@@ -17,35 +17,35 @@ enum Status {
   }
 }
 
-abstract class ChatRecord {
+abstract class ChatDTO {
   final String id;
 
-  static ChatRecord fromMap(obj) {
+  static ChatDTO fromMap(obj) {
     var map = Map<String, dynamic>.from(obj);
     var type = map["type"];
     switch (type) {
       case "cn":
-        return ChannelRecord.fromMap(map);
+        return ChannelDTO.fromMap(map);
       case "dl":
-        return DialogRecord.fromMap(map);
+        return DialogDTO.fromMap(map);
       default:
         throw ErrorDescription('Unexpected type "$type", - "cn", "dl"');
     }
   }
 
-  ChatRecord({required this.id});
+  ChatDTO({required this.id});
 
   String getTitle();
 }
 
-class ChannelRecord extends ChatRecord {
+class ChannelDTO extends ChatDTO {
   final String title;
   final String owner;
 
-  ChannelRecord({required super.id, required this.title, required this.owner});
+  ChannelDTO({required super.id, required this.title, required this.owner});
 
-  factory ChannelRecord.fromMap(Map<String, dynamic> obj) {
-    return ChannelRecord(
+  factory ChannelDTO.fromMap(Map<String, dynamic> obj) {
+    return ChannelDTO(
       id: obj["id"]!,
       title: obj["channel-title"]!,
       owner: obj["channel-owner"]!,
@@ -63,13 +63,13 @@ class ChannelRecord extends ChatRecord {
   }
 }
 
-class DialogRecord extends ChatRecord {
+class DialogDTO extends ChatDTO {
   final String otherNickname;
 
-  DialogRecord({required super.id, required this.otherNickname});
+  DialogDTO({required super.id, required this.otherNickname});
 
-  factory DialogRecord.fromMap(Map<String, dynamic> obj) {
-    return DialogRecord(id: obj["id"]!, otherNickname: obj["dialog-other"]!);
+  factory DialogDTO.fromMap(Map<String, dynamic> obj) {
+    return DialogDTO(id: obj["id"]!, otherNickname: obj["dialog-other"]!);
   }
 
   @override
@@ -95,7 +95,7 @@ class Member {
   }
 }
 
-class Message {
+class ChatMessageViewDTO {
   String id;
   final String chatID;
   final String nickname;
@@ -105,7 +105,7 @@ class Message {
   final bool sys;
   final List<String>? replies;
 
-  Message({
+  ChatMessageViewDTO({
     required this.id,
     required this.chatID,
     required this.nickname,
@@ -116,7 +116,7 @@ class Message {
     required this.replies,
   });
 
-  static Message fromMap(Client client, json) {
+  static ChatMessageViewDTO fromMap(Client client, json) {
     var map = Map<String, dynamic>.from(json as Map);
 
     String messageID = map["id"]!;
@@ -132,7 +132,7 @@ class Message {
         ? List<String>.from(message["replies"])
         : null;
 
-    return Message(
+    return ChatMessageViewDTO(
       id: messageID,
       chatID: chatID,
       nickname: nickname,
@@ -150,7 +150,7 @@ class Message {
   }
 }
 
-class TauCode {
+class CodeDTO {
   final String title;
   final String nickname;
   final String sender;
@@ -160,7 +160,7 @@ class TauCode {
 
   bool get isExpired => DateTime.now().isAfter(expires);
 
-  TauCode({
+  CodeDTO({
     required this.title,
     required this.nickname,
     required this.sender,
@@ -169,7 +169,7 @@ class TauCode {
     this.activation,
   });
 
-  factory TauCode.fromMap(Map<String, dynamic> map) {
+  factory CodeDTO.fromMap(Map<String, dynamic> map) {
     var activationString = map["activation-date"];
     DateTime? activation;
 
@@ -177,7 +177,7 @@ class TauCode {
       activation = DateTime.parse(activationString as String);
     }
 
-    return TauCode(
+    return CodeDTO(
       title: map["title"] as String,
       nickname: map["nickname"] as String,
       sender: map["sender-nickname"] as String,

@@ -12,7 +12,7 @@ class ChannelInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final record = chat.record as ChannelRecord;
+    final record = chat.record as ChannelDTO;
     final Future<List<Member>?> membersFuture = _fetchMembers();
 
     return Scaffold(
@@ -56,7 +56,7 @@ class ChannelInfoScreen extends StatelessWidget {
 
   Widget _buildMemberList(
     Future<List<Member>?> membersFuture,
-    ChannelRecord record,
+    ChannelDTO record,
     BuildContext context,
   ) {
     return FutureBuilder<List<Member>?>(
@@ -140,7 +140,7 @@ class ChannelInfoScreen extends StatelessWidget {
 
   void _showAddMemberDialog(BuildContext context) {
     List<TauChat> chats = chat.client.chats.values
-        .where((chat) => chat.record is DialogRecord)
+        .where((chat) => chat.record is DialogDTO)
         .toList();
 
     moveTo(context, MembersInviteScreen(chats: chats, chatToInvite: chat));
@@ -167,7 +167,7 @@ class MembersInviteScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             var chat = chats[index];
             var d = 52;
-            final String nickname = (chat.record as DialogRecord).otherNickname;
+            final String nickname = (chat.record as DialogDTO).otherNickname;
 
             return InkWell(
               onTap: () async {

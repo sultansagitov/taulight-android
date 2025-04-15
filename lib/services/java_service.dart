@@ -136,7 +136,7 @@ class JavaService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<List<ChatRecord>> loadChats(Client client) async {
+  Future<List<ChatDTO>> loadChats(Client client) async {
     Map<String, String> arguments = {"uuid": client.uuid};
     Result result = await method("get-chats", arguments);
 
@@ -158,7 +158,7 @@ class JavaService {
       if (list is List) {
         return list
             .where((obj) => ["cn", "dl"].contains(obj["type"]))
-            .map(ChatRecord.fromMap)
+            .map(ChatDTO.fromMap)
             .toList();
       }
     }
@@ -180,7 +180,7 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      return TauChat.fromRecord(client, ChatRecord.fromMap(result.obj));
+      return TauChat.fromRecord(client, ChatDTO.fromMap(result.obj));
     }
 
     throw IncorrectFormatChannelException();
@@ -207,7 +207,7 @@ class JavaService {
       if (obj is Map) {
         var messages = obj["messages"];
         for (var json in messages) {
-          Message message = Message.fromMap(chat.client, json);
+          ChatMessageViewDTO message = ChatMessageViewDTO.fromMap(chat.client, json);
           chat.addMessage(message);
         }
         return obj["count"];
@@ -346,7 +346,7 @@ class JavaService {
   }
 
   Future<String> sendMessage(
-      Client client, TauChat chat, Message message) async {
+      Client client, TauChat chat, ChatMessageViewDTO message) async {
     Result result = await method("send", {
       "uuid": client.uuid,
       "chat-id": chat.id,

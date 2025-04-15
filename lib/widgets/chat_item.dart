@@ -20,10 +20,10 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    final isDialog = chat.record is DialogRecord;
+    final isDialog = chat.record is DialogDTO;
     var d = 52;
 
-    Message? message;
+    ChatMessageViewDTO? message;
     if (chat.messages.isNotEmpty) {
       message = chat.messages.last;
     }

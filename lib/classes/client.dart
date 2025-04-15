@@ -43,7 +43,7 @@ class Client {
   ///
   /// Returns the sent message.
   ///
-  Future<String> sendMessage(TauChat chat, Message message) async {
+  Future<String> sendMessage(TauChat chat, ChatMessageViewDTO message) async {
     return await JavaService.instance.sendMessage(this, chat, message);
   }
 
@@ -51,7 +51,7 @@ class Client {
   ///
   /// Returns the chat.
   ///
-  Future<TauChat> getOrLoadChat(ChatRecord record) async {
+  Future<TauChat> getOrLoadChat(ChatDTO record) async {
     if (!chats.containsKey(record.id)) {
       chats[record.id] = await loadChat(record.id);
     }
@@ -151,9 +151,9 @@ class Client {
   ///
   /// Returns the code information.
   ///
-  Future<TauCode> checkCode(String code) async {
+  Future<CodeDTO> checkCode(String code) async {
     var map = await JavaService.instance.checkCode(this, code);
-    return TauCode.fromMap(map);
+    return CodeDTO.fromMap(map);
   }
 
   @override

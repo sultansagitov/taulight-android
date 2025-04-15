@@ -88,7 +88,7 @@ Color dark(Color color) {
   );
 }
 
-String parseSysMessages(TauChat chat, Message message) {
+String parseSysMessages(TauChat chat, ChatMessageViewDTO message) {
   String nickname = message.nickname;
   String text = message.text;
   List<String> split = text.split(".");
@@ -102,7 +102,7 @@ String parseSysMessages(TauChat chat, Message message) {
 
   switch (type) {
     case 'channel':
-      var channel = chat.record as ChannelRecord;
+      var channel = chat.record as ChannelDTO;
       switch (act) {
         case 'new':
           return 'Channel "${channel.title}" created by $nickname';

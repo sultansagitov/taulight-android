@@ -9,7 +9,7 @@ class DialogInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var record = chat.record as DialogRecord;
+    var record = chat.record as DialogDTO;
 
     return Scaffold(
       appBar: AppBar(

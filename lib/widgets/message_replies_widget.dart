@@ -5,7 +5,7 @@ import 'package:taulight/utils.dart';
 
 class MessageRepliesWidget extends StatelessWidget {
   final TauChat chat;
-  final Message message;
+  final ChatMessageViewDTO message;
 
   const MessageRepliesWidget({
     super.key,
@@ -19,7 +19,7 @@ class MessageRepliesWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final List<Message> validReplies = [];
+    final List<ChatMessageViewDTO> validReplies = [];
     for (final id in message.replies!) {
       final replyMessage = chat.messages.where((m) => m.id == id).firstOrNull;
       if (replyMessage != null) {
@@ -89,7 +89,7 @@ class MessageRepliesWidget extends StatelessWidget {
 
 class ReplyPreviewWidget extends StatelessWidget {
   final TauChat chat;
-  final Message reply;
+  final ChatMessageViewDTO reply;
 
   const ReplyPreviewWidget({
     super.key,
