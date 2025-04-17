@@ -101,10 +101,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           if (widget.updateHome != null) widget.updateHome!();
         },
         onSuccess: () {
-          if (mounted) {
-            setState(() {});
-            Navigator.pop(context);
-          }
+          if (mounted) setState(() {});
         },
       );
       moveTo(context, screen);
@@ -125,10 +122,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
             if (widget.updateHome != null) widget.updateHome!();
           },
           onSuccess: () {
-            if (mounted) {
-              setState(() {});
-              Navigator.pop(context);
-            }
+            if (mounted) setState(() {});
           },
         );
         moveTo(context, screen);

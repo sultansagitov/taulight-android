@@ -21,14 +21,6 @@ public class AndroidForwardRequestChain extends ClientChain {
         super(io);
     }
 
-    public synchronized UUID sendMessage(ChatMessageInputDTO message) throws UnprocessedMessagesException,
-            InterruptedException, ExpectedMessageException, DeserializationException {
-        send(new ForwardRequest(message));
-        RawMessage raw = queue.take();
-        raw.expect(MessageTypes.HAPPY);
-        return new UUIDMessage(raw).uuid;
-    }
-
     public synchronized UUID message(ChatMessageInputDTO input)
             throws InterruptedException, DeserializationException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {

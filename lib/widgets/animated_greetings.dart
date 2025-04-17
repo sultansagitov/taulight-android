@@ -11,27 +11,11 @@ class AnimatedGreeting extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final color = Colors.deepOrange[isLight ? 700 : 300];
 
+    var s = TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 24);
     return Row(
       children: [
-        Text(
-          "Hi, ",
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-            fontSize: 24,
-          ),
-        ),
-        Expanded(
-          child: VerticalAnimatedText(
-            texts: names,
-            alignment: Alignment.centerLeft,
-            textStyle: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w500,
-              fontSize: 24,
-            ),
-          ),
-        ),
+        Text("Hi, ", style: s),
+        Expanded(child: VerticalAnimatedText(texts: names, textStyle: s)),
       ],
     );
   }

@@ -22,6 +22,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/tau_buton.dart';
 
 import 'package:taulight/widgets/hubs_empty.dart';
+import 'package:taulight/widgets/warning_message.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen() : super(key: GlobalKey<HomeScreenState>());
@@ -106,8 +107,14 @@ class HomeScreenState extends State<HomeScreen> {
     (() async {
       setState(() => loadingChats = true);
       try {
-        await TauChat.loadAll(() => setState(() {}))
-            .timeout(Duration(seconds: 5));
+        await TauChat.loadAll(
+          callback: () => setState(() {}),
+          onError: (client, e) {
+            if (e is ExpiredTokenException) {
+              snackBar(context, "Token for \"${client.name}\" expired");
+            }
+          }
+        ).timeout(Duration(seconds: 5));
       } finally {
         setState(() => loadingChats = false);
       }
@@ -130,6 +137,7 @@ class HomeScreenState extends State<HomeScreen> {
         PopupMenuItem(value: "new-channel", child: Text("Create channel")),
         PopupMenuItem(value: "new-dialog", child: Text("Start dialog")),
         PopupMenuItem(value: "clear-storage", child: Text("Clear storage")),
+        PopupMenuItem(value: "debug", child: Text("DEBUG")),
       ],
     );
 
@@ -150,6 +158,9 @@ class HomeScreenState extends State<HomeScreen> {
         case "clear-storage":
           await StorageService.clear();
           break;
+        case "debug":
+          print(JavaService.instance.clients);
+          break;
       }
     }
   }
@@ -166,6 +177,8 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     var isLight = Theme.of(context).brightness == Brightness.light;
     const names = ['John Doe', 'Jane Smith', 'Alice Brown'];
+    var color = Colors.deepOrange[isLight ? 700 : 300];
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -177,12 +190,10 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: const AnimatedGreeting(names: names),
-                  ),
+                  Expanded(child: const AnimatedGreeting(names: names)),
                   if (loadingChats)
                     CircularProgressIndicator(
-                      color: Colors.deepOrange[isLight ? 700 : 300],
+                      color: color,
                       padding: EdgeInsets.symmetric(horizontal: 10),
                     ),
                   Expanded(
@@ -191,7 +202,7 @@ class HomeScreenState extends State<HomeScreen> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.more_vert),
-                          color: Colors.deepOrange[isLight ? 700 : 300],
+                          color: color,
                           onPressed: _showContextMenu,
                         ),
                       ],
@@ -305,6 +316,31 @@ class HomeScreenState extends State<HomeScreen> {
         }
 
         if (chats.isEmpty) {
+          var clients = JavaService.instance.clients;
+          if (clients.length == 1) {
+            var client = clients.values.first;
+
+            return SizedBox(
+              height: 300,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Not logged in", style: TextStyle(fontSize: 18)),
+                    const SizedBox(height: 10),
+                    TauButton("Login", onPressed: () {
+                      var screen = LoginScreen(
+                        client: client,
+                        updateHome: _updateHome,
+                      );
+                      moveTo(context, screen);
+                    }),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return SizedBox(
             height: 300,
             child: Center(
@@ -313,10 +349,9 @@ class HomeScreenState extends State<HomeScreen> {
                 children: [
                   const Text("No chats", style: TextStyle(fontSize: 18)),
                   const SizedBox(height: 10),
-                  TauButton(
-                    "Create channel",
-                    onPressed: () => channelDialog(context, _updateHome),
-                  ),
+                  TauButton("Create channel", onPressed: () {
+                    channelDialog(context, _updateHome);
+                  }),
                 ],
               ),
             ),
@@ -332,92 +367,6 @@ class HomeScreenState extends State<HomeScreen> {
           dup: chatIdCount[chat.id]! > 1,
         );
       },
-    );
-  }
-}
-
-class WarningMessage extends StatefulWidget {
-  final Client client;
-  final VoidCallback? updateHome;
-
-  const WarningMessage({super.key, this.updateHome, required this.client});
-
-  @override
-  State<WarningMessage> createState() => _WarningMessageState();
-}
-
-class _WarningMessageState extends State<WarningMessage> {
-  bool loading = false;
-
-  void _refresh() async {
-    setState(() => loading = true);
-    try {
-      await widget.client.reload();
-    } on ConnectionException {
-      if (mounted) {
-        snackBar(context, "Connection exception: ${widget.client.name}");
-      }
-    } finally {
-      setState(() => loading = false);
-      if (widget.updateHome != null) widget.updateHome!();
-    }
-  }
-
-  void _visibilityOff() {
-    widget.client.hide = true;
-    if (widget.updateHome != null) widget.updateHome!();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.red[200],
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => openHubDialog(context, widget.client),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const Icon(Icons.warning_amber, color: Colors.black),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      widget.client.name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(color: Colors.black, fontSize: 16),
-                    ),
-                  ),
-                  const Text(
-                    " disconnected",
-                    style: TextStyle(color: Colors.black, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (!loading) ...[
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.refresh, color: Colors.black),
-              onPressed: _refresh,
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.visibility_off, color: Colors.black),
-              onPressed: _visibilityOff,
-            ),
-          ] else ...[
-            Padding(
-              padding: const EdgeInsets.all(4),
-              child: CircularProgressIndicator(color: Colors.black),
-            ),
-          ]
-        ],
-      ),
     );
   }
 }

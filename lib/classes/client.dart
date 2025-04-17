@@ -35,7 +35,7 @@ class Client {
 
   String get status {
     if (!connected) return "Disconnected";
-    if (user == null) return "Unauthorized";
+    if (user == null || !user!.authorized) return "Unauthorized";
     return "Connected";
   }
 

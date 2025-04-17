@@ -25,6 +25,6 @@ class User {
 
   @override
   String toString() {
-    return "{User $nickname}";
+    return "{User $nickname authorized: $authorized}";
   }
 }

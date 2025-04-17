@@ -81,39 +81,46 @@ class TauChat {
     return await JavaService.instance.addMember(client, this, nickname);
   }
 
-  static Future<void> loadAll([VoidCallback? callback]) async {
+  static Future<void> loadAll({
+    VoidCallback? callback,
+    void Function(Client, Object)? onError,
+  }) async {
     Map<String, ServerRecord>? map;
 
     for (Client client in JavaService.instance.clients.values) {
-      User? user = client.user;
-      if (user != null) {
-        if (!client.connected) continue;
+      try {
+        User? user = client.user;
+        if (user != null) {
+          if (!client.connected) continue;
 
-        if (!user.authorized) {
-          map ??= await StorageService.getClients();
+          if (!user.authorized) {
+            map ??= await StorageService.getClients();
 
-          ServerRecord? serverRecord = map[client.uuid];
+            ServerRecord? serverRecord = map[client.uuid];
 
-          if (serverRecord == null) {
-            client.user = null;
-            continue;
+            if (serverRecord == null) {
+              client.user = null;
+              continue;
+            }
+
+            UserRecord? user = serverRecord.user;
+
+            if (user == null) {
+              client.user = null;
+              continue;
+            }
+
+            await client.authByToken(user.token);
           }
 
-          UserRecord? user = serverRecord.user;
-
-          if (user == null) {
-            client.user = null;
-            continue;
+          await client.loadChats();
+          for (var chat in client.chats.values) {
+            await chat.loadMessages(0, 2);
+            if (callback != null) callback();
           }
-
-          await client.authByToken(user.token);
         }
-
-        await client.loadChats();
-        for (var chat in client.chats.values) {
-          await chat.loadMessages(0, 2);
-          if (callback != null) callback();
-        }
+      } catch (e) {
+        if (onError != null) onError(client, e);
       }
     }
   }

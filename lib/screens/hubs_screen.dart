@@ -118,21 +118,22 @@ class HubsScreenState extends State<HubsScreen> {
                     }
                   },
                 ),
-              if (client.connected && client.user == null)
-                IconButton(
-                  style: buildButtonStyle(),
-                  icon: Icon(Icons.login),
-                  onPressed: () {
-                    LoginScreen screen = LoginScreen(
-                      client: client,
-                      updateHome: () {
-                        setState(() {});
-                        if (widget.updateHome != null) widget.updateHome!();
-                      },
-                    );
-                    moveTo(context, screen);
-                  },
-                ),
+              if (client.connected)
+                if (client.user == null || !client.user!.authorized)
+                  IconButton(
+                    style: buildButtonStyle(),
+                    icon: Icon(Icons.login),
+                    onPressed: () {
+                      LoginScreen screen = LoginScreen(
+                        client: client,
+                        updateHome: () {
+                          setState(() {});
+                          if (widget.updateHome != null) widget.updateHome!();
+                        },
+                      );
+                      moveTo(context, screen);
+                    },
+                  ),
               IconButton(
                 style: buildButtonStyle(),
                 icon: Icon(Icons.close),

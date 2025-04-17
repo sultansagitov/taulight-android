@@ -62,6 +62,13 @@ class _HubsEmptyState extends State<HubsEmpty> {
             "Connection error: ${client.name}",
           );
         }
+      } on UnauthorizedException {
+        if (context.mounted) {
+          snackBar(
+            context,
+            "Unauthorized error: ${client.name}",
+          );
+        }
       } finally {
         setState(() => loadingChats = false);
       }

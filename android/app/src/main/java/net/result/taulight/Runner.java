@@ -95,7 +95,7 @@ public class Runner {
                 .setRepliedToMessages(replies)
                 .setSentDatetimeNow();
 
-        return androidChain.sendMessage(message).toString();
+        return androidChain.message(message).toString();
     }
 
     public String groupAdd(SandnodeClient client, String group) throws Exception {
