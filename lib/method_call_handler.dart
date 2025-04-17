@@ -26,9 +26,12 @@ class MethodCallHandler {
       throw ClientNotFoundException(clientUUID);
     }
 
-    ChatMessageViewDTO message = ChatMessageViewDTO.fromMap(client, call.arguments["message"]);
+    var messageMap = call.arguments["message"];
+    bool yourSession = call.arguments["your-session"];
+
+    var message = ChatMessageViewDTO.fromMap(client, messageMap);
     TauChat chat = await client.getOrLoadChatByID(message.chatID);
-    if (!message.isMe) chat.addMessage(message);
+    if (!yourSession) chat.addMessage(message);
   }
 
   static Future<void> _disconnect(call) async {

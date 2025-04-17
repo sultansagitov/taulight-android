@@ -15,12 +15,12 @@ class MessageRepliesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (message.replies == null || message.replies!.isEmpty) {
+    if (message.repliedToMessages.isEmpty) {
       return const SizedBox.shrink();
     }
 
     final List<ChatMessageViewDTO> validReplies = [];
-    for (final id in message.replies!) {
+    for (final id in message.repliedToMessages) {
       final replyMessage = chat.messages.where((m) => m.id == id).firstOrNull;
       if (replyMessage != null) {
         validReplies.add(replyMessage);

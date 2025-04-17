@@ -53,7 +53,8 @@ public class Runner {
         return taulight.objectMapper.convertValue(members, List.class);
     }
 
-    public Map<String, String> login(SandnodeClient client, String nickname, String password) throws Exception {
+    public Map<String, String> login(SandnodeClient client, String nickname, String password)
+            throws Exception {
         var chain = new LogPasswdClientChain(client.io);
         client.io.chainManager.linkChain(chain);
         String token = chain.getToken(nickname, password);
@@ -62,7 +63,8 @@ public class Runner {
         return Map.of("token", token);
     }
 
-    public Map<String, String> register(SandnodeClient client, String nickname, String password) throws Exception {
+    public Map<String, String> register(SandnodeClient client, String nickname, String password)
+            throws Exception {
         var chain = new RegistrationClientChain(client.io);
         client.io.chainManager.linkChain(chain);
         String token = chain.getTokenFromRegistration(nickname, password);
@@ -77,7 +79,8 @@ public class Runner {
         return "disconnected";
     }
 
-    public String send(IOController io, String chatID, String content, Set<UUID> replies) throws Exception {
+    public String send(IOController io, String chatID, String content, Set<UUID> replies)
+            throws Exception {
         Optional<IChain> fwdReq = io.chainManager.getChain("fwd_req");
 
         AndroidForwardRequestChain androidChain;
@@ -246,28 +249,6 @@ public class Runner {
         client.io.chainManager.removeChain(chain);
 
         return taulight.objectMapper.convertValue(codes, List.class);
-    }
-
-    public String reply(MemberClient mc, UUID chatID, String content, Set<UUID> replies) throws Exception {
-        IOController io = mc.client.io;
-
-        AndroidForwardRequestChain androidChain;
-        Optional<IChain> fwdReq = io.chainManager.getChain("fwd_req");
-        if (fwdReq.isPresent()) {
-            androidChain = (AndroidForwardRequestChain) fwdReq.get();
-        } else {
-            androidChain = new AndroidForwardRequestChain(io);
-            io.chainManager.setName(androidChain, "fwd_req");
-            io.chainManager.linkChain(androidChain);
-        }
-
-        ChatMessageInputDTO message = new ChatMessageInputDTO()
-                .setChatID(chatID)
-                .setContent(content)
-                .setRepliedToMessages(replies)
-                .setSentDatetimeNow();
-
-        return androidChain.message(message).toString();
     }
 
 }

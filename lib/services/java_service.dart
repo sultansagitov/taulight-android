@@ -207,7 +207,7 @@ class JavaService {
       if (obj is Map) {
         var messages = obj["messages"];
         for (var json in messages) {
-          ChatMessageViewDTO message = ChatMessageViewDTO.fromMap(chat.client, json);
+          var message = ChatMessageViewDTO.fromMap(chat.client, json);
           chat.addMessage(message);
         }
         return obj["count"];
@@ -346,12 +346,15 @@ class JavaService {
   }
 
   Future<String> sendMessage(
-      Client client, TauChat chat, ChatMessageViewDTO message) async {
+    Client client,
+    TauChat chat,
+    ChatMessageViewDTO message,
+  ) async {
     Result result = await method("send", {
       "uuid": client.uuid,
       "chat-id": chat.id,
       "content": message.text,
-      "replies": message.replies ?? [],
+      "repliedToMessages": message.repliedToMessages,
     });
 
     if (result is ExceptionResult) {
@@ -586,35 +589,6 @@ class JavaService {
       return invites
           .map((invite) => Map<String, dynamic>.from(invite as Map))
           .toList();
-    }
-
-    throw IncorrectFormatChannelException();
-  }
-
-  Future<String> sendReply(
-      Client client, TauChat chat, String content, List<String> replies) async {
-    Result result = await method("reply", {
-      "uuid": client.uuid,
-      "chat-id": chat.id,
-      "content": content,
-      "replies": replies,
-    });
-
-    if (result is ExceptionResult) {
-      if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(client);
-      }
-      if (result.name == "NoEffectException") {
-        throw NoEffectException();
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
-      }
-      throw result;
-    }
-
-    if (result is SuccessResult) {
-      return result.obj as String;
     }
 
     throw IncorrectFormatChannelException();

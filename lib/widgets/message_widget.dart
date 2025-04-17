@@ -337,8 +337,7 @@ class _MessageWidgetState extends State<MessageWidget> {
                 if (first && !widget.message.isMe) name(context, nickname),
 
                 // Show replies first if available
-                if (widget.message.replies != null &&
-                    widget.message.replies!.isNotEmpty)
+                if (widget.message.repliedToMessages.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: MessageRepliesWidget(

@@ -35,13 +35,13 @@ void main() {
         'nickname': 'john',
         'content': 'Hello',
         'sys': false,
-        'replies': ['msg-0']
+        'repliedToMessages': ['msg-0']
       }
     };
 
     final dto = ChatMessageViewDTO.fromMap(client, json);
     expect(dto.isMe, isTrue);
     expect(dto.text, 'Hello');
-    expect(dto.replies, equals(['msg-0']));
+    expect(dto.repliedToMessages, equals(['msg-0']));
   });
 }

@@ -30,11 +30,12 @@ public class AndroidClientChainManager extends BSTClientChainManager {
     @Override
     public ReceiverChain createChain(MessageType type) {
         if (type == TauMessageTypes.FWD) {
-            return new AndroidForwardClientChain(io, (ChatMessageViewDTO message) -> {
+            return new AndroidForwardClientChain(io, (message, yourSession) -> {
                 LOGGER.debug("onmessage");
                 Map messageJson = taulight.objectMapper.convertValue(message, Map.class);
                 taulight.sendToFlutter("onmessage", Map.of(
                         "uuid", uuid.toString(),
+                        "your-session", yourSession,
                         "message", messageJson
                 ));
             });

@@ -103,7 +103,7 @@ class ChatMessageViewDTO {
   final bool isMe;
   final DateTime dateTime;
   final bool sys;
-  final List<String>? replies;
+  final List<String> repliedToMessages;
 
   ChatMessageViewDTO({
     required this.id,
@@ -113,7 +113,7 @@ class ChatMessageViewDTO {
     required this.isMe,
     required this.dateTime,
     required this.sys,
-    required this.replies,
+    required this.repliedToMessages,
   });
 
   static ChatMessageViewDTO fromMap(Client client, json) {
@@ -128,9 +128,9 @@ class ChatMessageViewDTO {
     String nickname = message["nickname"]!;
     String content = message["content"]!;
     bool sys = message["sys"];
-    var replies = message["replies"] != null
-        ? List<String>.from(message["replies"])
-        : null;
+    var repliedToMessages = message["repliedToMessages"] != null
+        ? List<String>.from(message["repliedToMessages"])
+        : <String>[];
 
     return ChatMessageViewDTO(
       id: messageID,
@@ -140,7 +140,7 @@ class ChatMessageViewDTO {
       text: content,
       dateTime: dateTime,
       sys: sys,
-      replies: replies,
+      repliedToMessages: repliedToMessages,
     );
   }
 

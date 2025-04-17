@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 public class AndroidForwardClientChain extends ForwardClientChain {
     public interface OnMessage {
-        void handle(ChatMessageViewDTO message);
+        void handle(ChatMessageViewDTO message, boolean yourSession);
     }
     private static final Logger LOGGER = LogManager.getLogger(AndroidForwardClientChain.class);
     private final OnMessage onMessage;
@@ -27,6 +27,6 @@ public class AndroidForwardClientChain extends ForwardClientChain {
     public void onMessage(ForwardResponse response) {
         LOGGER.info(response);
         ChatMessageViewDTO message = response.getServerMessage();
-        onMessage.handle(message);
+        onMessage.handle(message, response.isYourSession());
     }
 }

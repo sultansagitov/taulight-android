@@ -73,7 +73,6 @@ public class MethodHandlers {
         methodHandlerMap.put("dialog", this::dialog);
         methodHandlerMap.put("leave", this::leave);
         methodHandlerMap.put("channel-codes", this::channelCodes);
-        methodHandlerMap.put("reply", this::reply);
     }
 
     @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -175,14 +174,14 @@ public class MethodHandlers {
         String uuid = call.argument("uuid");
         String chatID = call.argument("chat-id");
         String content = call.argument("content");
-        List<String> repliesString = call.argument("replies");
+        List<String> repliedToMessagesString = call.argument("repliedToMessages");
 
         assert uuid != null;
         assert chatID != null;
         assert content != null;
-        assert repliesString != null;
+        assert repliedToMessagesString != null;
 
-        Set<UUID> replies = repliesString.stream()
+        Set<UUID> replies = repliedToMessagesString.stream()
                 .map(UUID::fromString)
                 .collect(Collectors.toSet());
 
@@ -349,30 +348,5 @@ public class MethodHandlers {
         SandnodeClient client = taulight.getClient(uuid).client;
 
         return runner.channelCodes(client, chatID);
-    }
-
-    @TargetApi(Build.VERSION_CODES.N)
-    private String reply(MethodCall call) throws Exception {
-        String uuid = call.argument("uuid");
-        String chatIDStr = call.argument("chat-id");
-        String content = call.argument("content");
-        List<String> replyIDs = call.argument("replies");
-
-        assert chatIDStr != null;
-        assert content != null;
-
-        MemberClient mc = taulight.getClient(uuid);
-
-
-        UUID chatID = UUID.fromString(chatIDStr);
-        Set<UUID> replies = new HashSet<>();
-
-        if (replyIDs != null && !replyIDs.isEmpty()) {
-            for (String replyID : replyIDs) {
-                replies.add(UUID.fromString(replyID));
-            }
-        }
-
-        return runner.reply(mc, chatID, content, replies);
     }
 }

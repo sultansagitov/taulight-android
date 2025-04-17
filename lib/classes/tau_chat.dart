@@ -46,7 +46,7 @@ class TauChat {
 
   Future<void> sendMessage(
     String text,
-    List<String> replies,
+    List<String> repliedToMessages,
     VoidCallback callback,
   ) async {
     var tempUuid = "temp_${Uuid().v4()}";
@@ -59,7 +59,7 @@ class TauChat {
       isMe: true,
       dateTime: DateTime.now(),
       sys: false,
-      replies: replies,
+      repliedToMessages: repliedToMessages,
     );
 
     addMessage(message);
