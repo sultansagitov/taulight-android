@@ -33,7 +33,7 @@ class ChatItem extends StatelessWidget {
 
     if (message != null) {
       nicknameColor = getRandomColor(message.nickname);
-      if (!connected) {
+      if (!connected || chat.client.user == null || !chat.client.user!.authorized) {
         nicknameColor = grey(nicknameColor);
       }
     }

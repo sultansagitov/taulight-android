@@ -76,7 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
       for (var client in JavaService.instance.clients.values) {
         if (!client.connected) continue;
 
-        if (client.user == null) {
+        if (client.user == null || !client.user!.authorized) {
           ServerRecord? serverRecord = map[client.uuid];
           if (serverRecord != null && serverRecord.user != null) {
             try {
@@ -108,13 +108,12 @@ class HomeScreenState extends State<HomeScreen> {
       setState(() => loadingChats = true);
       try {
         await TauChat.loadAll(
-          callback: () => setState(() {}),
-          onError: (client, e) {
-            if (e is ExpiredTokenException) {
-              snackBar(context, "Token for \"${client.name}\" expired");
-            }
-          }
-        ).timeout(Duration(seconds: 5));
+            callback: () => setState(() {}),
+            onError: (client, e) {
+              if (e is ExpiredTokenException) {
+                snackBar(context, "Token for \"${client.name}\" expired");
+              }
+            }).timeout(Duration(seconds: 5));
       } finally {
         setState(() => loadingChats = false);
       }
@@ -176,9 +175,12 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var isLight = Theme.of(context).brightness == Brightness.light;
-    const names = ['John Doe', 'Jane Smith', 'Alice Brown'];
     var color = Colors.deepOrange[isLight ? 700 : 300];
 
+    var names = JavaService.instance.clients.values
+        .where((c) => c.user != null && c.user!.authorized)
+        .map((c) => c.user!.nickname)
+        .toList();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -190,7 +192,8 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Expanded(child: const AnimatedGreeting(names: names)),
+                  Expanded(
+                      child: AnimatedGreeting(names: names)),
                   if (loadingChats)
                     CircularProgressIndicator(
                       color: color,
@@ -239,8 +242,8 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildChatList() {
     bool empty = JavaService.instance.clients.values
-        .where((c) => c.connected || c.chats.isNotEmpty)
-        .isEmpty;
+        .where((c) => !c.connected && c.chats.isEmpty)
+        .isNotEmpty;
 
     if (empty) return HubsEmpty(updateHome: _updateHome);
 
@@ -265,7 +268,7 @@ class HomeScreenState extends State<HomeScreen> {
         .toList();
 
     var unauthorizedHubs = JavaService.instance.clients.values
-        .where((c) => c.connected && c.user == null)
+        .where((c) => c.connected && (c.user == null || !c.user!.authorized))
         .toList();
 
     int itemCount = disconnectedHubs.length +

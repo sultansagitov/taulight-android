@@ -12,6 +12,11 @@ class AnimatedGreeting extends StatelessWidget {
     final color = Colors.deepOrange[isLight ? 700 : 300];
 
     var s = TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 24);
+
+    if (names.isEmpty) {
+      return Text("Taulight", style: s);
+    }
+
     return Row(
       children: [
         Text("Hi, ", style: s),

@@ -57,6 +57,9 @@ class ChatScreenState extends State<ChatScreen> {
     final isDialog = widget.chat.record is DialogDTO;
     var d = 36;
 
+    var enabled = widget.chat.client.connected &&
+        widget.chat.client.user != null &&
+        widget.chat.client.user!.authorized;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -129,6 +132,16 @@ class ChatScreenState extends State<ChatScreen> {
                       }
                     }
 
+                    if (!enabled) {
+                      // Cannot swipe to reply
+                      return MessageWidget(
+                        chat: widget.chat,
+                        message: message,
+                        prev: prev,
+                        next: next,
+                      );
+                    }
+
                     return SwipeableTile.swipeToTrigger(
                       behavior: HitTestBehavior.translucent,
                       isElevated: false,
@@ -186,7 +199,7 @@ class ChatScreenState extends State<ChatScreen> {
             MessageField(
               chat: widget.chat,
               replies: replies,
-              sendMessage: widget.chat.client.connected
+              sendMessage: enabled
                   ? (text) {
                       var repliesUuid = replies.map((r) => r.id).toList();
                       replies.clear();
