@@ -133,10 +133,10 @@ class HomeScreenState extends State<HomeScreen> {
       ],
     );
 
-    if (context.mounted && value != null) {
+    if (context.mounted && value != null && mounted) {
       switch (value) {
         case "connect":
-          _createChannel(context);
+          moveTo(context, ConnectionScreen(updateHome: _updateHome));
           break;
         case "connected":
           moveTo(context, HubsScreen(updateHome: _updateHome));
@@ -315,7 +315,7 @@ class HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 10),
                   TauButton(
                     "Create channel",
-                    onPressed: () => _createChannel(context),
+                    onPressed: () => channelDialog(context, _updateHome),
                   ),
                 ],
               ),
@@ -333,10 +333,6 @@ class HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-  }
-
-  Future<dynamic> _createChannel(BuildContext context) {
-    return moveTo(context, ConnectionScreen(updateHome: _updateHome));
   }
 }
 

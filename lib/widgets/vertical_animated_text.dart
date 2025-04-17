@@ -19,18 +19,21 @@ class VerticalAnimatedText extends StatefulWidget {
 }
 
 class _VerticalAnimatedTextState extends State<VerticalAnimatedText> {
+  Timer? timer;
   int _index = 0;
 
   @override
   void initState() {
     super.initState();
-    _startTextChangeTimer();
-  }
-
-  void _startTextChangeTimer() {
-    Timer.periodic(Duration(seconds: 2), (timer) {
+    timer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() => _index = ((_index + 1) % widget.texts.length).round());
     });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
