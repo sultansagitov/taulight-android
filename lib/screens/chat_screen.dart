@@ -10,8 +10,13 @@ import 'package:taulight/widgets/message_field.dart';
 
 class ChatScreen extends StatefulWidget {
   final TauChat chat;
+  final VoidCallback? updateHome;
 
-  const ChatScreen({super.key, required this.chat});
+  const ChatScreen({
+    super.key,
+    required this.chat,
+    this.updateHome
+  });
 
   @override
   ChatScreenState createState() => ChatScreenState();
@@ -45,6 +50,10 @@ class ChatScreenState extends State<ChatScreen> {
         await widget.chat.loadMessages(index, 20);
         setState(() {});
       }
+    }
+
+    if (index == 0) {
+      if (widget.updateHome != null) widget.updateHome!();
     }
   }
 

@@ -165,7 +165,8 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _onChatTap(TauChat chat) {
-    moveTo(context, ChatScreen(key: chatKey, chat: chat));
+    var screen = ChatScreen(key: chatKey, chat: chat, updateHome: _updateHome);
+    moveTo(context, screen);
   }
 
   void _onLoginTap(Client client) {
@@ -192,8 +193,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Expanded(
-                      child: AnimatedGreeting(names: names)),
+                  Expanded(child: AnimatedGreeting(names: names)),
                   if (loadingChats)
                     CircularProgressIndicator(
                       color: color,
