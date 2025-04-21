@@ -29,11 +29,12 @@ class ChatItem extends StatelessWidget {
     }
 
     Color? nicknameColor;
-    bool connected = chat.client.connected;
+    var client = chat.client;
+    var user = client.user;
 
     if (message != null) {
       nicknameColor = getRandomColor(message.nickname);
-      if (!connected || chat.client.user == null || !chat.client.user!.authorized) {
+      if (!client.connected || user == null || !user.authorized) {
         nicknameColor = grey(nicknameColor);
       }
     }
@@ -72,7 +73,7 @@ class ChatItem extends StatelessWidget {
                     TextSpan(children: [
                       if (dup)
                         TextSpan(
-                          text: "(as ${chat.client.user!.nickname}) ",
+                          text: "(as ${user!.nickname}) ",
                           style: const TextStyle(fontSize: 16),
                         ),
                       TextSpan(

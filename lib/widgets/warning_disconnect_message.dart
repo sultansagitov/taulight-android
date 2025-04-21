@@ -3,17 +3,23 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/widget_utils.dart';
 
-class WarningMessage extends StatefulWidget {
+class WarningDisconnectMessage extends StatefulWidget {
   final Client client;
   final VoidCallback? updateHome;
 
-  const WarningMessage({super.key, this.updateHome, required this.client});
+  const WarningDisconnectMessage({
+    super.key,
+    this.updateHome,
+    required this.client,
+  });
 
   @override
-  State<WarningMessage> createState() => _WarningMessageState();
+  State<WarningDisconnectMessage> createState() {
+    return _WarningDisconnectMessageState();
+  }
 }
 
-class _WarningMessageState extends State<WarningMessage> {
+class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
   bool loading = false;
 
   void _refresh() async {

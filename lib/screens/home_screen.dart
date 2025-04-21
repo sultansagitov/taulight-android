@@ -1,28 +1,24 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/dialogs/dialog_dialog.dart';
+import 'package:taulight/menus/home.dart';
+import 'package:taulight/start_method.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/connection_screen.dart';
-import 'package:taulight/dialogs/channel_dialog.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/screens/chat_screen.dart';
-import 'package:taulight/screens/hubs_screen.dart';
-import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/widgets/animated_greetings.dart';
 import 'package:taulight/widgets/chat_item.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/widgets/tau_buton.dart';
+import 'package:taulight/widgets/no_chats.dart';
+import 'package:taulight/widgets/not_logged_in.dart';
 
 import 'package:taulight/widgets/hubs_empty.dart';
-import 'package:taulight/widgets/warning_message.dart';
+import 'package:taulight/widgets/warning_disconnect_message.dart';
+import 'package:taulight/widgets/warning_unauthorized_message.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen() : super(key: GlobalKey<HomeScreenState>());
@@ -40,67 +36,20 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    JavaService.instance.setMethodCallHandler(_handleNativeMessage);
-    methodCallHandler = MethodCallHandler();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setState(() => loadingChats = true);
-      await JavaService.instance.loadClients();
+    var methodCallHandler = MethodCallHandler();
 
-      Map<String, ServerRecord> map = await StorageService.getClients();
-
-      Set<String> connectedSet = JavaService.instance.clients.keys.toSet();
-      Set<String> storageSet = map.keys.toSet();
-
-      Set<String> notConnectedId = storageSet.difference(connectedSet);
-
-      for (String uuid in notConnectedId) {
-        ServerRecord sr = map[uuid]!;
-        try {
-          await JavaService.instance.connectWithUUID(uuid, sr.link);
-        } on ConnectionException {
-          if (mounted) {
-            snackBar(context, "Connection error: ${sr.name}");
-          }
-        } finally {
-          Client c = JavaService.instance.clients[uuid]!;
-          UserRecord? userRecord = sr.user;
-          if (userRecord != null) {
-            String nickname = userRecord.nickname;
-            String token = userRecord.token;
-            c.user = User.unauthorized(c, nickname, token);
-          }
-        }
-      }
-
-      for (var client in JavaService.instance.clients.values) {
-        if (!client.connected) continue;
-
-        if (client.user == null || !client.user!.authorized) {
-          ServerRecord? serverRecord = map[client.uuid];
-          if (serverRecord != null && serverRecord.user != null) {
-            try {
-              var token = serverRecord.user!.token;
-              var nickname = await client.authByToken(token);
-              client.user = User(client, nickname, token);
-            } on ExpiredTokenException {
-              if (mounted) {
-                snackBar(context, "Session expired. ${client.name}");
-              }
-              await StorageService.removeToken(client);
-            } on InvalidTokenException {
-              if (mounted) {
-                snackBar(context, "Invalid token. ${client.name}");
-              }
-              await StorageService.removeToken(client);
-            }
-          }
-        }
-      }
-
-      await TauChat.loadAll();
-      setState(() => loadingChats = false);
+    JavaService.instance.setMethodCallHandler((call) async {
+      await methodCallHandler.handle(call);
+      setState(() {});
+      chatKey.currentState?.update();
     });
+
+    start(
+      methodCallHandler: methodCallHandler,
+      context: context,
+      update: () => setState(() {}),
+    );
   }
 
   void _updateHome() {
@@ -112,65 +61,15 @@ class HomeScreenState extends State<HomeScreen> {
             onError: (client, e) {
               if (e is ExpiredTokenException) {
                 snackBar(context, "Token for \"${client.name}\" expired");
+                return;
               }
+              snackBar(context, "Something went wrong");
+              print(e);
             }).timeout(Duration(seconds: 5));
       } finally {
         setState(() => loadingChats = false);
       }
     })();
-  }
-
-  Future<void> _handleNativeMessage(MethodCall call) async {
-    await methodCallHandler.handle(call);
-    setState(() {});
-    chatKey.currentState?.update();
-  }
-
-  Future<void> _showContextMenu() async {
-    var value = await showMenu(
-      context: context,
-      position: const RelativeRect.fromLTRB(100, 0, 0, 0),
-      items: const [
-        PopupMenuItem(value: "connect", child: Text("Connect")),
-        PopupMenuItem(value: "connected", child: Text("Show connected hubs")),
-        PopupMenuItem(value: "new-channel", child: Text("Create channel")),
-        PopupMenuItem(value: "new-dialog", child: Text("Start dialog")),
-        PopupMenuItem(value: "clear-storage", child: Text("Clear storage")),
-        PopupMenuItem(value: "debug", child: Text("DEBUG")),
-      ],
-    );
-
-    if (context.mounted && value != null && mounted) {
-      switch (value) {
-        case "connect":
-          moveTo(context, ConnectionScreen(updateHome: _updateHome));
-          break;
-        case "connected":
-          moveTo(context, HubsScreen(updateHome: _updateHome));
-          break;
-        case "new-channel":
-          channelDialog(context, _updateHome);
-          break;
-        case "new-dialog":
-          dialogDialog(context, _updateHome);
-          break;
-        case "clear-storage":
-          await StorageService.clear();
-          break;
-        case "debug":
-          print(JavaService.instance.clients);
-          break;
-      }
-    }
-  }
-
-  void _onChatTap(TauChat chat) {
-    var screen = ChatScreen(key: chatKey, chat: chat, updateHome: _updateHome);
-    moveTo(context, screen);
-  }
-
-  void _onLoginTap(Client client) {
-    moveTo(context, LoginScreen(client: client, updateHome: _updateHome));
   }
 
   @override
@@ -179,7 +78,7 @@ class HomeScreenState extends State<HomeScreen> {
     var color = Colors.deepOrange[isLight ? 700 : 300];
 
     var names = JavaService.instance.clients.values
-        .where((c) => c.user != null && c.user!.authorized)
+        .where((c) => c.user != null)
         .map((c) => c.user!.nickname)
         .toList();
     return Scaffold(
@@ -200,15 +99,13 @@ class HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 10),
                     ),
                   Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.more_vert),
-                          color: color,
-                          onPressed: _showContextMenu,
-                        ),
-                      ],
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        color: color,
+                        onPressed: () => showMenuAtHome(context, _updateHome),
+                      ),
                     ),
                   ),
                 ],
@@ -241,137 +138,107 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildChatList() {
-    bool empty = JavaService.instance.clients.values
-        .where((c) => c.connected)
+    // Show "No hubs"
+    // if there are no connected hubs and no chats from disconnected hubs
+    var empty = JavaService.instance.clients.values
+        .where((c) => c.connected || c.chats.isNotEmpty)
         .isEmpty;
 
-    if (empty) return HubsEmpty(updateHome: _updateHome);
+    if (empty) {
+      return HubsEmpty(updateHome: _updateHome);
+    }
 
+    // Collect all chats from clients that have a valid user
     List<TauChat> chats = JavaService.instance.clients.values
         .where((c) => c.user != null)
         .expand((client) => client.chats.values)
         .toList();
 
+    // Count how many times each chat ID appears
+    // (in case multiple hubs point to the same chat)
     Map<String, int> chatIdCount = {};
     for (var chat in chats) {
       chatIdCount[chat.id] = (chatIdCount[chat.id] ?? 0) + 1;
     }
 
+    // Sort chats:
+    // - chats with messages come first
+    // - newest messages go to the top
     chats.sort((a, b) {
       if (a.messages.isEmpty) return 1;
       if (b.messages.isEmpty) return -1;
       return b.messages.last.dateTime.compareTo(a.messages.last.dateTime);
     });
 
+    // Collect all disconnected (but not hidden) hubs
     var disconnectedHubs = JavaService.instance.clients.values
         .where((c) => !c.connected && !c.hide)
         .toList();
 
+    // Collect all connected but unauthorized hubs
     var unauthorizedHubs = JavaService.instance.clients.values
         .where((c) => c.connected && (c.user == null || !c.user!.authorized))
         .toList();
 
+    // Calculate the total number of list items:
+    // disconnected hubs + unauthorized hubs + at least one chat or placeholder
     int itemCount = disconnectedHubs.length +
         unauthorizedHubs.length +
         max(1, chats.length);
 
+    // Build the list of widgets for the UI
     return ListView.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) {
+        // Step 1: show disconnected hubs warning messages
         if (index < disconnectedHubs.length) {
           var client = disconnectedHubs[index];
-          return WarningMessage(client: client, updateHome: _updateHome);
+          return WarningDisconnectMessage(
+            client: client,
+            updateHome: _updateHome,
+          );
         }
 
+        // Step 2: show unauthorized hubs login prompts
         int unauthorizedIndex = index - disconnectedHubs.length;
         if (unauthorizedIndex < unauthorizedHubs.length) {
           Client client = unauthorizedHubs[unauthorizedIndex];
-          return Container(
-            color: Colors.yellow[200],
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.warning_amber, color: Colors.black),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Text(
-                        client.name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                      const Text(
-                        " not authenticated",
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _onLoginTap(client),
-                  child: Text("Login", style: TextStyle(color: Colors.black)),
-                ),
-              ],
-            ),
+          return WarningUnauthorizedMessage(
+            name: client.name,
+            onLoginTap: () {
+              var screen = LoginScreen(client: client, updateHome: _updateHome);
+              moveTo(context, screen);
+            },
           );
         }
 
+        // Step 3: if no chats exist, show placeholder
         if (chats.isEmpty) {
-          var clients = JavaService.instance.clients;
-          if (clients.isNotEmpty) {
-            var client = clients.values.first;
+          var client = JavaService.instance.clients.values.first;
 
-            if (client.user == null || !client.user!.authorized) {
-              return SizedBox(
-                height: 300,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Not logged in",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 10),
-                      TauButton("Login", onPressed: () {
-                        var screen = LoginScreen(
-                          client: client,
-                          updateHome: _updateHome,
-                        );
-                        moveTo(context, screen);
-                      }),
-                    ],
-                  ),
-                ),
-              );
-            }
+          // If the user is not logged in — suggest login
+          if (client.user == null || !client.user!.authorized) {
+            return NotLoggedIn(client, _updateHome);
           }
 
-          return SizedBox(
-            height: 300,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("No chats", style: TextStyle(fontSize: 18)),
-                  const SizedBox(height: 10),
-                  TauButton("Create channel", onPressed: () {
-                    channelDialog(context, _updateHome);
-                  }),
-                ],
-              ),
-            ),
-          );
+          // If user is logged in but there are no chats — suggest to create one
+          return NoChats(_updateHome);
         }
 
+        // Step 4: display the chat list
         int chatIndex = unauthorizedIndex - unauthorizedHubs.length;
         TauChat chat = chats[chatIndex];
 
         return ChatItem(
           chat: chat,
-          onTap: _onChatTap,
+          onTap: (TauChat chat) {
+            var screen = ChatScreen(
+              key: chatKey,
+              chat: chat,
+              updateHome: _updateHome,
+            );
+            moveTo(context, screen);
+          },
           dup: chatIdCount[chat.id]! > 1,
         );
       },

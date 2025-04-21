@@ -89,7 +89,6 @@ class JavaService {
       endpoint: endpoint,
       link: link,
     );
-    clients[uuid] = client;
 
     if (callback != null) callback();
 
@@ -105,6 +104,7 @@ class JavaService {
 
     if (result is SuccessResult) {
       client.connected = true;
+      clients[uuid] = client;
       if (callback != null) callback();
       return client;
     }
