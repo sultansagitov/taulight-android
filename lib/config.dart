@@ -19,6 +19,11 @@ class Config {
   ];
 
   static Map<String, String> reactions = {
-    "taulight:fire": "🔥"
+    "taulight:fire": "🔥",
+    "taulight:wow": "🤩",
+    "taulight:sad": "😔",
+    "taulight:angry": "😡",
+    "taulight:like": "👍",
+    "taulight:laugh": "🤣",
   };
 }
