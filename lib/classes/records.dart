@@ -104,6 +104,7 @@ class ChatMessageViewDTO {
   final DateTime dateTime;
   final bool sys;
   final List<String> repliedToMessages;
+  final Map<String, List<String>> reactions;
 
   ChatMessageViewDTO({
     required this.id,
@@ -114,6 +115,7 @@ class ChatMessageViewDTO {
     required this.dateTime,
     required this.sys,
     required this.repliedToMessages,
+    required this.reactions,
   });
 
   static ChatMessageViewDTO fromMap(Client client, json) {
@@ -121,6 +123,12 @@ class ChatMessageViewDTO {
 
     String messageID = map["id"]!;
     DateTime dateTime = DateTime.parse(map["creation-date"]!).toLocal();
+    var reactions = <String, List<String>>{};
+
+    var entries = map["reactions"].entries;
+    for (var entry in entries) {
+      reactions[entry.key] = entry.value.map<String>((n) => n.toString()).toList();
+    }
 
     var message = map["message"]!;
 
@@ -141,6 +149,7 @@ class ChatMessageViewDTO {
       dateTime: dateTime,
       sys: sys,
       repliedToMessages: repliedToMessages,
+      reactions: reactions,
     );
   }
 

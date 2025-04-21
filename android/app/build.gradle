@@ -38,7 +38,7 @@ flutter {
 }
 
 dependencies {
-    implementation files('libs/taulight-1.0.0.jar')
+    implementation files('libs/taulight-1.0.0-taulight-sandnode.jar')
     implementation files('libs/simplesix64-1.0.0.jar')
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'

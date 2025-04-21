@@ -161,4 +161,12 @@ class Client {
     var s = connected ? " connected" : "";
     return "Client{$uuid $endpoint chats=${chats.length}$s $user}";
   }
+
+  Future<void> react(ChatMessageViewDTO message, String reactionType) async {
+    await JavaService.instance.react(this, message, reactionType);
+  }
+
+  Future<void> unreact(ChatMessageViewDTO message, String reactionType) async {
+    await JavaService.instance.unreact(this, message, reactionType);
+  }
 }

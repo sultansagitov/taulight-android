@@ -17,4 +17,8 @@ class Config {
           "TCwDBA7pOj3pxMxuAKA5hnpX8T8hoMPdXG%2FyA%3D%3D",
     ),
   ];
+
+  static Map<String, String> reactions = {
+    "taulight:fire": "🔥"
+  };
 }

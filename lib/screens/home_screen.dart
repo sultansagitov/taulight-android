@@ -242,8 +242,8 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildChatList() {
     bool empty = JavaService.instance.clients.values
-        .where((c) => !c.connected && c.chats.isEmpty)
-        .isNotEmpty;
+        .where((c) => c.connected)
+        .isEmpty;
 
     if (empty) return HubsEmpty(updateHome: _updateHome);
 
@@ -320,28 +320,33 @@ class HomeScreenState extends State<HomeScreen> {
 
         if (chats.isEmpty) {
           var clients = JavaService.instance.clients;
-          if (clients.length == 1) {
+          if (clients.isNotEmpty) {
             var client = clients.values.first;
 
-            return SizedBox(
-              height: 300,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Not logged in", style: TextStyle(fontSize: 18)),
-                    const SizedBox(height: 10),
-                    TauButton("Login", onPressed: () {
-                      var screen = LoginScreen(
-                        client: client,
-                        updateHome: _updateHome,
-                      );
-                      moveTo(context, screen);
-                    }),
-                  ],
+            if (client.user == null || !client.user!.authorized) {
+              return SizedBox(
+                height: 300,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Not logged in",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 10),
+                      TauButton("Login", onPressed: () {
+                        var screen = LoginScreen(
+                          client: client,
+                          updateHome: _updateHome,
+                        );
+                        moveTo(context, screen);
+                      }),
+                    ],
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }
 
           return SizedBox(

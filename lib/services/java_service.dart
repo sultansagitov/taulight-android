@@ -502,6 +502,9 @@ class JavaService {
       if (result.name == "NoEffectException") {
         throw NoEffectException(code);
       }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
       if (disconnectExceptions.contains(result.name)) {
         throw DisconnectException(client);
       }
@@ -565,7 +568,9 @@ class JavaService {
   }
 
   Future<List<Map<String, dynamic>>> getChannelCodes(
-      Client client, TauChat chat) async {
+    Client client,
+    TauChat chat,
+  ) async {
     Result result = await method("channel-codes", {
       "uuid": client.uuid,
       "chat-id": chat.id,
@@ -589,6 +594,72 @@ class JavaService {
       return invites
           .map((invite) => Map<String, dynamic>.from(invite as Map))
           .toList();
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<void> react(
+    Client client,
+    ChatMessageViewDTO message,
+    String reactionType,
+  ) async {
+    Result result = await method("react", {
+      "uuid": client.uuid,
+      "message-id": message.id,
+      "reaction-type": reactionType
+    });
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      if (result.obj == "success") {
+        return;
+      }
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<void> unreact(
+    Client client,
+    ChatMessageViewDTO message,
+    String reactionType,
+  ) async {
+    Result result = await method("unreact", {
+      "uuid": client.uuid,
+      "message-id": message.id,
+      "reaction-type": reactionType
+    });
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      if (result.obj == "success") {
+        return;
+      }
     }
 
     throw IncorrectFormatChannelException();

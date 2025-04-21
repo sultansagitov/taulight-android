@@ -60,6 +60,7 @@ class TauChat {
       dateTime: DateTime.now(),
       sys: false,
       repliedToMessages: repliedToMessages,
+      reactions: {}
     );
 
     addMessage(message);

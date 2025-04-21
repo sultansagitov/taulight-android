@@ -5,6 +5,7 @@ import net.result.sandnode.chain.sender.BSTClientChainManager;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.message.util.MessageType;
 import net.result.taulight.Taulight;
+import net.result.taulight.chain.receiver.ReactionResponseClientChain;
 import net.result.taulight.chain.client.AndroidForwardClientChain;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.TauMessageTypes;
@@ -29,8 +30,8 @@ public class AndroidClientChainManager extends BSTClientChainManager {
     /** @noinspection rawtypes*/
     @Override
     public ReceiverChain createChain(MessageType type) {
-        if (type == TauMessageTypes.FWD) {
-            return new AndroidForwardClientChain(io, (message, yourSession) -> {
+        return type instanceof TauMessageTypes tau ? switch (tau) {
+            case FWD -> new AndroidForwardClientChain(io, (message, yourSession) -> {
                 LOGGER.debug("onmessage");
                 Map messageJson = taulight.objectMapper.convertValue(message, Map.class);
                 taulight.sendToFlutter("onmessage", Map.of(
@@ -39,7 +40,7 @@ public class AndroidClientChainManager extends BSTClientChainManager {
                         "message", messageJson
                 ));
             });
-        }
-        return new UnhandledMessageTypeClientChain(io);
+            default -> new UnhandledMessageTypeClientChain(io);
+        } : new UnhandledMessageTypeClientChain(io);
     }
 }

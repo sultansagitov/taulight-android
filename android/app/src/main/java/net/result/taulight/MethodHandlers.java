@@ -73,6 +73,8 @@ public class MethodHandlers {
         methodHandlerMap.put("dialog", this::dialog);
         methodHandlerMap.put("leave", this::leave);
         methodHandlerMap.put("channel-codes", this::channelCodes);
+        methodHandlerMap.put("react", this::react);
+        methodHandlerMap.put("unreact", this::unreact);
     }
 
     @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -348,5 +350,35 @@ public class MethodHandlers {
         SandnodeClient client = taulight.getClient(uuid).client;
 
         return runner.channelCodes(client, chatID);
+    }
+
+    private String react(MethodCall call) throws Exception {
+        String uuid = call.argument("uuid");
+        String messageIDStr = call.argument("message-id");
+        String reactionType = call.argument("reaction-type");
+
+        assert uuid != null;
+        assert messageIDStr != null;
+        assert reactionType != null;
+
+        UUID messageID = UUID.fromString(messageIDStr);
+        SandnodeClient client = taulight.getClient(uuid).client;
+
+        return runner.react(client, messageID, reactionType);
+    }
+
+    private String unreact(MethodCall call) throws Exception {
+        String uuid = call.argument("uuid");
+        String messageIDStr = call.argument("message-id");
+        String reactionType = call.argument("reaction-type");
+
+        assert uuid != null;
+        assert messageIDStr != null;
+        assert reactionType != null;
+
+        UUID messageID = UUID.fromString(messageIDStr);
+        SandnodeClient client = taulight.getClient(uuid).client;
+
+        return runner.unreact(client, messageID, reactionType);
     }
 }

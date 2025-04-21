@@ -18,6 +18,7 @@ import net.result.taulight.chain.sender.CheckCodeClientChain;
 import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
 import net.result.taulight.chain.sender.MessageClientChain;
+import net.result.taulight.chain.sender.ReactionRequestClientChain;
 import net.result.taulight.chain.sender.UseCodeClientChain;
 import net.result.taulight.dto.*;
 import net.result.taulight.exception.ClientNotFoundException;
@@ -107,25 +108,11 @@ public class Runner {
     }
 
     public List getChats(SandnodeClient client) throws Exception {
-        Optional<IChain> chat = client.io.chainManager.getChain("chat");
-
-        Optional<Collection<ChatInfoDTO>> optChats;
-        if (chat.isPresent()) {
-            ChatClientChain chain = (ChatClientChain) chat.get();
-            optChats = chain.getByMember(ChatInfoPropDTO.all());
-        } else {
-            ChatClientChain chain = new ChatClientChain(client.io);
-            client.io.chainManager.linkChain(chain);
-            optChats = chain.getByMember(ChatInfoPropDTO.all());
-            chain.chainName("chat");
-        }
-
-        if (optChats.isPresent()) {
-            Collection<ChatInfoDTO> infos = optChats.get();
-            return taulight.objectMapper.convertValue(infos, List.class);
-        }
-
-        return new ArrayList<>();
+        ChatClientChain chain = new ChatClientChain(client.io);
+        client.io.chainManager.linkChain(chain);
+        Collection<ChatInfoDTO> infos = chain.getByMember(ChatInfoPropDTO.all());
+        client.io.chainManager.removeChain(chain);
+        return taulight.objectMapper.convertValue(infos, List.class);
     }
 
     public Map<String, Object> loadMessages(
@@ -162,19 +149,10 @@ public class Runner {
     }
 
     public Object loadChat(SandnodeClient client, UUID chatID) throws Exception {
-        Optional<IChain> chat = client.io.chainManager.getChain("chat");
-
-        Collection<UUID> chats = List.of(chatID);
-        Collection<ChatInfoDTO> optChats;
-        if (chat.isPresent()) {
-            ChatClientChain chain = (ChatClientChain) chat.get();
-            optChats = chain.getByID(chats, ChatInfoPropDTO.all());
-        } else {
-            ChatClientChain chain = new ChatClientChain(client.io);
-            client.io.chainManager.linkChain(chain);
-            optChats = chain.getByID(chats, ChatInfoPropDTO.all());
-            chain.chainName("chat");
-        }
+        ChatClientChain chain = new ChatClientChain(client.io);
+        client.io.chainManager.linkChain(chain);
+        Collection<ChatInfoDTO> optChats = chain.getByID(List.of(chatID), ChatInfoPropDTO.all());
+        client.io.chainManager.removeChain(chain);
 
         ChatInfoDTO info = optChats.stream().findFirst().get();
         return taulight.objectMapper.convertValue(info, Map.class);
@@ -251,4 +229,27 @@ public class Runner {
         return taulight.objectMapper.convertValue(codes, List.class);
     }
 
+    public String react(SandnodeClient client, UUID msgID, String reactionType) throws Exception {
+        var chain = new ReactionRequestClientChain(client.io);
+        client.io.chainManager.linkChain(chain);
+
+        chain.react(msgID, reactionType);
+        System.out.printf("Added reaction '%s' to message %s%n", reactionType, msgID);
+
+        client.io.chainManager.removeChain(chain);
+
+        return "success";
+    }
+
+    public String unreact(SandnodeClient client, UUID msgID, String reactionType) throws Exception {
+        var chain = new ReactionRequestClientChain(client.io);
+        client.io.chainManager.linkChain(chain);
+
+        chain.unreact(msgID, reactionType);
+        System.out.printf("Removed reaction '%s' from message %s%n", reactionType, msgID);
+
+        client.io.chainManager.removeChain(chain);
+
+        return "success";
+    }
 }

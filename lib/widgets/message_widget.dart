@@ -117,6 +117,11 @@ class _MessageWidgetState extends State<MessageWidget> {
                     snackBar(context, "Code used or expired");
                   }
                   return;
+                } on UnauthorizedException {
+                  if (context.mounted) {
+                    snackBar(context, "Code not for you");
+                  }
+                  return;
                 }
 
                 if (context.mounted) {
