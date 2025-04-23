@@ -40,16 +40,16 @@ class HubsScreenState extends State<HubsScreen> {
                 });
                 moveTo(context, screen);
               },
-            )
+            ),
           ],
         ),
       ),
       body: clients.isNotEmpty
           ? buildContainer(clients)
           : HubsEmpty(updateHome: () {
-              setState(() {});
-              if (widget.updateHome != null) widget.updateHome!();
-            }),
+        setState(() {});
+        if (widget.updateHome != null) widget.updateHome!();
+      }),
     );
   }
 
@@ -61,6 +61,14 @@ class HubsScreenState extends State<HubsScreen> {
         itemCount: clients.length,
         itemBuilder: (context, index) {
           Client client = clients[index];
+
+          var buttonStyle = ButtonStyle(
+            padding: WidgetStateProperty.all(
+              EdgeInsets.symmetric(horizontal: 8),
+            ),
+            minimumSize: WidgetStateProperty.all(Size.zero),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          );
 
           return Row(
             children: [
@@ -94,7 +102,7 @@ class HubsScreenState extends State<HubsScreen> {
               ),
               if (client.hide)
                 IconButton(
-                  style: buildButtonStyle(),
+                  style: buttonStyle,
                   icon: Icon(Icons.visibility),
                   onPressed: () {
                     setState(() => client.hide = false);
@@ -103,7 +111,7 @@ class HubsScreenState extends State<HubsScreen> {
                 ),
               if (!client.connected)
                 IconButton(
-                  style: buildButtonStyle(),
+                  style: buttonStyle,
                   icon: Icon(Icons.refresh),
                   onPressed: () async {
                     try {
@@ -118,24 +126,24 @@ class HubsScreenState extends State<HubsScreen> {
                     }
                   },
                 ),
-              if (client.connected)
-                if (client.user == null || !client.user!.authorized)
-                  IconButton(
-                    style: buildButtonStyle(),
-                    icon: Icon(Icons.login),
-                    onPressed: () {
-                      LoginScreen screen = LoginScreen(
-                        client: client,
-                        updateHome: () {
-                          setState(() {});
-                          if (widget.updateHome != null) widget.updateHome!();
-                        },
-                      );
-                      moveTo(context, screen);
-                    },
-                  ),
+              if (client.connected &&
+                  (client.user == null || !client.user!.authorized))
+                IconButton(
+                  style: buttonStyle,
+                  icon: Icon(Icons.login),
+                  onPressed: () {
+                    LoginScreen screen = LoginScreen(
+                      client: client,
+                      updateHome: () {
+                        setState(() {});
+                        if (widget.updateHome != null) widget.updateHome!();
+                      },
+                    );
+                    moveTo(context, screen);
+                  },
+                ),
               IconButton(
-                style: buildButtonStyle(),
+                style: buttonStyle,
                 icon: Icon(Icons.close),
                 onPressed: () async {
                   await client.disconnect();
@@ -150,18 +158,6 @@ class HubsScreenState extends State<HubsScreen> {
           );
         },
       ),
-    );
-  }
-
-  ButtonStyle buildButtonStyle() {
-    return ButtonStyle(
-      padding: WidgetStateProperty.all(
-        EdgeInsets.symmetric(
-          horizontal: 8,
-        ),
-      ),
-      minimumSize: WidgetStateProperty.all(Size.zero),
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

@@ -18,21 +18,23 @@ class MethodCallHandler {
     await handlers[call.method]!(call);
   }
 
+
   static Future<void> _onMessage(call) async {
     String clientUUID = call.arguments["uuid"];
+    var messageMap = call.arguments["message"];
+    bool yourSession = call.arguments["your-session"];
+
     Client? client = JavaService.instance.getClientByUUID(clientUUID);
 
     if (client == null) {
       throw ClientNotFoundException(clientUUID);
     }
 
-    var messageMap = call.arguments["message"];
-    bool yourSession = call.arguments["your-session"];
-
     var message = ChatMessageViewDTO.fromMap(client, messageMap);
     TauChat chat = await client.getOrLoadChatByID(message.chatID);
     if (!yourSession) chat.addMessage(message);
   }
+
 
   static Future<void> _disconnect(call) async {
     String clientUUID = call.arguments["uuid"];

@@ -445,7 +445,7 @@ class JavaService {
         throw UnauthorizedException(client);
       }
       if (result.name == "NotFound") {
-        throw NotFound(client, chat);
+        throw NotFoundException(client, chat);
       }
       if (result.name == "AddressedMemberNotFoundException") {
         throw AddressedMemberNotFoundException(client, nickname);
@@ -474,7 +474,7 @@ class JavaService {
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
-        throw NotFoundException(code);
+        throw NotFoundException(client, code);
       }
       if (disconnectExceptions.contains(result.name)) {
         throw DisconnectException(client);
@@ -497,7 +497,7 @@ class JavaService {
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
-        throw NotFoundException(code);
+        throw NotFoundException(client, code);
       }
       if (result.name == "NoEffectException") {
         throw NoEffectException(code);

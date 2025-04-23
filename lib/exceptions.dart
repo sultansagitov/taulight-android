@@ -59,10 +59,10 @@ class BusyNicknameException extends ClientException {
   BusyNicknameException(super.client);
 }
 
-class NotFound extends ClientException {
+class NotFoundException extends ClientException {
   dynamic object;
 
-  NotFound(super.client, this.object);
+  NotFoundException(super.client, this.object);
 }
 
 class AddressedMemberNotFoundException extends ClientException {
@@ -78,16 +78,6 @@ class InvalidTokenException extends ClientException {
 
 class ExpiredTokenException extends InvalidTokenException {
   ExpiredTokenException(super.client);
-}
-
-class NotFoundException implements Exception {
-  final String code;
-  NotFoundException(this.code);
-
-  @override
-  String toString() {
-    return "NotFoundException: $code";
-  }
 }
 
 class NoEffectException implements Exception {

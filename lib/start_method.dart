@@ -27,17 +27,16 @@ void start({
       ServerRecord sr = map[uuid]!;
       try {
         await JavaService.instance.connectWithUUID(uuid, sr.link);
-      } on ConnectionException {
-        if (context.mounted) {
-          snackBar(context, "Connection error: ${sr.name}");
-        }
-      } finally {
         Client c = JavaService.instance.clients[uuid]!;
         UserRecord? userRecord = sr.user;
         if (userRecord != null) {
           String nickname = userRecord.nickname;
           String token = userRecord.token;
           c.user = User.unauthorized(c, nickname, token);
+        }
+      } on ConnectionException {
+        if (context.mounted) {
+          snackBar(context, "Connection error: ${sr.name}");
         }
       }
     }
