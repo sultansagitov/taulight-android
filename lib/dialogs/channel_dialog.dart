@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/java_service.dart';
+import 'package:taulight/widgets/client_dropdown.dart';
 
 void channelDialog(BuildContext context, VoidCallback callback) {
   showDialog(
@@ -12,7 +13,7 @@ void channelDialog(BuildContext context, VoidCallback callback) {
       List<Client> clientsList = JavaService.instance.clients.values
           .where((c) => c.user != null && c.user!.authorized)
           .toList();
-      Client? currClient = clientsList.isNotEmpty ? clientsList.first : null;
+      Client? currClient;
 
       return AlertDialog(
         shape: const LinearBorder(),
@@ -25,25 +26,10 @@ void channelDialog(BuildContext context, VoidCallback callback) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (clientsList.length != 1)
-                DropdownButton<Client>(
-                  value: currClient,
-                  items: clientsList
-                      .map(
-                        (client) => DropdownMenuItem(
-                          value: client,
-                          child: Text(
-                            "${client.endpoint} (${client.user!.nickname})",
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (client) {
-                    if (client != null) {
-                      currClient = client;
-                    }
-                  },
-                ),
+              ClientDropdown(
+                clients: clientsList,
+                onClientChanged: (client) => currClient = client,
+              ),
               TextFormField(
                 controller: titleController,
                 decoration: const InputDecoration(labelText: "Channel title"),

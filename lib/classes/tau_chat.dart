@@ -90,35 +90,34 @@ class TauChat {
 
     for (Client client in JavaService.instance.clients.values) {
       try {
-        User? user = client.user;
-        if (user != null) {
-          if (!client.connected) continue;
+        if (!client.connected || client.user == null) continue;
 
-          if (!user.authorized) {
-            map ??= await StorageService.getClients();
+        User user = client.user!;
 
-            ServerRecord? serverRecord = map[client.uuid];
+        if (!user.authorized) {
+          map ??= await StorageService.getClients();
 
-            if (serverRecord == null) {
-              client.user = null;
-              continue;
-            }
+          ServerRecord? serverRecord = map[client.uuid];
 
-            UserRecord? user = serverRecord.user;
-
-            if (user == null) {
-              client.user = null;
-              continue;
-            }
-
-            await client.authByToken(user.token);
+          if (serverRecord == null) {
+            client.user = null;
+            continue;
           }
 
-          await client.loadChats();
-          for (var chat in client.chats.values) {
-            await chat.loadMessages(0, 2);
-            if (callback != null) callback();
+          UserRecord? record = serverRecord.user;
+
+          if (record == null) {
+            client.user = null;
+            continue;
           }
+
+          await client.authByToken(record.token);
+        }
+
+        await client.loadChats();
+        for (var chat in client.chats.values) {
+          await chat.loadMessages(0, 2);
+          if (callback != null) callback();
         }
       } catch (e) {
         if (onError != null) onError(client, e);

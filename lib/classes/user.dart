@@ -14,11 +14,10 @@ class User {
 
   Future<void> reloadIfUnauthorized() async {
     if (!authorized) {
-      String nickname = await client.authByToken(token);
+      String n = await client.authByToken(token);
       authorized = true;
-      if (this.nickname != nickname) {
-        throw Exception("Nickname mismatch: "
-            "expected ${this.nickname}, got $nickname");
+      if (nickname != n) {
+        throw Exception("Nickname mismatch: expected $nickname, got $n");
       }
     }
   }
