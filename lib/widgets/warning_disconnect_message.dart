@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/dialogs/hub_dialog.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/widget_utils.dart';
 

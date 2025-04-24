@@ -4,6 +4,7 @@ import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login.dart';
+import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/utils.dart';
@@ -26,9 +27,24 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Connect Hubs",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Connect Hubs",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              icon: const Icon(Icons.qr_code_scanner),
+              tooltip: 'Scan QR',
+              onPressed: () {
+                moveTo(context, QrScannerScreen(onScanned: (c, code) {
+                  Navigator.pop(c);
+                  _connect(context, code);
+                }));
+              },
+            ),
+          ],
         ),
       ),
       body: Container(
@@ -56,7 +72,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 },
               ),
             ),
-            TauButton("Connect", onPressed: _connect),
+            TauButton("Connect", onPressed: _connectPressed),
             const SizedBox(height: 20),
             const Text(
               "Recommended hubs",
@@ -67,11 +83,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 itemCount: Config.recommended.length,
                 itemBuilder: (_, index) {
                   ServerRecord recommended = Config.recommended[index];
-                  String endpoint = recommended.endpoint;
-                  return TauButton(
-                    endpoint,
-                    onPressed: () => _recommended(recommended.link),
-                  );
+                  return TauButton(recommended.endpoint, onPressed: () {
+                    _recommended(recommended.link);
+                  });
                 },
               ),
             ),
@@ -108,25 +122,31 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     }
   }
 
-  void _connect() async {
+  void _connectPressed() async {
     if (_formKey.currentState!.validate()) {
-      String link = _linkController.text.trim();
-      var client = await JavaService.instance.connect(link, widget.updateHome);
-      await StorageService.saveClient(client);
+      _connect(context, _linkController.text.trim());
+    }
+  }
 
-      if (mounted) {
-        LoginScreen screen = LoginScreen(
-          client: client,
-          updateHome: () {
+  void _connect(BuildContext context, String link) async {
+    var client = await JavaService.instance.connect(link, widget.updateHome);
+    await StorageService.saveClient(client);
+
+    if (context.mounted) {
+      LoginScreen screen = LoginScreen(
+        client: client,
+        updateHome: () {
+          setState(() {});
+          if (widget.updateHome != null) widget.updateHome!();
+        },
+        onSuccess: () {
+          if (context.mounted) {
             setState(() {});
-            if (widget.updateHome != null) widget.updateHome!();
-          },
-          onSuccess: () {
-            if (mounted) setState(() {});
-          },
-        );
-        moveTo(context, screen);
-      }
+            Navigator.pop(context);
+          }
+        },
+      );
+      moveTo(context, screen);
     }
   }
 }

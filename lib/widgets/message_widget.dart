@@ -29,7 +29,16 @@ class MessageWidget extends StatefulWidget {
 class _MessageWidgetState extends State<MessageWidget> {
   Future<Widget>? inviteDetails;
 
-  Widget name(BuildContext context, String nickname) {
+  late bool isDialog;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isDialog = widget.chat.record is DialogDTO;
+  }
+
+  Widget _name(BuildContext context, String nickname) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
     Color color = getRandomColor(nickname);
@@ -339,7 +348,8 @@ class _MessageWidgetState extends State<MessageWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (first && !widget.message.isMe) name(context, nickname),
+                if (!isDialog && first && !widget.message.isMe)
+                  _name(context, nickname),
 
                 // Show replies first if available
                 if (widget.message.repliedToMessages.isNotEmpty)

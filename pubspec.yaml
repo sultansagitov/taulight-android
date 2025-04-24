@@ -19,6 +19,8 @@ dependencies:
   crypto: ^3.0.6
   url_launcher: ^6.3.1
   swipeable_tile: ^2.0.1
+  mobile_scanner: ^6.0.10
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

@@ -57,17 +57,11 @@ class _HubsEmptyState extends State<HubsEmpty> {
         if (widget.updateHome != null) widget.updateHome!();
       } on ConnectionException {
         if (context.mounted) {
-          snackBar(
-            context,
-            "Connection error: ${client.name}",
-          );
+          snackBar(context, "Connection error: ${client.name}");
         }
       } on UnauthorizedException {
         if (context.mounted) {
-          snackBar(
-            context,
-            "Unauthorized error: ${client.name}",
-          );
+          snackBar(context, "Unauthorized error: ${client.name}");
         }
       } finally {
         setState(() => loadingChats = false);
