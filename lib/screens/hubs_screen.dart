@@ -35,26 +35,24 @@ class HubsScreenState extends State<HubsScreen> {
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
-                var screen = ConnectionScreen(updateHome: () {
-                  setState(() {});
-                  if (widget.updateHome != null) widget.updateHome!();
-                });
-                moveTo(context, screen);
+                moveTo(context, ConnectionScreen(updateHome: _updateHome));
               },
             ),
           ],
         ),
       ),
-      body: clients.isNotEmpty
-          ? buildContainer(clients)
-          : HubsEmpty(updateHome: () {
-              setState(() {});
-              if (widget.updateHome != null) widget.updateHome!();
-            }),
+      body: buildScreen(clients, _updateHome),
     );
   }
 
-  Widget buildContainer(List<Client> clients) {
+  void _updateHome() {
+    setState(() {});
+    widget.updateHome?.call();
+  }
+
+  static Widget buildScreen(List<Client> clients, VoidCallback updateHome) {
+    if (clients.isEmpty) return HubsEmpty(updateHome: updateHome);
+
     return Container(
       padding: const EdgeInsets.all(8),
       height: 300,
@@ -105,10 +103,7 @@ class HubsScreenState extends State<HubsScreen> {
                 IconButton(
                   style: buttonStyle,
                   icon: Icon(Icons.visibility),
-                  onPressed: () {
-                    setState(() => client.hide = false);
-                    if (widget.updateHome != null) widget.updateHome!();
-                  },
+                  onPressed: updateHome,
                 ),
               if (!client.connected)
                 IconButton(
@@ -122,8 +117,7 @@ class HubsScreenState extends State<HubsScreen> {
                         snackBar(context, "Connection error: ${client.name}");
                       }
                     } finally {
-                      setState(() {});
-                      if (widget.updateHome != null) widget.updateHome!();
+                      updateHome();
                     }
                   },
                 ),
@@ -135,10 +129,7 @@ class HubsScreenState extends State<HubsScreen> {
                   onPressed: () {
                     LoginScreen screen = LoginScreen(
                       client: client,
-                      updateHome: () {
-                        setState(() {});
-                        if (widget.updateHome != null) widget.updateHome!();
-                      },
+                      updateHome: updateHome,
                     );
                     moveTo(context, screen);
                   },
@@ -149,10 +140,8 @@ class HubsScreenState extends State<HubsScreen> {
                 onPressed: () async {
                   await client.disconnect();
                   await StorageService.removeClient(client);
-                  setState(() {
-                    JavaService.instance.clients.remove(client.uuid);
-                  });
-                  if (widget.updateHome != null) widget.updateHome!();
+                  JavaService.instance.clients.remove(client.uuid);
+                  updateHome();
                 },
               )
             ],

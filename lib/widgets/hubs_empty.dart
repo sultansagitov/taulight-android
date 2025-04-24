@@ -3,7 +3,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/services/java_service.dart';
-import 'package:taulight/widgets/tau_buton.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class HubsEmpty extends StatefulWidget {
   final VoidCallback? updateHome;

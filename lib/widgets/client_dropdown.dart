@@ -1,41 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/services/java_service.dart';
 
 class ClientDropdown extends StatefulWidget {
-  final List<Client> clients;
-  final Client? initialClient;
-  final ValueChanged<Client> onClientChanged;
+  final ClientDropdownController controller;
 
-  const ClientDropdown({
-    super.key,
-    required this.clients,
-    required this.onClientChanged,
-    this.initialClient,
-  });
+  const ClientDropdown({super.key, required this.controller});
 
   @override
   State<ClientDropdown> createState() => _ClientDropdownState();
 }
 
 class _ClientDropdownState extends State<ClientDropdown> {
-  Client? selectedClient;
+  late final List<Client> clients;
 
   @override
   void initState() {
     super.initState();
-    selectedClient = widget.initialClient ?? widget.clients.elementAtOrNull(0);
-    if (selectedClient != null) widget.onClientChanged(selectedClient!);
+    clients = JavaService.instance.clients.values.toList();
+
+    Client? selectedClient = clients.where((c) => c.authorized).first;
+    widget.controller.setClient(selectedClient);
   }
 
   void _showClientPicker() async {
     final client = await showModalBottomSheet<Client>(
       context: context,
+      enableDrag: true,
+      showDragHandle: true,
       builder: (context) => ListView(
-        children: widget.clients.map((client) {
-          var n = client.user?.nickname.trim().isNotEmpty == true;
+        children: clients.map((client) {
+          var user = client.user;
+          if (user == null) {
+            return ListTile(
+              title: Text("Unauthorized"),
+              subtitle: Text(client.name),
+            );
+          }
+
           return ListTile(
-            title: Text(n ? client.user!.nickname : client.name),
-            subtitle: n ? Text(client.name) : null,
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              // TODO replace to avatar
+              child: Container(
+                color: Colors.black,
+                width: 44,
+                height: 44,
+              ),
+            ),
+            title: Text(user.nickname),
+            subtitle: Text(client.name),
             onTap: () => Navigator.pop(context, client),
           );
         }).toList(),
@@ -43,15 +57,18 @@ class _ClientDropdownState extends State<ClientDropdown> {
     );
 
     if (client != null) {
-      setState(() => selectedClient = client);
-      widget.onClientChanged(client);
+      widget.controller.setClient(client);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.clients.length <= 1) return const SizedBox.shrink();
+    if (clients.length <= 1) return const SizedBox.shrink();
 
+    var client = widget.controller.client;
+    var data = client != null
+        ? (client.user != null ? client.user!.nickname : "Incorrect hub")
+        : 'No hubs';
     return GestureDetector(
       onTap: _showClientPicker,
       child: Container(
@@ -64,11 +81,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
           children: [
             Expanded(
               child: Text(
-                selectedClient != null
-                    ? (selectedClient!.user?.nickname.trim().isNotEmpty == true
-                        ? selectedClient!.user!.nickname
-                        : selectedClient!.endpoint)
-                    : 'Выберите клиента',
+                data,
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -77,5 +90,16 @@ class _ClientDropdownState extends State<ClientDropdown> {
         ),
       ),
     );
+  }
+}
+
+class ClientDropdownController extends ChangeNotifier {
+  Client? _currentClient;
+
+  Client? get client => _currentClient;
+
+  void setClient(Client client) {
+    _currentClient = client;
+    notifyListeners();
   }
 }

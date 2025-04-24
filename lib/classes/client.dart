@@ -11,9 +11,11 @@ class Client {
   final Map<String, TauChat> chats = {};
 
   bool hide = false;
-  bool _connected = false;
 
+  bool _connected = false;
   bool get connected => _connected;
+
+  bool get authorized => connected && user != null && user!.authorized;
 
   set connected(bool value) {
     _connected = value;

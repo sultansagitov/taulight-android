@@ -8,7 +8,7 @@ import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/utils.dart';
-import 'package:taulight/widgets/tau_buton.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class ConnectionScreen extends StatefulWidget {
   final VoidCallback? updateHome;

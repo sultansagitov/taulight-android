@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/dialogs/dialog_dialog.dart';
+import 'package:taulight/screens/start_dialog_screen.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/screens/hubs_screen.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/dialogs/channel_dialog.dart';
+import 'package:taulight/screens/create_channel_screen.dart';
 
 Future<void> showMenuAtHome(
   BuildContext context,
@@ -33,10 +33,10 @@ Future<void> showMenuAtHome(
         moveTo(context, HubsScreen(updateHome: updateHome));
         break;
       case "new-channel":
-        channelDialog(context, updateHome);
+        moveTo(context, CreateChannelScreen(callback: updateHome));
         break;
       case "new-dialog":
-        dialogDialog(context, updateHome);
+        moveTo(context, StartDialogScreen(callback: updateHome));
         break;
       case "clear-storage":
         await StorageService.clear();

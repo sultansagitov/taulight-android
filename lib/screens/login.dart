@@ -3,7 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/storage_service.dart';
-import 'package:taulight/widgets/tau_buton.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class LoginScreen extends StatefulWidget {
   final Client client;
