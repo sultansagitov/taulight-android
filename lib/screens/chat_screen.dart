@@ -15,7 +15,7 @@ class ChatScreen extends StatefulWidget {
   const ChatScreen({
     super.key,
     required this.chat,
-    this.updateHome
+    this.updateHome,
   });
 
   @override

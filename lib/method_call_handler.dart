@@ -18,7 +18,6 @@ class MethodCallHandler {
     await handlers[call.method]!(call);
   }
 
-
   static Future<void> _onMessage(call) async {
     String clientUUID = call.arguments["uuid"];
     var messageMap = call.arguments["message"];
@@ -34,7 +33,6 @@ class MethodCallHandler {
     TauChat chat = await client.getOrLoadChatByID(message.chatID);
     if (!yourSession) chat.addMessage(message);
   }
-
 
   static Future<void> _disconnect(call) async {
     String clientUUID = call.arguments["uuid"];

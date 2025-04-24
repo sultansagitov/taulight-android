@@ -48,9 +48,9 @@ class HubsScreenState extends State<HubsScreen> {
       body: clients.isNotEmpty
           ? buildContainer(clients)
           : HubsEmpty(updateHome: () {
-        setState(() {});
-        if (widget.updateHome != null) widget.updateHome!();
-      }),
+              setState(() {});
+              if (widget.updateHome != null) widget.updateHome!();
+            }),
     );
   }
 

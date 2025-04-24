@@ -127,7 +127,8 @@ class ChatMessageViewDTO {
 
     var entries = map["reactions"].entries;
     for (var entry in entries) {
-      reactions[entry.key] = entry.value.map<String>((n) => n.toString()).toList();
+      var mapped = entry.value.map<String>((n) => n.toString());
+      reactions[entry.key] = mapped.toList();
     }
 
     var message = map["message"]!;

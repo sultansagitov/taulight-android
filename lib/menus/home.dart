@@ -8,8 +8,8 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/dialogs/channel_dialog.dart';
 
 Future<void> showMenuAtHome(
-    BuildContext context,
-    VoidCallback updateHome
+  BuildContext context,
+  VoidCallback updateHome,
 ) async {
   var value = await showMenu(
     context: context,

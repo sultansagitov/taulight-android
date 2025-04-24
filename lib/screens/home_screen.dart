@@ -56,22 +56,20 @@ class HomeScreenState extends State<HomeScreen> {
     (() async {
       if (mounted) setState(() => loadingChats = true);
       try {
-        await TauChat.loadAll(
-            callback: () {
-              if (mounted) setState(() {});
-            },
-            onError: (client, e) {
-              if (e is ExpiredTokenException) {
-                if (mounted) {
-                  snackBar(context, "Token for \"${client.name}\" expired");
-                }
-                return;
-              }
-              if (mounted) {
-                snackBar(context, "Something went wrong");
-              }
-              print(e);
-            }).timeout(Duration(seconds: 5));
+        await TauChat.loadAll(callback: () {
+          if (mounted) setState(() {});
+        }, onError: (client, e) {
+          if (e is ExpiredTokenException) {
+            if (mounted) {
+              snackBar(context, "Token for \"${client.name}\" expired");
+            }
+            return;
+          }
+          if (mounted) {
+            snackBar(context, "Something went wrong");
+          }
+          print(e);
+        }).timeout(Duration(seconds: 5));
       } finally {
         if (mounted) setState(() => loadingChats = false);
       }
