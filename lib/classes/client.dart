@@ -1,7 +1,19 @@
+import 'package:flutter/material.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/java_service.dart';
+
+enum ClientStatus {
+  connected("Connected", Colors.green),
+  unauthorized("Unauthorized", Colors.amber),
+  disconnected("Disconnected", Colors.red);
+
+  final String str;
+  final Color color;
+
+  const ClientStatus(this.str, this.color);
+}
 
 class Client {
   final String name;
@@ -35,10 +47,10 @@ class Client {
     required this.link,
   });
 
-  String get status {
-    if (!connected) return "Disconnected";
-    if (user == null || !user!.authorized) return "Unauthorized";
-    return "Connected";
+  ClientStatus get status {
+    if (!connected) return ClientStatus.disconnected;
+    if (user == null || !user!.authorized) return ClientStatus.unauthorized;
+    return ClientStatus.connected;
   }
 
   /// Sends a message to the given chat.

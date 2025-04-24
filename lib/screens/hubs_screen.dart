@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/dialogs/hub_dialog.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/screens/hub_info_screen.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/connection_screen.dart';
@@ -69,12 +69,14 @@ class HubsScreenState extends State<HubsScreen> {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           );
 
+          var status = client.status;
+
           return Row(
             children: [
               Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => openHubDialog(context, client),
+                  onTap: () => moveTo(context, HubInfoScreen(client)),
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     child: Column(
@@ -90,8 +92,12 @@ class HubsScreenState extends State<HubsScreen> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            client.status,
-                            style: TextStyle(fontSize: 10),
+                            status.str,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: status.color.withAlpha(192),
+                            ),
                           ),
                         ),
                       ],

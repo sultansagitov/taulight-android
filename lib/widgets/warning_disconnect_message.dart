@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/dialogs/hub_dialog.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/screens/hub_info_screen.dart';
 import 'package:taulight/widget_utils.dart';
 
 class WarningDisconnectMessage extends StatefulWidget {
@@ -51,7 +51,7 @@ class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => openHubDialog(context, widget.client),
+              onTap: () => moveTo(context, HubInfoScreen(widget.client)),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
