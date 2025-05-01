@@ -1,7 +1,7 @@
 package net.result.taulight.chain;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.sender.BSTClientChainManager;
+import net.result.sandnode.chain.BSTClientChainManager;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.message.util.MessageType;
 import net.result.taulight.Taulight;

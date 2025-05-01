@@ -3,6 +3,7 @@ import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class MessageField extends StatefulWidget {
   final TauChat chat;
@@ -53,8 +54,9 @@ class _MessageFieldState extends State<MessageField> {
         Row(
           children: [
             if (enabled)
-              IconButton(
-                icon: const Icon(Icons.add, color: Colors.blue),
+              TauButton.icon(
+                Icons.add,
+                color: Colors.blue,
                 onPressed: () {},
               ),
             Expanded(
@@ -76,8 +78,8 @@ class _MessageFieldState extends State<MessageField> {
               ),
             ),
             if (enabled) ...[
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_rounded),
+              TauButton.icon(
+                Icons.arrow_forward_rounded,
                 color: Colors.blue,
                 onPressed: _sendMessage,
               ),

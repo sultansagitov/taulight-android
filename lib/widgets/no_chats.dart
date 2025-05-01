@@ -18,7 +18,7 @@ class NoChats extends StatelessWidget {
           children: [
             const Text("No chats", style: TextStyle(fontSize: 18)),
             const SizedBox(height: 10),
-            TauButton("Create channel", onPressed: () {
+            TauButton.text("Create channel", onPressed: () {
               moveTo(context, CreateChannelScreen(callback: updateHome));
             }),
           ],

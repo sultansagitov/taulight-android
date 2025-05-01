@@ -3,7 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/login.dart';
+import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/services/java_service.dart';
@@ -34,9 +34,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
               "Connect Hubs",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            IconButton(
-              icon: const Icon(Icons.qr_code_scanner),
-              tooltip: 'Scan QR',
+            TauButton.icon(
+              Icons.qr_code_scanner,
               onPressed: () {
                 moveTo(context, QrScannerScreen(onScanned: (c, code) {
                   Navigator.pop(c);
@@ -72,7 +71,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 },
               ),
             ),
-            TauButton("Connect", onPressed: _connectPressed),
+            TauButton.text("Connect", onPressed: _connectPressed),
             const SizedBox(height: 20),
             const Text(
               "Recommended hubs",
@@ -83,7 +82,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 itemCount: Config.recommended.length,
                 itemBuilder: (_, index) {
                   ServerRecord recommended = Config.recommended[index];
-                  return TauButton(recommended.endpoint, onPressed: () {
+                  return TauButton.text(recommended.endpoint, onPressed: () {
                     _recommended(recommended.link);
                   });
                 },
@@ -98,10 +97,13 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   Future<void> _recommended(String link) async {
     Client client;
     try {
-      client = await JavaService.instance.connect(link, widget.updateHome);
+      client = await JavaService.instance.connect(
+        link,
+        callback: widget.updateHome,
+      );
     } on ConnectionException {
       if (mounted) {
-        snackBar(context, "Connection exception: ${link2endpoint(link)}");
+        snackBarError(context, "${link2endpoint(link)} connection failed");
       }
       return;
     }
@@ -112,7 +114,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         client: client,
         updateHome: () {
           setState(() {});
-          if (widget.updateHome != null) widget.updateHome!();
+          widget.updateHome?.call();
         },
         onSuccess: () {
           if (mounted) setState(() {});
@@ -129,7 +131,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   }
 
   void _connect(BuildContext context, String link) async {
-    var client = await JavaService.instance.connect(link, widget.updateHome);
+    var client = await JavaService.instance.connect(
+      link,
+      callback: widget.updateHome,
+    );
     await StorageService.saveClient(client);
 
     if (context.mounted) {
@@ -137,7 +142,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         client: client,
         updateHome: () {
           setState(() {});
-          if (widget.updateHome != null) widget.updateHome!();
+          widget.updateHome?.call();
         },
         onSuccess: () {
           if (context.mounted) {

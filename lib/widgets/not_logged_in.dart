@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/login.dart';
+import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -25,7 +25,7 @@ class NotLoggedIn extends StatelessWidget {
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 10),
-            TauButton("Login", onPressed: () {
+            TauButton.text("Login", onPressed: () {
               var screen = LoginScreen(
                 client: client,
                 updateHome: updateHome,

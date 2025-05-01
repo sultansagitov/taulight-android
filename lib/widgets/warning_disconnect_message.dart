@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/hub_info_screen.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class WarningDisconnectMessage extends StatefulWidget {
   final Client client;
@@ -29,17 +30,17 @@ class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
       await widget.client.reload();
     } on ConnectionException {
       if (mounted) {
-        snackBar(context, "Connection exception: ${widget.client.name}");
+        snackBarError(context, "Connection exception: ${widget.client.name}");
       }
     } finally {
       setState(() => loading = false);
-      if (widget.updateHome != null) widget.updateHome!();
+      widget.updateHome?.call();
     }
   }
 
   void _visibilityOff() {
     widget.client.hide = true;
-    if (widget.updateHome != null) widget.updateHome!();
+    widget.updateHome?.call();
   }
 
   @override
@@ -74,14 +75,14 @@ class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
             ),
           ),
           if (!loading) ...[
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.refresh, color: Colors.black),
+            TauButton.icon(
+              Icons.refresh,
+              color: Colors.black,
               onPressed: _refresh,
             ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.visibility_off, color: Colors.black),
+            TauButton.icon(
+              Icons.visibility_off,
+              color: Colors.black,
               onPressed: _visibilityOff,
             ),
           ] else ...[

@@ -52,7 +52,7 @@ class LoginScreenState extends State<LoginScreen> {
       setState(() => _loading = false);
       widget.updateHome();
       if (mounted) Navigator.pop(context);
-      if (widget.onSuccess != null) widget.onSuccess!();
+      widget.onSuccess?.call();
     } on IncorrectUserDataException {
       setState(() {
         _errorMessage = "Incorrect username or password.";
@@ -89,7 +89,7 @@ class LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         Navigator.pop(context);
       }
-      if (widget.onSuccess != null) widget.onSuccess!();
+      widget.onSuccess?.call();
     } on IncorrectUserDataException {
       setState(() {
         _errorMessage = "Invalid registration data.";
@@ -127,11 +127,9 @@ class LoginScreenState extends State<LoginScreen> {
               obscureText: _obscure,
               decoration: InputDecoration(
                 hintText: "Password",
-                suffixIcon: IconButton(
+                suffixIcon: TauButton.icon(
+                  _obscure ? Icons.visibility : Icons.visibility_off,
                   onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure ? Icons.visibility : Icons.visibility_off,
-                  ),
                 ),
               ),
             ),
@@ -157,14 +155,14 @@ class LoginScreenState extends State<LoginScreen> {
                   CircularProgressIndicator(),
                   const SizedBox(width: 10),
                 ] else ...[
-                  TauButton(
+                  TauButton.text(
                     _isRegistering ? "Register" : "Login",
                     onPressed: _isRegistering ? _register : _login,
                   ),
                 ],
               ],
             ),
-            TauButton(
+            TauButton.text(
               _isRegistering
                   ? "Already have an account? Login"
                   : "Don't have an account? Register",

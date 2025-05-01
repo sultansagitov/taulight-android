@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/screens/auth_state.dart';
+import 'package:taulight/auth_state.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -106,7 +106,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
               ],
               SizedBox(
                 width: double.infinity,
-                child: TauButton(
+                child: TauButton.text(
                   "Start",
                   loading: _isLoading,
                   onPressed: _startDialog,

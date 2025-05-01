@@ -26,7 +26,7 @@ void start({
     for (String uuid in notConnectedId) {
       ServerRecord sr = map[uuid]!;
       try {
-        await JavaService.instance.connectWithUUID(uuid, sr.link);
+        await JavaService.instance.connectWithUUID(uuid, sr.link, keep: true);
         Client c = JavaService.instance.clients[uuid]!;
         UserRecord? userRecord = sr.user;
         if (userRecord != null) {
@@ -36,7 +36,7 @@ void start({
         }
       } on ConnectionException {
         if (context.mounted) {
-          snackBar(context, "Connection error: ${sr.name}");
+          snackBarError(context, "Connection error: ${sr.name}");
         }
       }
     }
@@ -47,19 +47,20 @@ void start({
       if (client.user == null || !client.user!.authorized) {
         ServerRecord? serverRecord = map[client.uuid];
         if (serverRecord != null && serverRecord.user != null) {
+          String? error;
+
           try {
             var token = serverRecord.user!.token;
             var nickname = await client.authByToken(token);
             client.user = User(client, nickname, token);
           } on ExpiredTokenException {
-            if (context.mounted) {
-              snackBar(context, "Session expired. ${client.name}");
-            }
-            await StorageService.removeToken(client);
+            error = "Session expired. ${client.name}";
           } on InvalidTokenException {
-            if (context.mounted) {
-              snackBar(context, "Invalid token. ${client.name}");
-            }
+            error = "Invalid token. ${client.name}";
+          }
+
+          if (error != null) {
+            if (context.mounted) snackBarError(context, error);
             await StorageService.removeToken(client);
           }
         }

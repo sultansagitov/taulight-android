@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
-Future<dynamic> moveTo(BuildContext context, Widget screen) {
+Future<dynamic> moveTo(
+  BuildContext context,
+  Widget screen, {
+  bool fromLeft = false,
+}) {
   return Navigator.push(
     context,
     PageRouteBuilder(
       pageBuilder: (_, __, ___) => screen,
       transitionDuration: const Duration(milliseconds: 300),
       transitionsBuilder: (_, animation, __, child) {
-        const begin = Offset(1, 0);
+        final begin = Offset(fromLeft ? -1 : 1, 0);
         const end = Offset.zero;
         final parent = CurveTween(curve: Curves.easeOutCubic);
         final chain = Tween(begin: begin, end: end).chain(parent);
@@ -18,8 +22,22 @@ Future<dynamic> moveTo(BuildContext context, Widget screen) {
 }
 
 void snackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  print("Snack bar: $message");
+  ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+  messenger.removeCurrentSnackBar();
+  messenger.showSnackBar(SnackBar(
     content: Text(message),
+    duration: Duration(seconds: 1, milliseconds: 500),
+  ));
+}
+
+void snackBarError(BuildContext context, String message) {
+  print("Snack bar error: $message");
+  ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+  messenger.removeCurrentSnackBar();
+  messenger.showSnackBar(SnackBar(
+    content: Text(message, style: TextStyle(color: Colors.white)),
+    backgroundColor: Colors.red,
     duration: Duration(seconds: 1, milliseconds: 500),
   ));
 }

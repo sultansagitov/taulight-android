@@ -67,13 +67,21 @@ class JavaService {
     return SuccessResult(result["success"]);
   }
 
-  Future<Client> connect(String link, [VoidCallback? callback]) async {
+  Future<Client> connect(
+    String link, {
+    VoidCallback? callback,
+    bool keep = false,
+  }) async {
     String uuid = Uuid().v4();
-    return await connectWithUUID(uuid, link, callback);
+    return await connectWithUUID(uuid, link, callback: callback, keep: keep);
   }
 
-  Future<Client> connectWithUUID(String uuid, String link,
-      [VoidCallback? callback]) async {
+  Future<Client> connectWithUUID(
+    String uuid,
+    String link, {
+    VoidCallback? callback,
+    bool keep = false,
+  }) async {
     String endpoint;
     try {
       endpoint = link2endpoint(link);
@@ -90,7 +98,9 @@ class JavaService {
       link: link,
     );
 
-    if (callback != null) callback();
+    if (keep) clients[uuid] = client;
+
+    callback?.call();
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
@@ -104,8 +114,8 @@ class JavaService {
 
     if (result is SuccessResult) {
       client.connected = true;
-      clients[uuid] = client;
-      if (callback != null) callback();
+      if (!keep) clients[uuid] = client;
+      callback?.call();
       return client;
     }
     throw IncorrectFormatChannelException();
@@ -116,7 +126,7 @@ class JavaService {
     String link = client.link;
     Result result = await method("connect", {"uuid": uuid, "link": link});
 
-    if (callback != null) callback();
+    callback?.call();
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
@@ -130,7 +140,7 @@ class JavaService {
 
     if (result is SuccessResult) {
       client.connected = true;
-      if (callback != null) callback();
+      callback?.call();
       return;
     }
     throw IncorrectFormatChannelException();

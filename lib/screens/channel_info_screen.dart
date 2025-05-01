@@ -184,7 +184,7 @@ class MembersInviteScreen extends StatelessWidget {
                     }
                   } on NoEffectException {
                     if (context.mounted) {
-                      snackBar(context, "$nickname already in");
+                      snackBarError(context, "$nickname already in");
                     }
                   }
                 }

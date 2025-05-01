@@ -7,6 +7,7 @@ import 'package:taulight/screens/channel_info_screen.dart';
 import 'package:taulight/screens/dialog_info_screen.dart';
 import 'package:taulight/widgets/message_widget.dart';
 import 'package:taulight/widgets/message_field.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class ChatScreen extends StatefulWidget {
   final TauChat chat;
@@ -53,7 +54,7 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     if (index == 0) {
-      if (widget.updateHome != null) widget.updateHome!();
+      widget.updateHome?.call();
     }
   }
 
@@ -71,8 +72,8 @@ class ChatScreenState extends State<ChatScreen> {
         widget.chat.client.user!.authorized;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: TauButton.icon(
+          Icons.arrow_back,
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Row(
@@ -104,8 +105,8 @@ class ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
+          TauButton.icon(
+            Icons.more_vert,
             onPressed: () {
               if (widget.chat.record is DialogDTO) {
                 moveTo(context, DialogInfoScreen(widget.chat));

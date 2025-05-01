@@ -28,17 +28,17 @@ class _HubsEmptyState extends State<HubsEmpty> {
             const SizedBox(height: 10),
             loadingChats
                 ? CircularProgressIndicator()
-                : IconButton(
+                : TauButton.icon(
+                    Icons.refresh,
                     onPressed: () => _loadChats(context),
-                    icon: Icon(Icons.refresh),
                   ),
           ],
           const SizedBox(height: 10),
-          TauButton("Connect to hub", onPressed: () {
+          TauButton.text("Connect to hub", onPressed: () {
             var screen = ConnectionScreen(
               updateHome: () {
                 if (mounted) setState(() {});
-                if (widget.updateHome != null) widget.updateHome!();
+                widget.updateHome?.call();
               },
             );
             moveTo(context, screen);
@@ -52,19 +52,21 @@ class _HubsEmptyState extends State<HubsEmpty> {
     setState(() => loadingChats = true);
     var clients = List.of(JavaService.instance.clients.values);
     for (var client in clients) {
+      String? error;
+
       try {
         await client.reload();
-        if (widget.updateHome != null) widget.updateHome!();
+        widget.updateHome?.call();
       } on ConnectionException {
-        if (context.mounted) {
-          snackBar(context, "Connection error: ${client.name}");
-        }
+        error = "Connection error: ${client.name}";
       } on UnauthorizedException {
-        if (context.mounted) {
-          snackBar(context, "Unauthorized error: ${client.name}");
-        }
+        error = "Unauthorized error: ${client.name}";
       } finally {
         setState(() => loadingChats = false);
+      }
+
+      if (error != null && context.mounted) {
+        snackBarError(context, error);
       }
     }
   }

@@ -117,10 +117,11 @@ class TauChat {
         await client.loadChats();
         for (var chat in client.chats.values) {
           await chat.loadMessages(0, 2);
-          if (callback != null) callback();
+          callback?.call();
         }
       } catch (e) {
-        if (onError != null) onError(client, e);
+        print(e);
+        onError?.call(client, e);
       }
     }
   }

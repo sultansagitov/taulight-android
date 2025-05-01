@@ -11,12 +11,13 @@ import 'package:taulight/screens/chat_screen.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/widgets/animated_greetings.dart';
 import 'package:taulight/widgets/chat_item.dart';
-import 'package:taulight/screens/login.dart';
+import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
 
 import 'package:taulight/widgets/hubs_empty.dart';
+import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/warning_disconnect_message.dart';
 import 'package:taulight/widgets/warning_unauthorized_message.dart';
 
@@ -59,16 +60,13 @@ class HomeScreenState extends State<HomeScreen> {
         await TauChat.loadAll(callback: () {
           if (mounted) setState(() {});
         }, onError: (client, e) {
-          if (e is ExpiredTokenException) {
-            if (mounted) {
-              snackBar(context, "Token for \"${client.name}\" expired");
-            }
-            return;
-          }
           if (mounted) {
-            snackBar(context, "Something went wrong");
+            String error = "Something went wrong";
+            if (e is ExpiredTokenException) {
+              error = "Token for \"${client.name}\" expired";
+            }
+            snackBarError(context, error);
           }
-          print(e);
         }).timeout(Duration(seconds: 5));
       } finally {
         if (mounted) setState(() => loadingChats = false);
@@ -105,8 +103,8 @@ class HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.more_vert),
+                      child: TauButton.icon(
+                        Icons.more_vert,
                         color: color,
                         onPressed: () => showMenuAtHome(context, _updateHome),
                       ),
@@ -129,13 +127,7 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() {
-          for (var client in JavaService.instance.clients.values) {
-            for (var chat in client.chats.values) {
-              chat.messages.clear();
-            }
-          }
-        }),
+        onPressed: () {},
         child: const Icon(Icons.edit),
       ),
     );
@@ -144,9 +136,8 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildChatList() {
     // Show "No hubs"
     // if there are no connected hubs and no chats from disconnected hubs
-    var empty = JavaService.instance.clients.values
-        .where((c) => c.connected || c.chats.isNotEmpty)
-        .isEmpty;
+    var empty =
+        JavaService.instance.clients.values.where((c) => c.connected).isEmpty;
 
     if (empty) {
       return HubsEmpty(updateHome: _updateHome);

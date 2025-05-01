@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class WarningUnauthorizedMessage extends StatelessWidget {
   final String name;
@@ -33,10 +34,8 @@ class WarningUnauthorizedMessage extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: onLoginTap,
-            child: Text("Login", style: textStyle),
-          ),
+          TauButton.text("Login",
+              color: Colors.black, style: BtnStyle.text, onPressed: onLoginTap),
         ],
       ),
     );

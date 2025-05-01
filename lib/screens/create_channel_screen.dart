@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/auth_state.dart';
+import 'package:taulight/auth_state.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -101,7 +101,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
                 ),
                 const SizedBox(height: 6),
               ],
-              TauButton(
+              TauButton.text(
                 "Create",
                 loading: _isLoading,
                 onPressed: _createChannel,

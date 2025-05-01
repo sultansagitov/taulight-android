@@ -114,27 +114,25 @@ class _MessageWidgetState extends State<MessageWidget> {
                 final Uri uri = Uri.parse(url);
                 var where = uri.path.split("/").where((s) => s.isNotEmpty);
                 var code = [...where][1];
+
+                String? error;
+
                 try {
                   await widget.chat.client.useCode(code);
                 } on NotFoundException {
-                  if (context.mounted) {
-                    snackBar(context, "Code not found or not for you");
-                  }
-                  return;
+                  error = "Code not found or not for you";
                 } on NoEffectException {
-                  if (context.mounted) {
-                    snackBar(context, "Code used or expired");
-                  }
-                  return;
+                  error = "Code used or expired";
                 } on UnauthorizedException {
-                  if (context.mounted) {
-                    snackBar(context, "Code not for you");
-                  }
-                  return;
+                  error = "Code not for you";
                 }
 
                 if (context.mounted) {
-                  snackBar(context, "Code used");
+                  if (error != null) {
+                    snackBarError(context, error);
+                  } else {
+                    snackBar(context, "Code used");
+                  }
                 }
               },
           ),
