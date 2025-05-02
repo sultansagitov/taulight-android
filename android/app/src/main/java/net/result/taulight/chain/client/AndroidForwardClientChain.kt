@@ -1,32 +1,28 @@
-package net.result.taulight.chain.client;
+package net.result.taulight.chain.client
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.annotation.TargetApi
+import android.os.Build
 
-import net.result.sandnode.util.IOController;
-import net.result.taulight.chain.receiver.ForwardClientChain;
-import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.message.types.ForwardResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.result.sandnode.util.IOController
+import net.result.taulight.chain.receiver.ForwardClientChain
+import net.result.taulight.dto.ChatMessageViewDTO
+import net.result.taulight.message.types.ForwardResponse
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
-public class AndroidForwardClientChain extends ForwardClientChain {
-    public interface OnMessage {
-        void handle(ChatMessageViewDTO message, boolean yourSession);
-    }
-    private static final Logger LOGGER = LogManager.getLogger(AndroidForwardClientChain.class);
-    private final OnMessage onMessage;
+class AndroidForwardClientChain(
+    io: IOController,
+    val onMessage: (ChatMessageViewDTO, Boolean) -> Unit
+) : ForwardClientChain(io) {
 
-    public AndroidForwardClientChain(IOController io, OnMessage onMessage) {
-        super(io);
-        this.onMessage = onMessage;
+    companion object {
+        private val LOGGER: Logger = LogManager.getLogger(AndroidForwardClientChain::class.java)
     }
 
-    @Override
     @TargetApi(Build.VERSION_CODES.O)
-    public void onMessage(ForwardResponse response) {
-        LOGGER.info(response);
-        ChatMessageViewDTO message = response.getServerMessage();
-        onMessage.handle(message, response.isYourSession());
+    override fun onMessage(response: ForwardResponse) {
+        LOGGER.info(response)
+        val message: ChatMessageViewDTO = response.getServerMessage()
+        onMessage(message, response.isYourSession())
     }
 }

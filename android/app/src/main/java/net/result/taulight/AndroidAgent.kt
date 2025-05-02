@@ -1,22 +1,13 @@
-package net.result.taulight;
+package net.result.taulight
 
-import net.result.sandnode.encryption.KeyStorageRegistry;
-import net.result.taulight.hubagent.TauAgent;
+import net.result.sandnode.encryption.KeyStorageRegistry
+import net.result.taulight.hubagent.TauAgent
+import java.util.UUID
 
-import java.util.Map;
-import java.util.UUID;
+class AndroidAgent(keyStorageRegistry: KeyStorageRegistry, val taulight: Taulight, val uuid: UUID)
+        : TauAgent(keyStorageRegistry) {
 
-public class AndroidAgent extends TauAgent {
-    private final Taulight taulight;
-    private final UUID uuid;
-
-    public AndroidAgent(KeyStorageRegistry keyStorageRegistry, Taulight taulight, UUID uuid) {
-        super(keyStorageRegistry);
-        this.taulight = taulight;
-        this.uuid = uuid;
-    }
-
-    public void close() {
-        taulight.sendToFlutter("disconnect", Map.of("uuid", uuid.toString()));
+    override fun close() {
+        taulight.sendToFlutter("disconnect", mapOf("uuid" to uuid.toString()))
     }
 }

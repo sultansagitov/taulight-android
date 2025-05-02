@@ -1,28 +1,18 @@
-package net.result.taulight.config;
+package net.result.taulight.config
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.os.Build
+import androidx.annotation.RequiresApi
+import net.result.sandnode.config.ClientConfig
+import net.result.sandnode.encryption.SymmetricEncryptions
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption
+import net.result.sandnode.util.Endpoint
+import java.util.Optional
 
-import java.util.Optional;
+class AndroidClientConfig : ClientConfig {
+    override fun symmetricKeyEncryption(): SymmetricEncryption = SymmetricEncryptions.AES
+    override fun saveKey(endpoint: Endpoint, asymmetricKeyStorage: AsymmetricKeyStorage) {}
 
-import net.result.sandnode.config.ClientConfig;
-import net.result.sandnode.encryption.SymmetricEncryptions;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.util.Endpoint;
-
-public class AndroidClientConfig implements ClientConfig {
-    @Override
-    public SymmetricEncryption symmetricKeyEncryption() {
-        return SymmetricEncryptions.AES;
-    }
-
-    @Override
-    public void saveKey(Endpoint endpoint, AsymmetricKeyStorage asymmetricKeyStorage) {}
-
-    @TargetApi(Build.VERSION_CODES.N)
-    @Override
-    public Optional<AsymmetricKeyStorage> getPublicKey(Endpoint endpoint) {
-        return Optional.empty();
-    }
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun getPublicKey(endpoint: Endpoint): Optional<AsymmetricKeyStorage> = Optional.empty()
 }
