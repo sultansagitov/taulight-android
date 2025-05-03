@@ -66,7 +66,7 @@ class TauButton extends StatelessWidget {
             width: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: style == BtnStyle.text
+              color: icon != null || style == BtnStyle.text
                   ? Theme.of(context).colorScheme.primary
                   : Colors.white,
             ),

@@ -14,8 +14,8 @@ enum MenuOption {
     icon: Icons.link,
   ),
   connected(
-    text: "Show connected hubs",
-    action: _connectedAction,
+    text: "Show hubs",
+    action: _hubsAction,
     icon: Icons.device_hub,
   ),
   newChannel(
@@ -54,7 +54,7 @@ enum MenuOption {
   static void _connectAction(BuildContext context, VoidCallback callback) =>
       moveTo(context, ConnectionScreen(updateHome: callback));
 
-  static void _connectedAction(BuildContext context, VoidCallback callback) =>
+  static void _hubsAction(BuildContext context, VoidCallback callback) =>
       moveTo(context, HubsScreen(updateHome: callback));
 
   static void _newChannelAction(BuildContext context, VoidCallback callback) =>

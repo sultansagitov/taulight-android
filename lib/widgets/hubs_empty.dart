@@ -19,30 +19,41 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   @override
   Widget build(BuildContext context) {
+    var clients = JavaService.instance.clients;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("No hubs connected", style: TextStyle(fontSize: 18)),
-          if (JavaService.instance.clients.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          const Text(
+            "No hubs connected",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (clients.isNotEmpty) ...[
             const SizedBox(height: 10),
-            loadingChats
-                ? CircularProgressIndicator()
-                : TauButton.icon(
-                    Icons.refresh,
-                    onPressed: () => _loadChats(context),
-                  ),
+            TauButton.icon(
+              Icons.refresh,
+              loading: loadingChats,
+              onPressed: () => _loadChats(context),
+            ),
+            Text("Reconnect disconnected hubs (${clients.length})"),
           ],
-          const SizedBox(height: 10),
-          TauButton.text("Connect to hub", onPressed: () {
-            var screen = ConnectionScreen(
-              updateHome: () {
-                if (mounted) setState(() {});
-                widget.updateHome?.call();
-              },
-            );
-            moveTo(context, screen);
-          }),
+          const SizedBox(height: 12),
+          TauButton.text(
+            "Connect to hub",
+            onPressed: () {
+              var screen = ConnectionScreen(
+                updateHome: () {
+                  if (mounted) setState(() {});
+                  widget.updateHome?.call();
+                },
+              );
+              moveTo(context, screen);
+            },
+          ),
         ],
       ),
     );
@@ -56,12 +67,12 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
       try {
         await client.reload();
-        widget.updateHome?.call();
       } on ConnectionException {
         error = "Connection error: ${client.name}";
       } on UnauthorizedException {
-        error = "Unauthorized error: ${client.name}";
+        // Ignored: will be reflected after updateHome on HomeScreen
       } finally {
+        widget.updateHome?.call();
         setState(() => loadingChats = false);
       }
 
