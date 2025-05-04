@@ -21,36 +21,6 @@ class Runner(val taulight: Taulight) {
         return mapOf("endpoint" to link.endpoint().toString(52525))
     }
 
-    @Throws(Exception::class)
-    fun members(client: SandnodeClient, chatID: UUID): Any {
-        val chain = MembersClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val members = chain.getMembers(chatID)
-        client.io.chainManager.removeChain(chain)
-
-        return taulight.objectMapper.convertValue(members, List::class.java)
-    }
-
-    @Throws(Exception::class)
-    fun login(client: SandnodeClient, nickname: String, password: String): Map<String, String> {
-        val chain = LogPasswdClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val token = chain.getToken(nickname, password)
-        client.io.chainManager.removeChain(chain)
-
-        return mapOf("token" to token)
-    }
-
-    @Throws(Exception::class)
-    fun register(client: SandnodeClient, nickname: String, password: String): Map<String, String> {
-        val chain = RegistrationClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val token = chain.getTokenFromRegistration(nickname, password)
-        client.io.chainManager.removeChain(chain)
-
-        return mapOf("token" to token)
-    }
-
     @Throws(ClientNotFoundException::class)
     fun disconnect(uuid: String): String {
         val client = taulight.getClient(uuid).client
@@ -125,94 +95,11 @@ class Runner(val taulight: Taulight) {
     }
 
     @Throws(Exception::class)
-    fun createChannel(client: SandnodeClient, title: String): Map<String, String> {
-        val chain = ChannelClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val chatID = chain.sendNewChannelRequest(title)
-        client.io.chainManager.removeChain(chain)
-        return mapOf("chat-id" to chatID.toString())
-    }
-
-    @Throws(Exception::class)
     fun addMember(client: SandnodeClient, chatID: UUID, otherNickname: String): Map<String, String> {
         val chain = ChannelClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val code = chain.createInviteCode(chatID, otherNickname, Duration.ofDays(1))
         client.io.chainManager.removeChain(chain)
         return mapOf("code" to code)
-    }
-
-    @Throws(Exception::class)
-    fun token(client: SandnodeClient, token: String): Map<String, String> {
-        val chain = LoginClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val nickname = chain.getNickname(token)
-        client.io.chainManager.removeChain(chain)
-        return mapOf("nickname" to nickname)
-    }
-
-    @Throws(Exception::class)
-    fun checkCode(client: SandnodeClient, code: String): Any {
-        val chain = CheckCodeClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val c = chain.check(code)
-        client.io.chainManager.removeChain(chain)
-        return taulight.objectMapper.convertValue(c, Map::class.java)
-    }
-
-    @Throws(Exception::class)
-    fun useCode(client: SandnodeClient, code: String): String {
-        val chain = UseCodeClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        chain.use(code)
-        client.io.chainManager.removeChain(chain)
-        return "success"
-    }
-
-    @Throws(Exception::class)
-    fun dialog(client: SandnodeClient, nickname: String): Map<String, String> {
-        val chain = DialogClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val chatID = chain.getDialogID(nickname)
-        client.io.chainManager.removeChain(chain)
-        return mapOf("chat-id" to chatID.toString())
-    }
-
-    @Throws(Exception::class)
-    fun leave(client: SandnodeClient, chatID: UUID): String {
-        val chain = ChannelClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        chain.sendLeaveRequest(chatID)
-        client.io.chainManager.removeChain(chain)
-        return "success"
-    }
-
-    @Throws(Exception::class)
-    fun channelCodes(client: SandnodeClient, chatID: UUID): List<*> {
-        val chain = ChannelClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        val codes = chain.getChannelCodes(chatID)
-        client.io.chainManager.removeChain(chain)
-        return taulight.objectMapper.convertValue(codes, List::class.java)
-    }
-
-    @Throws(Exception::class)
-    fun react(client: SandnodeClient, msgID: UUID, reactionType: String): String {
-        val chain = ReactionRequestClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        chain.react(msgID, reactionType)
-        println("Added reaction '$reactionType' to message $msgID")
-        client.io.chainManager.removeChain(chain)
-        return "success"
-    }
-
-    @Throws(Exception::class)
-    fun unreact(client: SandnodeClient, msgID: UUID, reactionType: String): String {
-        val chain = ReactionRequestClientChain(client.io)
-        client.io.chainManager.linkChain(chain)
-        chain.unreact(msgID, reactionType)
-        println("Removed reaction '$reactionType' from message $msgID")
-        client.io.chainManager.removeChain(chain)
-        return "success"
     }
 }

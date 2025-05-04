@@ -6,13 +6,18 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import net.result.sandnode.chain.IChain
 import net.result.sandnode.exception.error.SandnodeErrorException
+import net.result.sandnode.link.Links
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.sandnode.util.IOController
 import net.result.taulight.exception.ClientNotFoundException
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.lang.Class
+import java.lang.ClassNotFoundException
+import java.lang.Exception
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -20,6 +25,7 @@ import java.util.concurrent.Executors
 class MethodHandlers(flutterEngine: FlutterEngine) {
     companion object {
         private val LOGGER: Logger = LogManager.getLogger(MethodHandlers::class.java)
+        private val uuidRegex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
     }
 
     private val methodHandlerMap: Map<String, (MethodCall) -> Any>
@@ -44,8 +50,6 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
         methodHandlerMap = HashMap<String, (MethodCall) -> Any>()
         methodHandlerMap.put("connect", this::connect)
-        methodHandlerMap.put("login", this::login)
-        methodHandlerMap.put("register", this::register)
         methodHandlerMap.put("disconnect", this::disconnect)
         methodHandlerMap.put("send", this::send)
         methodHandlerMap.put("group", this::groupAdd)
@@ -53,25 +57,16 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         methodHandlerMap.put("load-messages", this::loadMessages)
         methodHandlerMap.put("load-clients", this::loadClient)
         methodHandlerMap.put("load-chat", this::loadChat)
-        methodHandlerMap.put("create-channel", this::createChannel)
-        methodHandlerMap.put("members", this::members)
         methodHandlerMap.put("add-member", this::addMember)
-        methodHandlerMap.put("token", this::token)
-        methodHandlerMap.put("check-code", this::checkCode)
-        methodHandlerMap.put("use-code", this::useCode)
-        methodHandlerMap.put("dialog", this::dialog)
-        methodHandlerMap.put("leave", this::leave)
-        methodHandlerMap.put("channel-codes", this::channelCodes)
-        methodHandlerMap.put("react", this::react)
-        methodHandlerMap.put("unreact", this::unreact)
+        methodHandlerMap.put("chain", this::chain)
     }
 
     @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun onMethodCallHandler(call: MethodCall, result: MethodChannel.Result) {
-        executorService.execute(java.lang.Runnable {
+        executorService.execute {
             val handler = methodHandlerMap.get(call.method)
             if (handler != null) {
-                taulight.clients.entries.removeIf{ (uuid, mc) -> !mc.client.io.isConnected() }
+                taulight.clients.entries.removeIf{ (_, mc) -> !mc.client.io.isConnected() }
 
                 try {
                     val res: Any = handler(call)
@@ -83,7 +78,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
                             "message" to e.message
                         )
                     ))
-                } catch (e: java.lang.Exception) {
+                } catch (e: Exception) {
                     LOGGER.error("Unhandled", e)
                     result.success(mapOf(
                         "error" to mapOf(
@@ -93,62 +88,29 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
                     ))
                 }
             } else result.error("UNAVAILABLE", "Unknown method type", call.method)
-        })
+        }
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun members(call: MethodCall): Any {
-        val uuid: String = call.argument<String>("uuid")!!
-        val chatIDStr: String = call.argument<String>("chat-id")!!
-
-        val client: SandnodeClient = taulight.getClient(uuid).client
-        val chatID: UUID = UUID.fromString(chatIDStr)
-
-        return runner.members(client, chatID)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun connect(call: MethodCall): Map<String, String> {
         val uuid: String = call.argument<String>("uuid")!!
         val linkString: String = call.argument<String>("link")!!
 
-        val link: SandnodeLinkRecord = net.result.sandnode.link.Links.parse(linkString)
+        val link: SandnodeLinkRecord = Links.parse(linkString)
 
         val clientID: UUID = UUID.fromString(uuid)
 
         return runner.connect(clientID, link)
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun login(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val nickname: String = call.argument<String>("nickname")!!
-        val password: String = call.argument<String>("password")!!
-
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.login(client, nickname, password)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun register(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val nickname: String = call.argument<String>("nickname")!!
-        val password: String = call.argument<String>("password")!!
-
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.register(client, nickname, password)
-    }
-
-    @kotlin.Throws(ClientNotFoundException::class)
+    @Throws(ClientNotFoundException::class)
     private fun disconnect(call: MethodCall): String {
         val uuid: String = call.argument<String>("uuid")!!
         return runner.disconnect(uuid)
     }
 
     @TargetApi(Build.VERSION_CODES.N)
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun send(call: MethodCall): String {
         val uuid: String = call.argument<String>("uuid")!!
         val chatID: String = call.argument<String>("chat-id")!!
@@ -164,7 +126,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         return runner.send(io, chatID, content, replies)
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun groupAdd(call: MethodCall): String {
         val uuid: String = call.argument<String>("uuid")!!
         val group: String = call.argument<String>("group")!!
@@ -176,14 +138,14 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
     /** @noinspection rawtypes*/
     @TargetApi(Build.VERSION_CODES.TIRAMISU)
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun getChats(call: MethodCall): List<*> {
         val uuid: String = call.argument<String>("uuid")!!
         val client: SandnodeClient = taulight.getClient(uuid).client
         return runner.getChats(client)
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun loadMessages(call: MethodCall): Map<String, Any> {
         val uuid: String = call.argument<String>("uuid")!!
         val chatID_str: String = call.argument<String>("chat-id")!!
@@ -202,7 +164,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
     }
 
     @TargetApi(Build.VERSION_CODES.N)
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun loadChat(call: MethodCall): Any {
         val uuid: String = call.argument<String>("uuid")!!
         val chat: String = call.argument<String>("chat-id")!!
@@ -213,18 +175,8 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         return runner.loadChat(client, chatID)
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun createChannel(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val title: String = call.argument<String>("title")!!
-
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.createChannel(client, title)
-    }
-
     @TargetApi(Build.VERSION_CODES.O)
-    @kotlin.Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun addMember(call: MethodCall): Map<String, String> {
         val uuid: String = call.argument<String>("uuid")!!
         val chatIDString: String = call.argument<String>("chat-id")!!
@@ -237,90 +189,46 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         return runner.addMember(client, chatID, otherNickname)
     }
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun token(call: MethodCall): Map<String, String> {
+    @Throws(Exception::class)
+    private fun chain(call: MethodCall): Any {
         val uuid: String = call.argument<String>("uuid")!!
-        val token: String = call.argument<String>("token")!!
-        val client: SandnodeClient = taulight.getClient(uuid).client
+        val full: String = call.argument<String>("method")!!
+        val params: List<Any> = call.argument<List<Any>>("params") ?: emptyList()
 
-        return runner.token(client, token)
-    }
+        val splitted = full.split(".")
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun checkCode(call: MethodCall): Any {
-        val uuid: String = call.argument<String>("uuid")!!
-        val code: String = call.argument<String>("code")!!
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.checkCode(client, code)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun useCode(call: MethodCall): String {
-        val uuid: String = call.argument<String>("uuid")!!
-        val code: String = call.argument<String>("code")!!
+        val className = splitted[0]
+        val methodName = splitted[1]
 
         val client: SandnodeClient = taulight.getClient(uuid).client
 
-        return runner.useCode(client, code)
-    }
+        var clazz: Class<*>
+        try {
+            clazz = Class.forName("net.result.taulight.chain.sender.$className")
+        } catch (e: ClassNotFoundException) {
+            clazz = Class.forName("net.result.sandnode.chain.sender.$className")
+        }
+        val declaredConstructor = clazz.getDeclaredConstructor(IOController::class.java)
+        val method = clazz.methods
+            .firstOrNull { it.name == methodName && it.parameterTypes.size == params.size }
+            ?: throw ClassNotFoundException()
 
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun dialog(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val nickname: String = call.argument<String>("nickname")!!
+        val chain: IChain? = declaredConstructor.newInstance(client.io) as IChain?
 
-        val client: SandnodeClient = taulight.getClient(uuid).client
+        client.io.chainManager.linkChain(chain)
+        try {
+            val processedParams = params.map { param ->
+                if (param is String && uuidRegex.matches(param)) {
+                    UUID.fromString(param)
+                } else {
+                    param
+                }
+            }
 
-        return runner.dialog(client, nickname)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun leave(call: MethodCall): String {
-        val uuid: String = call.argument<String>("uuid")!!
-        val chatIDStr: String = call.argument<String>("chat-id")!!
-
-        val chatID: UUID = UUID.fromString(chatIDStr)
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.leave(client, chatID)
-    }
-
-    /** @noinspection rawtypes
-     */
-    @TargetApi(Build.VERSION_CODES.N)
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun channelCodes(call: MethodCall): List<*> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val chatIDStr: String = call.argument<String>("chat-id")!!
-
-        val chatID: UUID = UUID.fromString(chatIDStr)
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.channelCodes(client, chatID)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun react(call: MethodCall): String {
-        val uuid: String = call.argument<String>("uuid")!!
-        val messageIDStr: String = call.argument<String>("message-id")!!
-        val reactionType: String = call.argument<String>("reaction-type")!!
-
-        val messageID: UUID = UUID.fromString(messageIDStr)
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.react(client, messageID, reactionType)
-    }
-
-    @kotlin.Throws(java.lang.Exception::class)
-    private fun unreact(call: MethodCall): String {
-        val uuid: String = call.argument<String>("uuid")!!
-        val messageIDStr: String = call.argument<String>("message-id")!!
-        val reactionType: String = call.argument<String>("reaction-type")!!
-
-        val messageID: UUID = UUID.fromString(messageIDStr)
-        val client: SandnodeClient = taulight.getClient(uuid).client
-
-        return runner.unreact(client, messageID, reactionType)
+            val result = method.invoke(chain, *processedParams.toTypedArray())
+            return taulight.objectMapper.convertValue(result, Any::class.java)
+        } finally {
+            client.io.chainManager.removeChain(chain)
+        }
     }
 }

@@ -67,6 +67,16 @@ class JavaService {
     return SuccessResult(result["success"]);
   }
 
+  Future<Result> chain(
+    String methodName, {
+    required Client client,
+    List<String>? params,
+  }) {
+    Map<String, Object> args = {"uuid": client.uuid, "method": methodName};
+    if (params != null) args["params"] = params;
+    return method("chain", args);
+  }
+
   Future<Client> connect(
     String link, {
     VoidCallback? callback,
@@ -138,12 +148,8 @@ class JavaService {
       throw result;
     }
 
-    if (result is SuccessResult) {
-      client.connected = true;
-      callback?.call();
-      return;
-    }
-    throw IncorrectFormatChannelException();
+    client.connected = true;
+    callback?.call();
   }
 
   Future<List<ChatDTO>> loadChats(Client client) async {
@@ -267,10 +273,11 @@ class JavaService {
   }
 
   Future<String> createChannel(Client client, String title) async {
-    Result result = await method("create-channel", {
-      "uuid": client.uuid,
-      "title": title,
-    });
+    Result result = await chain(
+      "ChannelClientChain.sendNewChannelRequest",
+      client: client,
+      params: [title],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -281,21 +288,20 @@ class JavaService {
 
     if (result is SuccessResult) {
       var obj = result.obj;
-      if (obj is Map) {
-        return obj["chat-id"];
+      if (obj is String) {
+        return obj;
       }
     }
 
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> log(Client client, String nickname, String passwd) async {
-    Result result = await method("login", {
-      "uuid": client.uuid,
-      "nickname": nickname,
-      "password": passwd,
-    });
-
+  Future<String> log(Client client, String nickname, String password) async {
+    Result result = await chain(
+      "LogPasswdClientChain.getToken",
+      client: client,
+      params: [nickname, password],
+    );
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
         throw DisconnectException(client);
@@ -310,22 +316,20 @@ class JavaService {
 
     if (result is SuccessResult) {
       var obj = result.obj;
-      if (obj is Map) {
-        String token = obj["token"];
-        client.user = User(client, nickname, token);
-        return token;
+      if (obj is String) {
+        return obj;
       }
     }
 
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> reg(Client client, String nickname, String passwd) async {
-    Result result = await method("register", {
-      "uuid": client.uuid,
-      "nickname": nickname,
-      "password": passwd,
-    });
+  Future<String> reg(Client client, String nickname, String password) async {
+    Result result = await chain(
+      "RegistrationClientChain.getTokenFromRegistration",
+      client: client,
+      params: [nickname, password],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -345,10 +349,9 @@ class JavaService {
 
     if (result is SuccessResult) {
       var obj = result.obj;
-      if (obj is Map) {
-        String token = obj["token"];
-        client.user = User(client, nickname, token);
-        return token;
+      if (obj is String) {
+        client.user = User(client, nickname, obj);
+        return obj;
       }
     }
 
@@ -385,10 +388,11 @@ class JavaService {
   }
 
   Future<List<Member>> getMembers(TauChat chat) async {
-    Result result = await method("members", {
-      "uuid": chat.client.uuid,
-      "chat-id": chat.id,
-    });
+    Result result = await chain(
+      "MembersClientChain.getMembers",
+      client: chat.client,
+      params: [chat.id],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -408,8 +412,11 @@ class JavaService {
   }
 
   Future<String> authByToken(Client client, String token) async {
-    var uuid = client.uuid;
-    Result result = await method("token", {"uuid": uuid, "token": token});
+    Result result = await chain(
+      "LoginClientChain.getNickname",
+      client: client,
+      params: [token],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -432,8 +439,8 @@ class JavaService {
 
     if (result is SuccessResult) {
       var obj = result.obj;
-      if (obj is Map) {
-        return obj["nickname"];
+      if (obj is String) {
+        return obj;
       }
     }
 
@@ -477,10 +484,11 @@ class JavaService {
   }
 
   Future<Map<String, dynamic>> checkCode(Client client, String code) async {
-    Result result = await method("check-code", {
-      "uuid": client.uuid,
-      "code": code,
-    });
+    Result result = await chain(
+      "CheckCodeClientChain.check",
+      client: client,
+      params: [code],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
@@ -500,10 +508,11 @@ class JavaService {
   }
 
   Future<void> useCode(Client client, String code) async {
-    Result result = await method("use-code", {
-      "uuid": client.uuid,
-      "code": code,
-    });
+    Result result = await chain(
+      "UseCodeClientChain.use",
+      client: client,
+      params: [code],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
@@ -520,19 +529,14 @@ class JavaService {
       }
       throw result;
     }
-
-    if (result is SuccessResult) {
-      return;
-    }
-
-    throw IncorrectFormatChannelException();
   }
 
   Future<TauChat?> createDialog(Client client, String nickname) async {
-    Result result = await method("dialog", {
-      "uuid": client.uuid,
-      "nickname": nickname,
-    });
+    Result result = await chain(
+      "DialogClientChain.getDialogID",
+      client: client,
+      params: [nickname],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "AddressedMemberNotFoundException") {
@@ -545,20 +549,21 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      Map<String, dynamic> chatResult =
-          Map<String, dynamic>.from(result.obj as Map);
-      String chatId = chatResult["chat-id"];
-      return await loadChat(client, chatId);
+      var obj = result.obj;
+      if (obj is String) {
+        return await loadChat(client, obj);
+      }
     }
 
     throw IncorrectFormatChannelException();
   }
 
   Future<void> leaveChat(Client client, TauChat chat) async {
-    Result result = await method("leave", {
-      "uuid": client.uuid,
-      "chat-id": chat.id,
-    });
+    Result result = await chain(
+      "ChannelClientChain.sendLeaveRequest",
+      client: client,
+      params: [chat.id],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "UnauthorizedException") {
@@ -569,22 +574,17 @@ class JavaService {
       }
       throw result;
     }
-
-    if (result is SuccessResult) {
-      return;
-    }
-
-    throw IncorrectFormatChannelException();
   }
 
   Future<List<Map<String, dynamic>>> getChannelCodes(
     Client client,
     TauChat chat,
   ) async {
-    Result result = await method("channel-codes", {
-      "uuid": client.uuid,
-      "chat-id": chat.id,
-    });
+    Result result = await chain(
+      "ChannelClientChain.getChannelCodes",
+      client: client,
+      params: [chat.id],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
@@ -614,11 +614,11 @@ class JavaService {
     ChatMessageViewDTO message,
     String reactionType,
   ) async {
-    Result result = await method("react", {
-      "uuid": client.uuid,
-      "message-id": message.id,
-      "reaction-type": reactionType
-    });
+    Result result = await chain(
+      "ReactionRequestClientChain.react",
+      client: client,
+      params: [message.id, reactionType],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
@@ -632,14 +632,6 @@ class JavaService {
       }
       throw result;
     }
-
-    if (result is SuccessResult) {
-      if (result.obj == "success") {
-        return;
-      }
-    }
-
-    throw IncorrectFormatChannelException();
   }
 
   Future<void> unreact(
@@ -647,11 +639,11 @@ class JavaService {
     ChatMessageViewDTO message,
     String reactionType,
   ) async {
-    Result result = await method("unreact", {
-      "uuid": client.uuid,
-      "message-id": message.id,
-      "reaction-type": reactionType
-    });
+    Result result = await chain(
+      "ReactionRequestClientChain.unreact",
+      client: client,
+      params: [message.id, reactionType],
+    );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
@@ -665,13 +657,5 @@ class JavaService {
       }
       throw result;
     }
-
-    if (result is SuccessResult) {
-      if (result.obj == "success") {
-        return;
-      }
-    }
-
-    throw IncorrectFormatChannelException();
   }
 }
