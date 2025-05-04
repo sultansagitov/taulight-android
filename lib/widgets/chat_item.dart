@@ -7,13 +7,10 @@ class ChatItem extends StatelessWidget {
   final TauChat chat;
   final void Function(TauChat) onTap;
 
-  final bool dup;
-
   const ChatItem({
     super.key,
     required this.chat,
     required this.onTap,
-    required this.dup,
   });
 
   @override
@@ -70,20 +67,13 @@ class ChatItem extends StatelessWidget {
                   Text.rich(
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    TextSpan(children: [
-                      if (dup)
-                        TextSpan(
-                          text: "(as ${user!.nickname}) ",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      TextSpan(
-                        text: chat.getTitle(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                    TextSpan(
+                      text: chat.getTitle(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
-                    ]),
+                    ),
                   ),
                   const SizedBox(height: 4),
                   if (message == null) ...[
