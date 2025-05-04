@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
@@ -64,7 +65,6 @@ class ChatScreenState extends State<ChatScreen> {
     final messages = widget.chat.messages;
     final messagesTotalCount = widget.chat.totalCount;
 
-    final isDialog = widget.chat.record is DialogDTO;
     var d = 36;
 
     var enabled = widget.chat.client.connected &&
@@ -78,7 +78,7 @@ class ChatScreenState extends State<ChatScreen> {
         ),
         title: Row(
           children: [
-            if (isDialog) ...[
+            if (isDialog(widget.chat)) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
@@ -108,7 +108,7 @@ class ChatScreenState extends State<ChatScreen> {
           TauButton.icon(
             Icons.more_vert,
             onPressed: () {
-              if (widget.chat.record is DialogDTO) {
+              if (isDialog(widget.chat)) {
                 moveTo(context, DialogInfoScreen(widget.chat));
               } else {
                 moveTo(context, ChannelInfoScreen(widget.chat));

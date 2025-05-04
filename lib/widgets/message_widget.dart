@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
@@ -28,15 +29,6 @@ class MessageWidget extends StatefulWidget {
 
 class _MessageWidgetState extends State<MessageWidget> {
   Future<Widget>? inviteDetails;
-
-  late bool isDialog;
-
-  @override
-  void initState() {
-    super.initState();
-
-    isDialog = widget.chat.record is DialogDTO;
-  }
 
   Widget _name(BuildContext context, String nickname) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -346,7 +338,7 @@ class _MessageWidgetState extends State<MessageWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isDialog && first && !widget.message.isMe)
+                if (!isDialog(widget.chat) && first && !widget.message.isMe)
                   _name(context, nickname),
 
                 // Show replies first if available

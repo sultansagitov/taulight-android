@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/classes/records.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/menus/home.dart';
 import 'package:taulight/start_method.dart';
@@ -33,8 +33,8 @@ class HomeScreenState extends State<HomeScreen> {
   late final MethodCallHandler methodCallHandler;
 
   final List<Filter> filters = [
-    Filter('Channels', (chat) => chat.record is ChannelDTO),
-    Filter('Dialogs', (chat) => chat.record is DialogDTO),
+    Filter('Channels', isChannel),
+    Filter('Dialogs', isDialog),
   ];
 
   bool loadingChats = false;

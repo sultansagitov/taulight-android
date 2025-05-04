@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
@@ -17,7 +18,6 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    final isDialog = chat.record is DialogDTO;
     var d = 52;
 
     ChatMessageViewDTO? message;
@@ -44,7 +44,7 @@ class ChatItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            if (isDialog)
+            if (isDialog(chat))
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
