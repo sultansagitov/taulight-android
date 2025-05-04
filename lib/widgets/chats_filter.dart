@@ -44,29 +44,38 @@ class _ChatsFilterState extends State<ChatsFilter> {
     );
   }
 
-  Padding buildFilter(Filter filter) {
+  Widget buildFilter(Filter filter) {
     bool selected = selectedFilters.contains(filter);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final selectedColor = isDark ? Colors.blue[300]! : Colors.blue;
+    final unselectedColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final selectedTextColor = isDark ? Colors.black : Colors.white;
+    final unselectedTextColor = isDark ? Colors.white : Colors.black;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: GestureDetector(
         onTap: () {
-          selected
-              ? selectedFilters.remove(filter)
-              : selectedFilters.add(filter);
-
+          setState(() {
+            selected
+                ? selectedFilters.remove(filter)
+                : selectedFilters.add(filter);
+          });
           widget.onChange(selectedFilters);
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           decoration: BoxDecoration(
-            color: selected ? Colors.blue : Colors.grey[300],
+            color: selected ? selectedColor : unselectedColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             filter.label,
-            style: TextStyle(color: selected ? Colors.white : Colors.black),
+            style: TextStyle(
+              color: selected ? selectedTextColor : unselectedTextColor,
+            ),
           ),
         ),
       ),
