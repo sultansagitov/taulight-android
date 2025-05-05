@@ -48,12 +48,6 @@ List<String> weekdays = 'Mon Tue Wed Thu Fri Sat Sun'.split(' ');
 List<String> months =
     'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
 
-ImageProvider<Object> getImage(TauChat chat) {
-  var seed = chat.id.hashCode % 100;
-  var url = "https://randomuser.me/api/portraits/men/$seed.jpg";
-  return NetworkImage(url);
-}
-
 Color getRandomColor(String seed) {
   var bytes = utf8.encode(seed);
   var digest = sha256.convert(bytes).bytes;

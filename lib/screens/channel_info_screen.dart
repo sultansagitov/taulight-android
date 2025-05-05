@@ -5,6 +5,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 
 class ChannelInfoScreen extends StatelessWidget {
   final TauChat chat;
@@ -36,10 +37,7 @@ class ChannelInfoScreen extends StatelessWidget {
   Widget _buildAppBarTitle(String title) {
     return Row(
       children: [
-        const CircleAvatar(
-          backgroundColor: Colors.black,
-          radius: 20,
-        ),
+        ChatAvatar(chat, d: 40),
         const SizedBox(width: 10),
         Expanded(
           child: Text(

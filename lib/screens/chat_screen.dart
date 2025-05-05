@@ -6,6 +6,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/channel_info_screen.dart';
 import 'package:taulight/screens/dialog_info_screen.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/message_widget.dart';
 import 'package:taulight/widgets/message_field.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -65,8 +66,6 @@ class ChatScreenState extends State<ChatScreen> {
     final messages = widget.chat.messages;
     final messagesTotalCount = widget.chat.totalCount;
 
-    var d = 36;
-
     var enabled = widget.chat.client.connected &&
         widget.chat.client.user != null &&
         widget.chat.client.user!.authorized;
@@ -78,22 +77,7 @@ class ChatScreenState extends State<ChatScreen> {
         ),
         title: Row(
           children: [
-            if (isDialog(widget.chat)) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: d.toDouble(),
-                  height: d.toDouble(),
-                  color: Colors.black,
-                ),
-              ),
-            ] else ...[
-              CircleAvatar(
-                radius: d / 2,
-                // backgroundImage: getImage(chat),
-                backgroundColor: Colors.black,
-              ),
-            ],
+            ChatAvatar(widget.chat, d: 36),
             const SizedBox(width: 12),
             Flexible(
               child: Text(

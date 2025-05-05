@@ -658,4 +658,38 @@ class JavaService {
       throw result;
     }
   }
+
+  Future<Map<String, String>> getChannelAvatar(
+    Client client,
+    ChannelDTO channel,
+  ) async {
+    Result result = await method("get-channel-avatar", {
+      "uuid": client.uuid,
+      "chat-id": channel.id,
+    });
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      var map = Map<String, dynamic>.from(result.obj as Map);
+
+      String filename = map["filename"] as String;
+      String avatar = map["avatarBase64"] as String;
+
+      return {"filename": filename, "imageBase64": avatar};
+    }
+
+    throw IncorrectFormatChannelException();
+  }
 }

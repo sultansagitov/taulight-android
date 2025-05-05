@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 
 class ChatItem extends StatelessWidget {
   final TauChat chat;
@@ -17,8 +17,6 @@ class ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-
-    var d = 52;
 
     ChatMessageViewDTO? message;
     if (chat.messages.isNotEmpty) {
@@ -44,21 +42,7 @@ class ChatItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            if (isDialog(chat))
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: d.toDouble(),
-                  height: d.toDouble(),
-                  color: Colors.black,
-                ),
-              )
-            else
-              CircleAvatar(
-                radius: d / 2,
-                // backgroundImage: getImage(chat),
-                backgroundColor: Colors.black,
-              ),
+            ChatAvatar(chat, d: 52),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

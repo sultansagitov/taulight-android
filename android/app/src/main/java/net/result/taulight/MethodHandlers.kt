@@ -58,6 +58,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         methodHandlerMap.put("load-clients", this::loadClient)
         methodHandlerMap.put("load-chat", this::loadChat)
         methodHandlerMap.put("add-member", this::addMember)
+        methodHandlerMap.put("get-channel-avatar", this::getChannelAvatar)
         methodHandlerMap.put("chain", this::chain)
     }
 
@@ -187,6 +188,17 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         val client: SandnodeClient = taulight.getClient(uuid).client
 
         return runner.addMember(client, chatID, otherNickname)
+    }
+
+    private fun getChannelAvatar(call: MethodCall): Any {
+        val uuid: String = call.argument<String>("uuid")!!
+        val chatIDString: String = call.argument<String>("chat-id")!!
+
+        val chatID: UUID = UUID.fromString(chatIDString)
+
+        val client: SandnodeClient = taulight.getClient(uuid).client
+
+        return runner.getChannelAvatar(client, chatID)
     }
 
     @Throws(Exception::class)

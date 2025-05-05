@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 
 class DialogInfoScreen extends StatelessWidget {
   final TauChat chat;
@@ -15,10 +16,7 @@ class DialogInfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(width: 40, height: 40, color: Colors.black),
-            ),
+            ChatAvatar(chat, d: 40),
             const SizedBox(width: 10),
             Expanded(
               child: Text(

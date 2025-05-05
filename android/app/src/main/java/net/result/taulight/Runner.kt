@@ -12,6 +12,7 @@ import net.result.taulight.dto.*
 import net.result.taulight.exception.ClientNotFoundException
 import java.time.Duration
 import java.util.*
+import android.util.Base64
 
 class Runner(val taulight: Taulight) {
 
@@ -101,5 +102,23 @@ class Runner(val taulight: Taulight) {
         val code = chain.createInviteCode(chatID, otherNickname, Duration.ofDays(1))
         client.io.chainManager.removeChain(chain)
         return mapOf("code" to code)
+    }
+
+    @Throws(Exception::class)
+    fun getChannelAvatar(client: SandnodeClient, chatID: UUID): Map<String, Any> {
+        val chain = ChannelClientChain(client.io)
+        client.io.chainManager.linkChain(chain)
+        val file = chain.getAvatar(chatID)
+        client.io.chainManager.removeChain(chain)
+
+        val filename: String = file.filename()
+        val body: ByteArray = file.body()
+
+        val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
+
+        return mapOf(
+            "filename" to filename,
+            "avatarBase64" to base64Avatar
+        )
     }
 }
