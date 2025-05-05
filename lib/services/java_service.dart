@@ -682,12 +682,7 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      var map = Map<String, dynamic>.from(result.obj as Map);
-
-      String filename = map["filename"] as String;
-      String avatar = map["avatarBase64"] as String;
-
-      return {"filename": filename, "imageBase64": avatar};
+      return Map<String, String>.from(result.obj as Map);
     }
 
     throw IncorrectFormatChannelException();

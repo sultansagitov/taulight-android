@@ -111,13 +111,15 @@ class Runner(val taulight: Taulight) {
         val file = chain.getAvatar(chatID)
         client.io.chainManager.removeChain(chain)
 
-        val filename: String = file.filename()
+        if (file == null) return mapOf()
+
+        val contentType: String = file.contentType()
         val body: ByteArray = file.body()
 
         val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
 
         return mapOf(
-            "filename" to filename,
+            "contentType" to contentType,
             "avatarBase64" to base64Avatar
         )
     }
