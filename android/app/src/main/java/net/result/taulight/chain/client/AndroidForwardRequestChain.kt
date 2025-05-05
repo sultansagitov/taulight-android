@@ -1,6 +1,6 @@
 package net.result.taulight.chain.client
 
-import net.result.sandnode.chain.sender.ClientChain
+import net.result.sandnode.chain.ClientChain
 import net.result.sandnode.error.ServerErrorManager
 import net.result.sandnode.exception.DeserializationException
 import net.result.sandnode.exception.ExpectedMessageException
