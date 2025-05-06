@@ -36,7 +36,7 @@ class ExceptionResult extends Result implements Exception {
 }
 
 class SuccessResult extends Result {
-  final Object obj;
+  final Object? obj;
   SuccessResult(this.obj);
 }
 
@@ -643,6 +643,31 @@ class JavaService {
       "ReactionRequestClientChain.unreact",
       client: client,
       params: [message.id, reactionType],
+    );
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+  }
+
+  Future<void> setChannelAvatar(
+    Client client,
+    ChannelDTO channel,
+    String imagePath,
+  ) async {
+    var result = await chain(
+      "ChannelClientChain.setAvatar",
+      client: client,
+      params: [channel.id, imagePath],
     );
 
     if (result is ExceptionResult) {

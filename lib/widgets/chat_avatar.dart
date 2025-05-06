@@ -1,13 +1,8 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/utils.dart';
 
 class ChatAvatar extends StatefulWidget {
@@ -27,49 +22,11 @@ class _ChatAvatarState extends State<ChatAvatar> {
   void initState() {
     super.initState();
 
-    final client = widget.chat.client;
-
     if (isChannel(widget.chat)) {
       final channel = widget.chat.record as ChannelDTO;
-      avatarFuture = _loadOrFetchChannelAvatar(client, channel.id);
+      avatarFuture = AvatarService.instance.loadOrFetchChannelAvatar(widget.chat, channel.id);
     } else {
       avatarFuture = Future.value(null);
-    }
-  }
-
-  Future<MemoryImage?> _loadOrFetchChannelAvatar(
-      Client client,
-      String channelId,
-      ) async {
-    final dir = await getApplicationDocumentsDirectory();
-
-    final avatarFile = File('${dir.path}/avatar_${client.uuid}_$channelId');
-    final noAvatarFile = File('${dir.path}/no_avatar_${client.uuid}_$channelId');
-
-    if (await noAvatarFile.exists()) {
-      return null;
-    }
-
-    if (await avatarFile.exists()) {
-      final bytes = await avatarFile.readAsBytes();
-      return MemoryImage(bytes);
-    }
-
-    try {
-      final channel = widget.chat.record as ChannelDTO;
-      final map = await JavaService.instance.getChannelAvatar(client, channel);
-      final base64Str = map["imageBase64"];
-
-      if (base64Str == null) {
-        await noAvatarFile.writeAsString('no avatar');
-        return null;
-      }
-
-      final bytes = base64Decode(base64Str);
-      await avatarFile.writeAsBytes(bytes, flush: true);
-      return MemoryImage(bytes);
-    } catch (e) {
-      return null;
     }
   }
 

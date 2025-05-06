@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
+import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -19,7 +21,7 @@ class ChannelInfoScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: _buildAppBarTitle(record.title),
+        title: _buildAppBarTitle(context, record.title),
       ),
       body: chat.client.connected
           ? _buildMemberList(membersFuture, record, context)
@@ -34,10 +36,15 @@ class ChannelInfoScreen extends StatelessWidget {
     return null;
   }
 
-  Widget _buildAppBarTitle(String title) {
+  Widget _buildAppBarTitle(BuildContext context, String title) {
     return Row(
       children: [
-        ChatAvatar(chat, d: 40),
+        GestureDetector(
+          onTap: () {
+            _pickAndSetChannelAvatar(context, chat);
+          },
+          child: ChatAvatar(chat, d: 40),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
@@ -98,7 +105,6 @@ class ChannelInfoScreen extends StatelessWidget {
             }
 
             return ListTile(
-              // TODO replace channel with member
               leading: ChatAvatar(chat, d: 40),
               title: Text(
                 member.nickname,
@@ -139,5 +145,15 @@ class ChannelInfoScreen extends StatelessWidget {
   void _showAddMemberDialog(BuildContext context) {
     List<TauChat> chats = chat.client.chats.values.where(isDialog).toList();
     moveTo(context, MembersInviteScreen(chats: chats, chatToInvite: chat));
+  }
+
+  Future<void> _pickAndSetChannelAvatar(
+      BuildContext context, TauChat chat) async {
+    final picker = ImagePicker();
+
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    await AvatarService.instance.setChannelAvatar(chat, pickedFile.path);
   }
 }

@@ -28,7 +28,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         private val uuidRegex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
     }
 
-    private val methodHandlerMap: Map<String, (MethodCall) -> Any>
+    private val methodHandlerMap: Map<String, (MethodCall) -> Any?>
     private val taulight: Taulight
 
     private val executorService: ExecutorService
@@ -48,18 +48,19 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
         runner = Runner(taulight)
 
-        methodHandlerMap = HashMap<String, (MethodCall) -> Any>()
-        methodHandlerMap.put("connect", this::connect)
-        methodHandlerMap.put("disconnect", this::disconnect)
-        methodHandlerMap.put("send", this::send)
-        methodHandlerMap.put("group", this::groupAdd)
-        methodHandlerMap.put("get-chats", this::getChats)
-        methodHandlerMap.put("load-messages", this::loadMessages)
-        methodHandlerMap.put("load-clients", this::loadClient)
-        methodHandlerMap.put("load-chat", this::loadChat)
-        methodHandlerMap.put("add-member", this::addMember)
-        methodHandlerMap.put("get-channel-avatar", this::getChannelAvatar)
-        methodHandlerMap.put("chain", this::chain)
+        methodHandlerMap = mapOf(
+            "connect" to this::connect,
+            "disconnect" to this::disconnect,
+            "send" to this::send,
+            "group" to this::groupAdd,
+            "get-chats" to this::getChats,
+            "load-messages" to this::loadMessages,
+            "load-clients" to this::loadClient,
+            "load-chat" to this::loadChat,
+            "add-member" to this::addMember,
+            "get-channel-avatar" to this::getChannelAvatar,
+            "chain" to this::chain,
+        )
     }
 
     @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -70,7 +71,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
                 taulight.clients.entries.removeIf{ (_, mc) -> !mc.client.io.isConnected() }
 
                 try {
-                    val res: Any = handler(call)
+                    val res: Any? = handler(call)
                     result.success(mapOf("success" to res))
                 } catch (e: SandnodeErrorException) {
                     result.success(mapOf(
@@ -202,7 +203,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
     }
 
     @Throws(Exception::class)
-    private fun chain(call: MethodCall): Any {
+    private fun chain(call: MethodCall): Any? {
         val uuid: String = call.argument<String>("uuid")!!
         val full: String = call.argument<String>("method")!!
         val params: List<Any> = call.argument<List<Any>>("params") ?: emptyList()
@@ -238,7 +239,11 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             }
 
             val result = method.invoke(chain, *processedParams.toTypedArray())
-            return taulight.objectMapper.convertValue(result, Any::class.java)
+            return if (result == Unit) {
+                null
+            } else {
+                taulight.objectMapper.convertValue(result, Any::class.java)
+            }
         } finally {
             client.io.chainManager.removeChain(chain)
         }
