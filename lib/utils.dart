@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:math';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
@@ -49,23 +47,14 @@ List<String> months =
     'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
 
 Color getRandomColor(String seed) {
-  var bytes = utf8.encode(seed);
-  var digest = sha256.convert(bytes).bytes;
+  int hash = seed.codeUnits.fold(0, (prev, elem) => prev + elem);
+  final Random random = Random(hash);
 
-  int r = digest[0];
-  int g = digest[1];
-  int b = digest[2];
+  final double hue = random.nextDouble() * 360;
+  final double saturation = 0.4 + random.nextDouble() * 0.2;
+  final double lightness = 0.5 + random.nextDouble() * 0.1;
 
-  List<int> rgb = [r, g, b];
-  int maxChannel = rgb.reduce(max);
-  if (maxChannel < 200) {
-    double factor = 200 / maxChannel;
-    r = (r * factor).clamp(0, 64).toInt();
-    g = (g * factor).clamp(0, 64).toInt();
-    b = (b * factor).clamp(0, 64).toInt();
-  }
-
-  return Color.fromARGB(255, r, g, b);
+  return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
 }
 
 Color grey(Color color) {

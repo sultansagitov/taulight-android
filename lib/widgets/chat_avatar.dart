@@ -37,27 +37,39 @@ class _ChatAvatarState extends State<ChatAvatar> {
     }
   }
 
-  Future<MemoryImage> _loadOrFetchChannelAvatar(
-    Client client,
-    String channelId,
-  ) async {
+  Future<MemoryImage?> _loadOrFetchChannelAvatar(
+      Client client,
+      String channelId,
+      ) async {
     final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/avatar_${client.uuid}_$channelId.png';
-    final file = File(filePath);
 
-    if (await file.exists()) {
-      final bytes = await file.readAsBytes();
+    final avatarFile = File('${dir.path}/avatar_${client.uuid}_$channelId');
+    final noAvatarFile = File('${dir.path}/no_avatar_${client.uuid}_$channelId');
+
+    if (await noAvatarFile.exists()) {
+      return null;
+    }
+
+    if (await avatarFile.exists()) {
+      final bytes = await avatarFile.readAsBytes();
       return MemoryImage(bytes);
-    } else {
-      var channel = widget.chat.record as ChannelDTO;
+    }
+
+    try {
+      final channel = widget.chat.record as ChannelDTO;
       final map = await JavaService.instance.getChannelAvatar(client, channel);
       final base64Str = map["imageBase64"];
+
       if (base64Str == null) {
-        throw Exception("No image returned");
+        await noAvatarFile.writeAsString('no avatar');
+        return null;
       }
+
       final bytes = base64Decode(base64Str);
-      await file.writeAsBytes(bytes, flush: true);
+      await avatarFile.writeAsBytes(bytes, flush: true);
       return MemoryImage(bytes);
+    } catch (e) {
+      return null;
     }
   }
 
@@ -88,9 +100,7 @@ class _ChatAvatarState extends State<ChatAvatar> {
     initials = initials.toUpperCase();
 
     Color bg = getRandomColor(widget.chat.id);
-    var color = (bg.r + bg.g * 2 + bg.b) > 2
-        ? Colors.black.withAlpha(224)
-        : Colors.white.withAlpha(192);
+    var color = Colors.white.withAlpha(192);
 
     if (isDialog(widget.chat)) {
       return ClipRRect(

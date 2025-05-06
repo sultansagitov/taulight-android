@@ -98,9 +98,8 @@ class ChannelInfoScreen extends StatelessWidget {
             }
 
             return ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Colors.deepPurple,
-              ),
+              // TODO replace channel with member
+              leading: ChatAvatar(chat, d: 40),
               title: Text(
                 member.nickname,
                 style: TextStyle(
