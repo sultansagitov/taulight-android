@@ -7,13 +7,13 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class LoginScreen extends StatefulWidget {
   final Client client;
-  final VoidCallback updateHome;
+  final VoidCallback? updateHome;
   final VoidCallback? onSuccess;
 
   const LoginScreen({
     super.key,
     required this.client,
-    required this.updateHome,
+    this.updateHome,
     this.onSuccess,
   });
 
@@ -50,8 +50,8 @@ class LoginScreenState extends State<LoginScreen> {
       UserRecord userRecord = UserRecord(nickname, token);
       await StorageService.saveWithToken(client, userRecord);
       setState(() => _loading = false);
-      widget.updateHome();
       if (mounted) Navigator.pop(context);
+      widget.updateHome?.call();
       widget.onSuccess?.call();
     } on IncorrectUserDataException {
       setState(() {
@@ -85,7 +85,7 @@ class LoginScreenState extends State<LoginScreen> {
       UserRecord userRecord = UserRecord(nickname, token);
       await StorageService.saveWithToken(client, userRecord);
       setState(() => _loading = false);
-      widget.updateHome();
+      widget.updateHome?.call();
       if (mounted) {
         Navigator.pop(context);
       }

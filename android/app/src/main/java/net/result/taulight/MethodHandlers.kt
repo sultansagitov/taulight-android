@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger
 import java.lang.Class
 import java.lang.ClassNotFoundException
 import java.lang.Exception
+import java.lang.reflect.InvocationTargetException
 import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -244,6 +245,8 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             } else {
                 taulight.objectMapper.convertValue(result, Any::class.java)
             }
+        } catch (e: InvocationTargetException) {
+            throw e.cause ?: e
         } finally {
             client.io.chainManager.removeChain(chain)
         }

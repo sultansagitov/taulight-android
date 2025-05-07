@@ -297,6 +297,7 @@ class JavaService {
   }
 
   Future<String> log(Client client, String nickname, String password) async {
+    client.user?.expiredToken = false;
     Result result = await chain(
       "LogPasswdClientChain.getToken",
       client: client,
@@ -325,6 +326,7 @@ class JavaService {
   }
 
   Future<String> reg(Client client, String nickname, String password) async {
+    client.user?.expiredToken = false;
     Result result = await chain(
       "RegistrationClientChain.getTokenFromRegistration",
       client: client,
@@ -412,6 +414,7 @@ class JavaService {
   }
 
   Future<String> authByToken(Client client, String token) async {
+    client.user?.expiredToken = false;
     Result result = await chain(
       "LoginClientChain.getNickname",
       client: client,

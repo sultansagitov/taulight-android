@@ -7,6 +7,7 @@ import 'package:taulight/services/java_service.dart';
 enum ClientStatus {
   connected("Connected", Colors.green),
   unauthorized("Unauthorized", Colors.amber),
+  expired("Expired Token", Colors.amber),
   disconnected("Disconnected", Colors.red);
 
   final String str;
@@ -50,6 +51,7 @@ class Client {
   ClientStatus get status {
     if (!connected) return ClientStatus.disconnected;
     if (user == null || !user!.authorized) return ClientStatus.unauthorized;
+    if (user!.expiredToken) return ClientStatus.expired;
     return ClientStatus.connected;
   }
 
@@ -94,6 +96,8 @@ class Client {
   }
 
   /// Loads all chats.
+  ///
+  /// You should check <code>user.authorized</code> before call
   ///
   /// Returns the loaded chats.
   ///
@@ -144,6 +148,7 @@ class Client {
     await disconnect();
     await JavaService.instance.reconnect(this);
     await user?.reloadIfUnauthorized();
+    if (!authorized) return;
     await loadChats();
   }
 

@@ -77,7 +77,9 @@ class InvalidTokenException extends ClientException {
 }
 
 class ExpiredTokenException extends InvalidTokenException {
-  ExpiredTokenException(super.client);
+  ExpiredTokenException(super.client) {
+    client.user?.expiredToken = true;
+  }
 }
 
 class NoEffectException implements Exception {

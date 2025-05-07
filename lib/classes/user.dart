@@ -5,6 +5,7 @@ class User {
   String nickname;
   String token;
   bool authorized = true;
+  bool expiredToken = false;
 
   User(this.client, this.nickname, this.token);
 

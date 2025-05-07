@@ -114,6 +114,8 @@ class TauChat {
           await client.authByToken(record.token);
         }
 
+        if (!client.authorized) continue;
+
         await client.loadChats();
         for (var chat in client.chats.values) {
           await chat.loadMessages(0, 2);

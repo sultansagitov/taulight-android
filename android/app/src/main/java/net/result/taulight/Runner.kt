@@ -67,11 +67,11 @@ class Runner(val taulight: Taulight) {
     fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): Map<String, Any> {
         val chain = MessageClientChain(client.io)
         client.io.chainManager.linkChain(chain)
-        chain.getMessages(chatID, index, size)
+        val paginated = chain.getMessages(chatID, index, size)
         client.io.chainManager.removeChain(chain)
-        val messages = chain.getMessages()
+        val messages = paginated.objects
         return mapOf(
-            "count" to chain.getCount(),
+            "count" to paginated.totalCount,
             "messages" to taulight.objectMapper.convertValue(messages, List::class.java)
         )
     }
