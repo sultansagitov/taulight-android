@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:uuid/uuid.dart';
 
@@ -79,17 +80,22 @@ class JavaService {
 
   Future<Client> connect(
     String link, {
-    VoidCallback? callback,
+    VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
     String uuid = Uuid().v4();
-    return await connectWithUUID(uuid, link, callback: callback, keep: keep);
+    return await connectWithUUID(
+      uuid,
+      link,
+      connectUpdate: connectUpdate,
+      keep: keep,
+    );
   }
 
   Future<Client> connectWithUUID(
     String uuid,
     String link, {
-    VoidCallback? callback,
+    VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
     String endpoint;
@@ -110,7 +116,7 @@ class JavaService {
 
     if (keep) clients[uuid] = client;
 
-    callback?.call();
+    connectUpdate?.call();
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
@@ -125,7 +131,7 @@ class JavaService {
     if (result is SuccessResult) {
       client.connected = true;
       if (!keep) clients[uuid] = client;
-      callback?.call();
+      connectUpdate?.call();
       return client;
     }
     throw IncorrectFormatChannelException();
@@ -318,7 +324,11 @@ class JavaService {
     if (result is SuccessResult) {
       var obj = result.obj;
       if (obj is String) {
-        return obj;
+        var token = obj;
+        client.user = User(client, nickname, token);
+        UserRecord userRecord = UserRecord(nickname, token);
+        await StorageService.saveWithToken(client, userRecord);
+        return token;
       }
     }
 
@@ -443,6 +453,9 @@ class JavaService {
     if (result is SuccessResult) {
       var obj = result.obj;
       if (obj is String) {
+        String nickname = obj;
+        StorageService.saveWithToken(client, UserRecord(nickname, token));
+        client.user = User(client, nickname, token);
         return obj;
       }
     }

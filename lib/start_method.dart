@@ -8,11 +8,11 @@ import 'package:taulight/services/java_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
 
-void start({
+Future<void> start({
   required BuildContext context,
   required MethodCallHandler methodCallHandler,
   required VoidCallback update,
-}) {
+}) async {
   WidgetsBinding.instance.addPostFrameCallback((_) async {
     await JavaService.instance.loadClients();
 
@@ -50,9 +50,7 @@ void start({
           String? error;
 
           try {
-            var token = serverRecord.user!.token;
-            var nickname = await client.authByToken(token);
-            client.user = User(client, nickname, token);
+            await client.authByToken(serverRecord.user!.token, store: false);
           } on ExpiredTokenException {
             error = "Session expired. ${client.name}";
           } on InvalidTokenException {

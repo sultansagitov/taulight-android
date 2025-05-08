@@ -142,9 +142,9 @@ class ChannelInfoScreen extends StatelessWidget {
     );
   }
 
-  void _showAddMemberDialog(BuildContext context) {
-    List<TauChat> chats = chat.client.chats.values.where(isDialog).toList();
-    moveTo(context, MembersInviteScreen(chats: chats, chatToInvite: chat));
+  Future<void> _showAddMemberDialog(BuildContext context) async {
+    var c = chat.client.chats.values.where(isDialog).toList();
+    await moveTo(context, MembersInviteScreen(chats: c, chatToInvite: chat));
   }
 
   Future<void> _pickAndSetChannelAvatar(

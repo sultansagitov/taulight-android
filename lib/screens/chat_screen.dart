@@ -15,9 +15,9 @@ class ChatScreen extends StatefulWidget {
   final TauChat chat;
   final VoidCallback? updateHome;
 
-  const ChatScreen({
+  const ChatScreen(
+    this.chat, {
     super.key,
-    required this.chat,
     this.updateHome,
   });
 
@@ -91,12 +91,12 @@ class ChatScreenState extends State<ChatScreen> {
         actions: [
           TauButton.icon(
             Icons.more_vert,
-            onPressed: () {
-              if (isDialog(widget.chat)) {
-                moveTo(context, DialogInfoScreen(widget.chat));
-              } else {
-                moveTo(context, ChannelInfoScreen(widget.chat));
-              }
+            onPressed: () async {
+              Widget screen = isDialog(widget.chat)
+                  ? DialogInfoScreen(widget.chat)
+                  : ChannelInfoScreen(widget.chat);
+
+              await moveTo(context, screen);
             },
           ),
         ],

@@ -5,9 +5,7 @@ import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class StartDialogScreen extends StatefulWidget {
-  final VoidCallback callback;
-
-  const StartDialogScreen({super.key, required this.callback});
+  const StartDialogScreen({super.key});
 
   @override
   State<StartDialogScreen> createState() => _StartDialogScreenState();
@@ -69,10 +67,8 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
       }
     }
 
-    widget.callback();
-
     if (mounted) {
-      Navigator.pop(context);
+      Navigator.pop(context, nickname);
     }
   }
 

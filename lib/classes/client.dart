@@ -3,6 +3,7 @@ import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/java_service.dart';
+import 'package:taulight/widgets/chats_filter.dart';
 
 enum ClientStatus {
   connected("Connected", Colors.green),
@@ -30,6 +31,10 @@ class Client {
 
   bool get authorized => connected && user != null && user!.authorized;
 
+  late Filter filter;
+
+  User? user;
+
   set connected(bool value) {
     _connected = value;
     if (value) {
@@ -39,14 +44,14 @@ class Client {
     }
   }
 
-  User? user;
-
   Client({
     required this.name,
     required this.uuid,
     required this.endpoint,
     required this.link,
-  });
+  }) {
+    filter = Filter(name, (chat) => chat.client == this);
+  }
 
   ClientStatus get status {
     if (!connected) return ClientStatus.disconnected;
@@ -97,7 +102,7 @@ class Client {
 
   /// Loads all chats.
   ///
-  /// You should check <code>user.authorized</code> before call
+  /// You should check `user.authorized` before call
   ///
   /// Returns the loaded chats.
   ///
@@ -132,11 +137,13 @@ class Client {
     return await JavaService.instance.createChannel(this, title);
   }
 
-  /// Authenticates the client with the given token.
+  /// Authenticates the client using the provided token.
+  /// Stores the authenticated client and token if `store: true`,
+  /// initializes `client.user` with a new `User` instance,
   ///
   /// Returns the nickname of the user.
   ///
-  Future<String> authByToken(String token) async {
+  Future<String> authByToken(String token, {bool store = true}) async {
     return await JavaService.instance.authByToken(this, token);
   }
 
@@ -175,17 +182,16 @@ class Client {
     return CodeDTO.fromMap(map);
   }
 
-  @override
-  String toString() {
-    var s = connected ? " connected" : "";
-    return "Client{$uuid $endpoint chats=${chats.length}$s $user}";
-  }
-
   Future<void> react(ChatMessageViewDTO message, String reactionType) async {
     await JavaService.instance.react(this, message, reactionType);
   }
 
   Future<void> unreact(ChatMessageViewDTO message, String reactionType) async {
     await JavaService.instance.unreact(this, message, reactionType);
+  }
+
+  @override
+  String toString() {
+    return "Client{$uuid $endpoint ${status.name} chats=${chats.length} $user}";
   }
 }

@@ -45,27 +45,57 @@ enum MenuOption {
   );
 
   final String text;
-  final void Function(BuildContext, VoidCallback) action;
+  final Future<void> Function(BuildContext, VoidCallback) action;
   final IconData icon;
 
-  const MenuOption(
-      {required this.text, required this.action, required this.icon});
+  const MenuOption({
+    required this.text,
+    required this.action,
+    required this.icon,
+  });
 
-  static void _connectAction(BuildContext context, VoidCallback callback) =>
-      moveTo(context, ConnectionScreen(updateHome: callback));
+  static Future<void> _connectAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
+    var screen = ConnectionScreen(connectUpdate: callback);
+    var result = await moveTo(context, screen);
+    if (result != null) {
+      callback();
+    }
+  }
 
-  static void _hubsAction(BuildContext context, VoidCallback callback) =>
-      moveTo(context, HubsScreen(updateHome: callback));
+  static Future<void> _hubsAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
+    await moveTo(context, HubsScreen(connectUpdate: callback));
+    callback();
+  }
 
-  static void _newChannelAction(BuildContext context, VoidCallback callback) =>
-      moveTo(context, CreateChannelScreen(callback: callback));
+  static Future<void> _newChannelAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
+    var result = await moveTo(context, CreateChannelScreen());
+    if (result == "success") callback();
+  }
 
-  static void _newDialogAction(BuildContext context, VoidCallback callback) =>
-      moveTo(context, StartDialogScreen(callback: callback));
+  static Future<void> _newDialogAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
+    var result = await moveTo(context, StartDialogScreen());
+    if (result is String) {
+      callback();
+    }
+  }
 
-  static void _clearStorageAction(_, __) => StorageService.clear();
+  static Future<void> _clearStorageAction(_, __) async {
+    return StorageService.clear();
+  }
 
-  static void _clearMessagesAction(_, VoidCallback callback) {
+  static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
     for (var client in JavaService.instance.clients.values) {
       for (var chat in client.chats.values) {
         chat.messages.clear();
@@ -74,7 +104,7 @@ enum MenuOption {
     callback();
   }
 
-  static void _printClientsAction(_, __) =>
+  static Future<void> _printClientsAction(_, __) async =>
       print("Clients: ${JavaService.instance.clients}");
 }
 
@@ -90,5 +120,7 @@ Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {
     }).toList(),
   );
 
-  if (context.mounted) value?.action(context, callback);
+  if (context.mounted) {
+    await value?.action(context, callback);
+  }
 }

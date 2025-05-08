@@ -6,9 +6,9 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class NotLoggedIn extends StatelessWidget {
   final Client client;
-  final VoidCallback updateHome;
+  final Future<void> Function(Object)? onLogin;
 
-  const NotLoggedIn(this.client, this.updateHome, {super.key});
+  const NotLoggedIn(this.client, {super.key, this.onLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +23,9 @@ class NotLoggedIn extends StatelessWidget {
             style: TextStyle(fontSize: 18),
           ),
           const SizedBox(height: 10),
-          TauButton.text("Login", onPressed: () {
-            var screen = LoginScreen(
-              client: client,
-              updateHome: updateHome,
-            );
-            moveTo(context, screen);
+          TauButton.text("Login", onPressed: () async {
+            var result = await moveTo(context, LoginScreen(client: client));
+            await onLogin?.call(result);
           }),
         ],
       ),

@@ -5,9 +5,7 @@ import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class CreateChannelScreen extends StatefulWidget {
-  final VoidCallback callback;
-
-  const CreateChannelScreen({super.key, required this.callback});
+  const CreateChannelScreen({super.key});
 
   @override
   State<CreateChannelScreen> createState() => _CreateChannelScreenState();
@@ -55,10 +53,8 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
             await client.createChannel(title).timeout(Duration(seconds: 10));
         await client.loadChat(chatID).timeout(Duration(seconds: 10));
 
-        widget.callback();
-
         if (mounted) {
-          Navigator.pop(context);
+          Navigator.pop(context, "success");
         }
       } catch (e) {
         setState(() => _error = "Failed to create channel");

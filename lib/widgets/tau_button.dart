@@ -8,43 +8,8 @@ class TauButton extends StatelessWidget {
   final String? text;
   final IconData? icon;
   final bool loading;
+  final bool disable;
   final Color? color;
-
-  factory TauButton.text(
-    String text, {
-    Key? key,
-    required VoidCallback onPressed,
-    BtnStyle style = BtnStyle.button,
-    Color? color,
-    bool loading = false,
-  }) =>
-      TauButton._(
-        key: key,
-        text: text,
-        icon: null,
-        onPressed: onPressed,
-        style: style,
-        color: color,
-        loading: loading,
-      );
-
-  factory TauButton.icon(
-    IconData icon, {
-    Key? key,
-    required VoidCallback onPressed,
-    BtnStyle style = BtnStyle.button,
-    Color? color,
-    bool loading = false,
-  }) =>
-      TauButton._(
-        key: key,
-        text: null,
-        icon: icon,
-        onPressed: onPressed,
-        style: style,
-        color: color,
-        loading: loading,
-      );
 
   const TauButton._({
     super.key,
@@ -54,7 +19,48 @@ class TauButton extends StatelessWidget {
     required this.style,
     required this.loading,
     required this.color,
+    required this.disable,
   });
+
+  factory TauButton.text(
+    String text, {
+    Key? key,
+    required VoidCallback onPressed,
+    BtnStyle style = BtnStyle.button,
+    Color? color,
+    bool loading = false,
+    bool disable = false,
+  }) =>
+      TauButton._(
+        key: key,
+        text: text,
+        icon: null,
+        onPressed: onPressed,
+        style: style,
+        color: color,
+        loading: loading,
+        disable: disable,
+      );
+
+  factory TauButton.icon(
+    IconData icon, {
+    Key? key,
+    required VoidCallback onPressed,
+    BtnStyle style = BtnStyle.button,
+    Color? color,
+    bool loading = false,
+    bool disable = false,
+}) =>
+      TauButton._(
+        key: key,
+        text: null,
+        icon: icon,
+        onPressed: onPressed,
+        style: style,
+        color: color,
+        loading: loading,
+        disable: disable,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +83,7 @@ class TauButton extends StatelessWidget {
 
     if (style == BtnStyle.text) {
       return TextButton(
-        onPressed: loading ? null : onPressed,
+        onPressed: loading || disable ? null : onPressed,
         style: ButtonStyle(
           enableFeedback: false,
           foregroundColor: WidgetStateProperty.all(color),
@@ -90,7 +96,7 @@ class TauButton extends StatelessWidget {
     }
     if (isText) {
       return ElevatedButton(
-        onPressed: loading ? null : onPressed,
+        onPressed: loading || disable ? null : onPressed,
         style: ButtonStyle(
           enableFeedback: false,
           foregroundColor: WidgetStateProperty.all(color),
@@ -102,7 +108,7 @@ class TauButton extends StatelessWidget {
     }
 
     return IconButton(
-      onPressed: loading ? null : onPressed,
+      onPressed: loading || disable ? null : onPressed,
       style: ButtonStyle(
         enableFeedback: false,
         foregroundColor: WidgetStateProperty.all(color),

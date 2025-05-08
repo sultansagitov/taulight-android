@@ -7,14 +7,10 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class LoginScreen extends StatefulWidget {
   final Client client;
-  final VoidCallback? updateHome;
-  final VoidCallback? onSuccess;
 
   const LoginScreen({
     super.key,
     required this.client,
-    this.updateHome,
-    this.onSuccess,
   });
 
   @override
@@ -46,13 +42,9 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       setState(() => _loading = true);
-      String token = await JavaService.instance.log(client, nickname, passwd);
-      UserRecord userRecord = UserRecord(nickname, token);
-      await StorageService.saveWithToken(client, userRecord);
+      await JavaService.instance.log(client, nickname, passwd);
       setState(() => _loading = false);
-      if (mounted) Navigator.pop(context);
-      widget.updateHome?.call();
-      widget.onSuccess?.call();
+      if (mounted) Navigator.pop(context, "login-success");
     } on IncorrectUserDataException {
       setState(() {
         _errorMessage = "Incorrect username or password.";
@@ -85,11 +77,9 @@ class LoginScreenState extends State<LoginScreen> {
       UserRecord userRecord = UserRecord(nickname, token);
       await StorageService.saveWithToken(client, userRecord);
       setState(() => _loading = false);
-      widget.updateHome?.call();
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, "register-success");
       }
-      widget.onSuccess?.call();
     } on IncorrectUserDataException {
       setState(() {
         _errorMessage = "Invalid registration data.";

@@ -11,15 +11,20 @@ import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsScreen extends StatefulWidget {
-  final VoidCallback? updateHome;
+  final VoidCallback? connectUpdate;
 
-  const HubsScreen({super.key, this.updateHome});
+  const HubsScreen({super.key, this.connectUpdate});
 
   @override
   HubsScreenState createState() => HubsScreenState();
 }
 
 class HubsScreenState extends State<HubsScreen> {
+  void _connectUpdate() {
+    setState(() {});
+    widget.connectUpdate?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     var clients = JavaService.instance.clients.values.toList();
@@ -33,23 +38,19 @@ class HubsScreenState extends State<HubsScreen> {
               "Hubs",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            TauButton.icon(Icons.add, onPressed: () {
-              moveTo(context, ConnectionScreen(updateHome: _updateHome));
+            TauButton.icon(Icons.add, onPressed: () async {
+              var screen = ConnectionScreen(connectUpdate: _connectUpdate);
+              await moveTo(context, screen);
             }),
           ],
         ),
       ),
-      body: buildScreen(clients, _updateHome),
+      body: buildScreen(clients, _connectUpdate),
     );
   }
 
-  void _updateHome() {
-    setState(() {});
-    widget.updateHome?.call();
-  }
-
-  static Widget buildScreen(List<Client> clients, VoidCallback updateHome) {
-    if (clients.isEmpty) return HubsEmpty(updateHome: updateHome);
+  static Widget buildScreen(List<Client> clients, VoidCallback connectUpdate) {
+    if (clients.isEmpty) return HubsEmpty(connectUpdate: connectUpdate);
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -98,7 +99,7 @@ class HubsScreenState extends State<HubsScreen> {
               if (client.hide)
                 TauButton.icon(
                   Icons.visibility,
-                  onPressed: updateHome,
+                  onPressed: connectUpdate,
                 ),
               if (!client.connected)
                 TauButton.icon(
@@ -112,7 +113,7 @@ class HubsScreenState extends State<HubsScreen> {
                             context, "Connection error: ${client.name}");
                       }
                     } finally {
-                      updateHome();
+                      connectUpdate();
                     }
                   },
                 ),
@@ -120,12 +121,12 @@ class HubsScreenState extends State<HubsScreen> {
                   (client.user == null || !client.user!.authorized))
                 TauButton.icon(
                   Icons.login,
-                  onPressed: () {
-                    LoginScreen screen = LoginScreen(
-                      client: client,
-                      updateHome: updateHome,
-                    );
-                    moveTo(context, screen);
+                  onPressed: () async {
+                    var screen = LoginScreen(client: client);
+                    var result = await moveTo(context, screen);
+                    if (result is String && result.contains("success")) {
+                      connectUpdate();
+                    }
                   },
                 ),
               TauButton.icon(
@@ -134,7 +135,7 @@ class HubsScreenState extends State<HubsScreen> {
                   await client.disconnect();
                   await StorageService.removeClient(client);
                   JavaService.instance.clients.remove(client.uuid);
-                  updateHome();
+                  connectUpdate();
                 },
               )
             ],

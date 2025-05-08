@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QrScannerScreen extends StatefulWidget {
-  final void Function(BuildContext, String) onScanned;
-
-  const QrScannerScreen({super.key, required this.onScanned});
+  const QrScannerScreen({super.key});
 
   @override
   State<QrScannerScreen> createState() => _QrScannerScreenState();
@@ -24,7 +22,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
             final String? code = barcode.rawValue;
             if (code != null && code.startsWith("sandnode:")) {
               setState(() => _hasScanned = true);
-              widget.onScanned(context, code);
+              Navigator.pop(context, code);
               break;
             }
           }

@@ -6,9 +6,9 @@ import 'package:taulight/services/java_service.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsEmpty extends StatefulWidget {
-  final VoidCallback? updateHome;
+  final VoidCallback? connectUpdate;
 
-  const HubsEmpty({super.key, this.updateHome});
+  const HubsEmpty({super.key, this.connectUpdate});
 
   @override
   State<HubsEmpty> createState() => _HubsEmptyState();
@@ -16,6 +16,11 @@ class HubsEmpty extends StatefulWidget {
 
 class _HubsEmptyState extends State<HubsEmpty> {
   bool loadingChats = false;
+
+  void _connectUpdate() {
+    if (mounted) setState(() {});
+    widget.connectUpdate?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +49,10 @@ class _HubsEmptyState extends State<HubsEmpty> {
           const SizedBox(height: 12),
           TauButton.text(
             "Connect to hub",
-            onPressed: () {
-              var screen = ConnectionScreen(
-                updateHome: () {
-                  if (mounted) setState(() {});
-                  widget.updateHome?.call();
-                },
-              );
-              moveTo(context, screen);
+            onPressed: () async {
+              var screen = ConnectionScreen(connectUpdate: _connectUpdate);
+              await moveTo(context, screen);
+              _connectUpdate();
             },
           ),
         ],
@@ -72,7 +73,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
       } on UnauthorizedException {
         // Ignored: will be reflected after updateHome on HomeScreen
       } finally {
-        widget.updateHome?.call();
+        widget.connectUpdate?.call();
         setState(() => loadingChats = false);
       }
 

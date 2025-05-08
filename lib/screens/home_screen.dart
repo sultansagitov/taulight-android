@@ -37,6 +37,7 @@ class HomeScreenState extends State<HomeScreen> {
     Filter('Dialogs', isDialog),
   ];
 
+  bool _fullLoading = true;
   bool loadingChats = false;
 
   Set<Filter> selectedFilters = {};
@@ -53,35 +54,36 @@ class HomeScreenState extends State<HomeScreen> {
       chatKey.currentState?.update();
     });
 
+    setState(() => _fullLoading = true);
     start(
       methodCallHandler: methodCallHandler,
       context: context,
-      update: () => setState(() {}),
-    );
+      update: () {
+        if (mounted) setState(() {});
+      },
+    ).then((v) => setState(() => _fullLoading = false));
   }
 
-  void _updateHome() {
-    (() async {
-      if (mounted) setState(() => loadingChats = true);
-      try {
-        await TauChat.loadAll(
-          callback: () {
-            if (mounted) setState(() {});
-          },
-          onError: (client, e) {
-            if (mounted) {
-              String error = "Something went wrong";
-              if (e is ExpiredTokenException) {
-                error = "Token for \"${client.name}\" expired";
-              }
-              snackBarError(context, error);
+  Future<void> _updateHome({required bool animation}) async {
+    if (animation && mounted) setState(() => loadingChats = true);
+    try {
+      await TauChat.loadAll(
+        callback: () {
+          if (mounted) setState(() {});
+        },
+        onError: (client, e) {
+          if (mounted) {
+            String error = "Something went wrong";
+            if (e is ExpiredTokenException) {
+              error = "Token for \"${client.name}\" expired";
             }
-          },
-        ).timeout(Duration(seconds: 5));
-      } finally {
-        if (mounted) setState(() => loadingChats = false);
-      }
-    })();
+            snackBarError(context, error);
+          }
+        },
+      ).timeout(Duration(seconds: 5));
+    } finally {
+      if (animation && mounted) setState(() => loadingChats = false);
+    }
   }
 
   @override
@@ -93,6 +95,7 @@ class HomeScreenState extends State<HomeScreen> {
         .where((c) => c.user != null)
         .map((c) => c.user!.nickname)
         .toList();
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -116,7 +119,9 @@ class HomeScreenState extends State<HomeScreen> {
                       child: TauButton.icon(
                         Icons.more_vert,
                         color: color,
-                        onPressed: () => showMenuAtHome(context, _updateHome),
+                        onPressed: () => showMenuAtHome(context, () {
+                          _updateHome(animation: true);
+                        }),
                       ),
                     ),
                   ),
@@ -128,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
                 onRefresh: () async {
                   const duration = Duration(seconds: 5);
                   await JavaService.instance.loadClients().timeout(duration);
-                  _updateHome();
+                  await _updateHome(animation: false);
                 },
                 child: _buildChatList(),
               ),
@@ -137,53 +142,69 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          setState(() => _fullLoading = !_fullLoading);
+        },
         child: const Icon(Icons.edit),
       ),
     );
   }
 
   Widget _buildChatList() {
-    // Show "No hubs"
-    // if there are no connected hubs and no chats from disconnected hubs
-    var empty =
-        JavaService.instance.clients.values.where((c) => c.connected).isEmpty;
-
-    if (empty) {
-      return HubsEmpty(updateHome: _updateHome);
+    if (_fullLoading) {
+      return Center(child: CircularProgressIndicator());
     }
 
-    var noChats = JavaService.instance.clients.values
-        .expand((client) => client.chats.values)
-        .isEmpty;
+    var clients = JavaService.instance.clients.values;
+
+    // Collect all disconnected (but not hidden) hubs
+    var disconnectedHubs =
+        clients.where((c) => !c.connected && !c.hide).toList();
+
+    // Collect all connected but unauthorized hubs
+    var unauthorizedHubs = clients
+        .where((c) => c.connected && (c.user == null || !c.user!.authorized))
+        .toList();
+
+    // Show "No hubs"
+    // if there are no connected hubs
+    if (clients.where((c) => c.connected).isEmpty) {
+      return HubsEmpty(connectUpdate: () => _updateHome(animation: true));
+    }
+
+    var noChats = clients.expand((client) => client.chats.values).isEmpty;
 
     if (noChats) {
-      var client = JavaService.instance.clients.values.first;
-
       // If the user is not logged in — suggest login
-      if (client.user == null || !client.user!.authorized) {
-        return NotLoggedIn(client, _updateHome);
+      if (unauthorizedHubs.isNotEmpty) {
+        var client = unauthorizedHubs.first;
+        if (client.user == null || !client.user!.authorized) {
+          return NotLoggedIn(client, onLogin: (result) async {
+            if (result is String && result.contains("success")) {
+              await _updateHome(animation: true);
+            }
+          });
+        }
       }
 
       // If user is logged in but there are no chats — suggest to create one
-      return NoChats(_updateHome);
+      return NoChats(updateHome: () => _updateHome(animation: false));
     }
 
     // Collect all chats from clients that have a valid user
-    List<TauChat> chats = JavaService.instance.clients.values
-        .expand((client) => client.chats.values)
-        .where((chat) {
+    List<TauChat> chats =
+        clients.expand((client) => client.chats.values).where((chat) {
       if (selectedFilters.isEmpty) {
         return true;
       }
 
       for (Filter filter in selectedFilters) {
-        if (filter.condition(chat)) {
-          return true;
+        if (!filter.condition(chat)) {
+          return false;
         }
       }
 
-      return false;
+      return true;
     }).toList();
 
     // Sort chats:
@@ -195,37 +216,31 @@ class HomeScreenState extends State<HomeScreen> {
       return b.messages.last.dateTime.compareTo(a.messages.last.dateTime);
     });
 
-    // Collect all disconnected (but not hidden) hubs
-    var disconnectedHubs = JavaService.instance.clients.values
-        .where((c) => !c.connected && !c.hide)
-        .toList();
-
-    // Collect all connected but unauthorized hubs
-    var unauthorizedHubs = JavaService.instance.clients.values
-        .where((c) => c.connected && (c.user == null || !c.user!.authorized))
-        .toList();
-
     List<Widget> list = [];
 
     for (Client client in disconnectedHubs) {
       list.add(WarningDisconnectMessage(
         client: client,
-        updateHome: _updateHome,
+        updateHome: () {
+          _updateHome(animation: true);
+        },
       ));
     }
 
     for (Client client in unauthorizedHubs) {
       list.add(WarningUnauthorizedMessage(
         name: client.name,
-        onLoginTap: () {
-          var screen = LoginScreen(client: client, updateHome: _updateHome);
-          moveTo(context, screen);
+        onLoginTap: () async {
+          var result = await moveTo(context, LoginScreen(client: client));
+          if (result is String && result.contains("success")) {
+            await _updateHome(animation: true);
+          }
         },
       ));
     }
 
     list.add(ChatsFilter(
-      filters: filters,
+      filters: [...filters, ...clients.map((c) => c.filter)],
       initial: selectedFilters,
       onChange: (selected) => setState(() => selectedFilters = selected),
     ));
@@ -233,13 +248,9 @@ class HomeScreenState extends State<HomeScreen> {
     for (TauChat chat in chats) {
       list.add(ChatItem(
         chat: chat,
-        onTap: (chat) {
-          var screen = ChatScreen(
-            key: chatKey,
-            chat: chat,
-            updateHome: _updateHome,
-          );
-          moveTo(context, screen);
+        onTap: (chat) async {
+          await moveTo(context, ChatScreen(chat, key: chatKey));
+          await _updateHome(animation: true);
         },
       ));
     }

@@ -11,9 +11,9 @@ import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class ConnectionScreen extends StatefulWidget {
-  final VoidCallback? updateHome;
+  final VoidCallback? connectUpdate;
 
-  const ConnectionScreen({super.key, this.updateHome});
+  const ConnectionScreen({super.key, this.connectUpdate});
 
   @override
   State<ConnectionScreen> createState() => _ConnectionScreenState();
@@ -22,6 +22,8 @@ class ConnectionScreen extends StatefulWidget {
 class _ConnectionScreenState extends State<ConnectionScreen> {
   final _linkController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  int? _loading;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +38,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
             ),
             TauButton.icon(
               Icons.qr_code_scanner,
-              onPressed: () {
-                moveTo(context, QrScannerScreen(onScanned: (c, code) {
-                  Navigator.pop(c);
-                  _connect(context, code);
-                }));
+              onPressed: () async {
+                var result = await moveTo(context, QrScannerScreen());
+                if (result is String) {
+                  _connect(context, result);
+                }
               },
             ),
           ],
@@ -82,9 +84,20 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 itemCount: Config.recommended.length,
                 itemBuilder: (_, index) {
                   ServerRecord recommended = Config.recommended[index];
-                  return TauButton.text(recommended.endpoint, onPressed: () {
-                    _recommended(recommended.link);
-                  });
+                  var endpoint = recommended.endpoint;
+                  return TauButton.text(
+                    endpoint,
+                    loading: _loading == index,
+                    disable: _loading != null,
+                    onPressed: () async {
+                      setState(() => _loading = index);
+                      try {
+                        await _recommended(recommended.link);
+                      } finally {
+                        setState(() => _loading = null);
+                      }
+                    },
+                  );
                 },
               ),
             ),
@@ -99,7 +112,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     try {
       client = await JavaService.instance.connect(
         link,
-        callback: widget.updateHome,
+        connectUpdate: widget.connectUpdate,
       );
     } on ConnectionException {
       if (mounted) {
@@ -110,17 +123,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     await StorageService.saveClient(client);
 
     if (mounted) {
-      LoginScreen screen = LoginScreen(
-        client: client,
-        updateHome: () {
-          setState(() {});
-          widget.updateHome?.call();
-        },
-        onSuccess: () {
-          if (mounted) setState(() {});
-        },
-      );
-      moveTo(context, screen);
+      var result = await moveTo(context, LoginScreen(client: client));
+      if (result is String && result.contains("success")) {
+        Navigator.pop(context, result);
+      }
     }
   }
 
@@ -133,25 +139,15 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   void _connect(BuildContext context, String link) async {
     var client = await JavaService.instance.connect(
       link,
-      callback: widget.updateHome,
+      connectUpdate: widget.connectUpdate,
     );
     await StorageService.saveClient(client);
 
     if (context.mounted) {
-      LoginScreen screen = LoginScreen(
-        client: client,
-        updateHome: () {
-          setState(() {});
-          widget.updateHome?.call();
-        },
-        onSuccess: () {
-          if (context.mounted) {
-            setState(() {});
-            Navigator.pop(context);
-          }
-        },
-      );
-      moveTo(context, screen);
+      var result = await moveTo(context, LoginScreen(client: client));
+      if (result is String && result.contains("success")) {
+        Navigator.pop(context, result);
+      }
     }
   }
 }

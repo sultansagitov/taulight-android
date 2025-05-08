@@ -24,7 +24,8 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
     if (isChannel(widget.chat)) {
       final channel = widget.chat.record as ChannelDTO;
-      avatarFuture = AvatarService.instance.loadOrFetchChannelAvatar(widget.chat, channel.id);
+      avatarFuture = AvatarService.instance
+          .loadOrFetchChannelAvatar(widget.chat, channel.id);
     } else {
       avatarFuture = Future.value(null);
     }
@@ -57,6 +58,13 @@ class _ChatAvatarState extends State<ChatAvatar> {
     initials = initials.toUpperCase();
 
     Color bg = getRandomColor(widget.chat.id);
+
+    var decoration = BoxDecoration(
+      gradient: LinearGradient(
+        colors: [bg, bg.withAlpha(200)],
+      ),
+    );
+
     var color = Colors.white.withAlpha(192);
 
     if (isDialog(widget.chat)) {
@@ -65,7 +73,7 @@ class _ChatAvatarState extends State<ChatAvatar> {
         child: Container(
           width: widget.d.toDouble(),
           height: widget.d.toDouble(),
-          color: bg,
+          decoration: decoration,
           child: Center(
             child: Text(
               initials,
@@ -84,10 +92,20 @@ class _ChatAvatarState extends State<ChatAvatar> {
       future: avatarFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
-          return CircleAvatar(
-            radius: widget.d / 2,
-            backgroundColor: bg,
-            child: Text(initials, style: TextStyle(color: color)),
+          return Container(
+            width: widget.d.toDouble(),
+            height: widget.d.toDouble(),
+            decoration: decoration.copyWith(shape: BoxShape.circle),
+            child: Center(
+              child: Text(
+                initials,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           );
         }
 
