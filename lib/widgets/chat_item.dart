@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
@@ -71,20 +72,22 @@ class ChatItem extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(
-                            text: message.nickname,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: nicknameColor,
+                          if (isChannel(chat)) ...[
+                            TextSpan(
+                              text: message.nickname,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: nicknameColor,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: ": ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
+                            TextSpan(
+                              text: ": ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
                             ),
-                          ),
+                          ],
                           TextSpan(
                             text: message.text,
                             style: TextStyle(color: textColor, fontSize: 14),

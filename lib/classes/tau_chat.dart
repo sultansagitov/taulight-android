@@ -112,15 +112,15 @@ class TauChat {
           }
 
           await client.authByToken(record.token);
+          callback?.call();
         }
 
         if (!client.authorized) continue;
 
-        await client.loadChats();
-        for (var chat in client.chats.values) {
+        await client.loadChats((chat) async {
           await chat.loadMessages(0, 2);
           callback?.call();
-        }
+        });
       } catch (e) {
         print(e);
         onError?.call(client, e);

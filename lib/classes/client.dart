@@ -106,13 +106,14 @@ class Client {
   ///
   /// Returns the loaded chats.
   ///
-  Future<List<TauChat>> loadChats() async {
-    var loadedChats = await JavaService.instance.loadChats(this);
-    List<TauChat> res = [];
-    for (var record in loadedChats) {
-      res.add(await getOrLoadChat(record));
-    }
-    return res;
+  Future<List<TauChat>> loadChats([void Function(TauChat)? onLoad]) async {
+    List<ChatDTO> loadedChats = await JavaService.instance.loadChats(this);
+    var futures = loadedChats.map((dto) async {
+      TauChat chat = await getOrLoadChat(dto);
+      onLoad?.call(chat);
+      return chat;
+    }).toList();
+    return await Future.wait(futures);
   }
 
   /// Disconnects the client.

@@ -54,14 +54,16 @@ class HomeScreenState extends State<HomeScreen> {
       chatKey.currentState?.update();
     });
 
-    setState(() => _fullLoading = true);
-    start(
-      methodCallHandler: methodCallHandler,
-      context: context,
-      update: () {
-        if (mounted) setState(() {});
-      },
-    ).then((v) => setState(() => _fullLoading = false));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() => _fullLoading = true);
+      try {
+        await start(context, methodCallHandler, () {
+          setState(() => _fullLoading = false);
+        });
+      } finally {
+        setState(() => _fullLoading = false);
+      }
+    });
   }
 
   Future<void> _updateHome({required bool animation}) async {
@@ -239,8 +241,10 @@ class HomeScreenState extends State<HomeScreen> {
       ));
     }
 
+    Iterable<Filter> clientFilter =
+        clients.length != 1 ? clients.map((c) => c.filter) : [];
     list.add(ChatsFilter(
-      filters: [...filters, ...clients.map((c) => c.filter)],
+      filters: [...filters, ...clientFilter],
       initial: selectedFilters,
       onChange: (selected) => setState(() => selectedFilters = selected),
     ));
