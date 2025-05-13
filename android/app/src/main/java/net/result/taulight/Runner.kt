@@ -1,25 +1,32 @@
 package net.result.taulight
 
-import net.result.sandnode.chain.IChain
-import net.result.sandnode.chain.sender.*
+import android.os.Build
+import androidx.annotation.RequiresApi
+import net.result.sandnode.dto.FileDTO
+import net.result.sandnode.dto.PaginatedDTO
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
+import net.result.sandnode.util.Endpoint
 import net.result.sandnode.util.IOController
 import net.result.taulight.chain.client.AndroidForwardRequestChain
-import net.result.taulight.chain.sender.*
-import net.result.taulight.dto.*
+import net.result.taulight.chain.sender.ChannelClientChain
+import net.result.taulight.chain.sender.ChatClientChain
+import net.result.taulight.chain.sender.MessageClientChain
+import net.result.taulight.dto.ChatInfoDTO
+import net.result.taulight.dto.ChatInfoPropDTO
+import net.result.taulight.dto.ChatMessageInputDTO
+import net.result.taulight.dto.ChatMessageViewDTO
 import net.result.taulight.exception.ClientNotFoundException
 import java.time.Duration
 import java.util.*
-import android.util.Base64
 
 class Runner(val taulight: Taulight) {
 
     @Throws(Exception::class)
-    fun connect(clientID: UUID, link: SandnodeLinkRecord): Map<String, String> {
+    fun connect(clientID: UUID, link: SandnodeLinkRecord): Endpoint {
         taulight.addClient(clientID, link)
-        return mapOf("endpoint" to link.endpoint().toString(52525))
+        return link.endpoint()
     }
 
     @Throws(ClientNotFoundException::class)
@@ -29,15 +36,18 @@ class Runner(val taulight: Taulight) {
         return "disconnected"
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @Throws(Exception::class)
-    fun send(io: IOController, chatID: String, content: String, replies: Set<UUID>): String {
-        val androidChain = io.chainManager.getChain("fwd_req")
-            .orElseGet {
-                AndroidForwardRequestChain(io).also {
-                    io.chainManager.setName(it, "fwd_req")
-                    io.chainManager.linkChain(it)
-                }
-            } as AndroidForwardRequestChain
+    fun send(io: IOController, chatID: String, content: String, replies: Set<UUID>): UUID {
+        val opt = io.chainManager.getChain("fwd_req")
+        val androidChain = if (opt.isPresent) {
+            opt.get() as AndroidForwardRequestChain
+        } else {
+            AndroidForwardRequestChain(io).also {
+                io.chainManager.setName(it, "fwd_req")
+                io.chainManager.linkChain(it)
+            }
+        }
 
         val message = ChatMessageInputDTO()
             .setChatID(UUID.fromString(chatID))
@@ -45,7 +55,7 @@ class Runner(val taulight: Taulight) {
             .setRepliedToMessages(replies)
             .setSentDatetimeNow()
 
-        return androidChain.message(message).toString()
+        return androidChain.message(message)
     }
 
     @Throws(Exception::class)
@@ -55,72 +65,52 @@ class Runner(val taulight: Taulight) {
     }
 
     @Throws(Exception::class)
-    fun getChats(client: SandnodeClient): List<*> {
+    fun getChats(client: SandnodeClient): Collection<ChatInfoDTO> {
         val chain = ChatClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val infos = chain.getByMember(ChatInfoPropDTO.all())
         client.io.chainManager.removeChain(chain)
-        return taulight.objectMapper.convertValue(infos, List::class.java)
+        return infos
     }
 
     @Throws(Exception::class)
-    fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): Map<String, Any> {
+    fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): PaginatedDTO<ChatMessageViewDTO> {
         val chain = MessageClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val paginated = chain.getMessages(chatID, index, size)
         client.io.chainManager.removeChain(chain)
-        val messages = paginated.objects
-        return mapOf(
-            "count" to paginated.totalCount,
-            "messages" to taulight.objectMapper.convertValue(messages, List::class.java)
-        )
+        return paginated;
     }
 
-    fun loadClient(): List<Map<String, String>> {
-        return taulight.clients.entries.map { (clientID, mc) ->
-            mapOf(
-                "uuid" to clientID.toString(),
-                "endpoint" to mc.client.endpoint.toString(),
-                "link" to mc.link.toString()
-            )
-        }
+    fun loadClients(): Map<UUID, MemberClient> {
+        return taulight.clients
     }
 
     @Throws(Exception::class)
-    fun loadChat(client: SandnodeClient, chatID: UUID): Any {
+    fun loadChat(client: SandnodeClient, chatID: UUID): ChatInfoDTO {
         val chain = ChatClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val optChats = chain.getByID(listOf(chatID), ChatInfoPropDTO.all())
         client.io.chainManager.removeChain(chain)
-        return taulight.objectMapper.convertValue(optChats.first(), Map::class.java)
+        return optChats.first()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Throws(Exception::class)
-    fun addMember(client: SandnodeClient, chatID: UUID, otherNickname: String): Map<String, String> {
+    fun addMember(client: SandnodeClient, chatID: UUID, otherNickname: String): String {
         val chain = ChannelClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val code = chain.createInviteCode(chatID, otherNickname, Duration.ofDays(1))
         client.io.chainManager.removeChain(chain)
-        return mapOf("code" to code)
+        return code;
     }
 
     @Throws(Exception::class)
-    fun getChannelAvatar(client: SandnodeClient, chatID: UUID): Map<String, Any> {
+    fun getChannelAvatar(client: SandnodeClient, chatID: UUID): FileDTO? {
         val chain = ChannelClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val file = chain.getAvatar(chatID)
         client.io.chainManager.removeChain(chain)
-
-        if (file == null) return mapOf()
-
-        val contentType: String = file.contentType()
-        val body: ByteArray = file.body()
-
-        val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
-
-        return mapOf(
-            "contentType" to contentType,
-            "avatarBase64" to base64Avatar
-        )
+        return file;
     }
 }

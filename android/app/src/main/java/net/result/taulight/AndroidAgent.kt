@@ -2,7 +2,7 @@ package net.result.taulight
 
 import net.result.sandnode.encryption.KeyStorageRegistry
 import net.result.taulight.hubagent.TauAgent
-import java.util.UUID
+import java.util.*
 
 class AndroidAgent(keyStorageRegistry: KeyStorageRegistry, val taulight: Taulight, val uuid: UUID)
         : TauAgent(keyStorageRegistry) {

@@ -7,7 +7,7 @@ import net.result.sandnode.encryption.SymmetricEncryptions
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption
 import net.result.sandnode.util.Endpoint
-import java.util.Optional
+import java.util.*
 
 class AndroidClientConfig : ClientConfig {
     override fun symmetricKeyEncryption(): SymmetricEncryption = SymmetricEncryptions.AES

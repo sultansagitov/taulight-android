@@ -1,7 +1,8 @@
 package net.result.taulight
 
-import android.annotation.TargetApi
 import android.os.Build
+import android.util.Base64
+import androidx.annotation.RequiresApi
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -9,17 +10,13 @@ import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.IChain
 import net.result.sandnode.exception.error.SandnodeErrorException
 import net.result.sandnode.link.Links
-import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.sandnode.util.IOController
 import net.result.taulight.exception.ClientNotFoundException
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.lang.Class
-import java.lang.ClassNotFoundException
-import java.lang.Exception
 import java.lang.reflect.InvocationTargetException
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -32,17 +29,15 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
     private val methodHandlerMap: Map<String, (MethodCall) -> Any?>
     private val taulight: Taulight
 
-    private val executorService: ExecutorService
+    private val executorService: ExecutorService = Executors.newCachedThreadPool()
 
     private val runner: Runner
 
     init {
-        executorService = Executors.newCachedThreadPool()
+        val binaryMessenger: BinaryMessenger = flutterEngine.dartExecutor.binaryMessenger
+        val CHANNEL = "net.result.taulight/messenger"
 
-        val binaryMessenger: BinaryMessenger = flutterEngine.getDartExecutor().getBinaryMessenger()
-        val CHANNEL: String = "net.result.taulight/messenger"
-
-        val methodChannel: MethodChannel = MethodChannel(binaryMessenger, CHANNEL)
+        val methodChannel = MethodChannel(binaryMessenger, CHANNEL)
         methodChannel.setMethodCallHandler(this::onMethodCallHandler)
 
         taulight = Taulight(methodChannel)
@@ -56,7 +51,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "group" to this::groupAdd,
             "get-chats" to this::getChats,
             "load-messages" to this::loadMessages,
-            "load-clients" to this::loadClient,
+            "load-clients" to this::loadClients,
             "load-chat" to this::loadChat,
             "add-member" to this::addMember,
             "get-channel-avatar" to this::getChannelAvatar,
@@ -64,12 +59,12 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         )
     }
 
-    @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun onMethodCallHandler(call: MethodCall, result: MethodChannel.Result) {
         executorService.execute {
-            val handler = methodHandlerMap.get(call.method)
+            val handler = methodHandlerMap[call.method]
             if (handler != null) {
-                taulight.clients.entries.removeIf{ (_, mc) -> !mc.client.io.isConnected() }
+                taulight.clients.entries.removeIf{ (_, mc) -> !mc.client.io.isConnected }
 
                 try {
                     val res: Any? = handler(call)
@@ -96,14 +91,15 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
     @Throws(Exception::class)
     private fun connect(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val linkString: String = call.argument<String>("link")!!
+        val uuid = call.argument<String>("uuid")!!
+        val clientID = UUID.fromString(uuid)
 
-        val link: SandnodeLinkRecord = Links.parse(linkString)
+        val linkString = call.argument<String>("link")!!
+        val link = Links.parse(linkString)
 
-        val clientID: UUID = UUID.fromString(uuid)
+        val endpoint = runner.connect(clientID, link)
 
-        return runner.connect(clientID, link)
+        return mapOf("endpoint" to endpoint.toString(52525))
     }
 
     @Throws(ClientNotFoundException::class)
@@ -112,7 +108,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         return runner.disconnect(uuid)
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     @Throws(Exception::class)
     private fun send(call: MethodCall): String {
         val uuid: String = call.argument<String>("uuid")!!
@@ -126,7 +122,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         val mc: MemberClient = taulight.getClient(uuid)
         val io: IOController = mc.client.io
 
-        return runner.send(io, chatID, content, replies)
+        return runner.send(io, chatID, content, replies).toString()
     }
 
     @Throws(Exception::class)
@@ -139,46 +135,61 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         return runner.groupAdd(client, group)
     }
 
-    /** @noinspection rawtypes*/
-    @TargetApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Throws(Exception::class)
     private fun getChats(call: MethodCall): List<*> {
         val uuid: String = call.argument<String>("uuid")!!
         val client: SandnodeClient = taulight.getClient(uuid).client
-        return runner.getChats(client)
+
+        val chats = runner.getChats(client)
+
+        return taulight.objectMapper.convertValue(chats, List::class.java)
     }
 
     @Throws(Exception::class)
     private fun loadMessages(call: MethodCall): Map<String, Any> {
         val uuid: String = call.argument<String>("uuid")!!
-        val chatID_str: String = call.argument<String>("chat-id")!!
+        val chatIDStr: String = call.argument<String>("chat-id")!!
         val index: Int = call.argument<Int>("index")!!
         val size: Int = call.argument<Int>("size")!!
 
         val client: SandnodeClient = taulight.getClient(uuid).client
-        val chatID: UUID = UUID.fromString(chatID_str)
+        val chatID: UUID = UUID.fromString(chatIDStr)
 
-        return runner.loadMessages(client, chatID, index, size)
+        val paginated = runner.loadMessages(client, chatID, index, size)
+
+        val messages = paginated.objects
+        return mapOf(
+            "count" to paginated.totalCount,
+            "messages" to taulight.objectMapper.convertValue(messages, List::class.java)
+        )
     }
 
-    @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun loadClient(ignoredCall: MethodCall): List<Map<String, String>?> {
-        return runner.loadClient()
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun loadClients(ignoredCall: MethodCall): List<Map<String, String>?> {
+        return runner.loadClients().entries.map { (clientID, mc) ->
+            mapOf(
+                "uuid" to clientID.toString(),
+                "endpoint" to mc.client.endpoint.toString(),
+                "link" to mc.link.toString()
+            )
+        }
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.N)
     @Throws(Exception::class)
     private fun loadChat(call: MethodCall): Any {
         val uuid: String = call.argument<String>("uuid")!!
-        val chat: String = call.argument<String>("chat-id")!!
+        val chatString: String = call.argument<String>("chat-id")!!
 
-        val chatID: UUID = UUID.fromString(chat)
+        val chatID: UUID = UUID.fromString(chatString)
         val client: SandnodeClient = taulight.getClient(uuid).client
 
-        return runner.loadChat(client, chatID)
+        val chat = runner.loadChat(client, chatID)
+        return taulight.objectMapper.convertValue(chat, Map::class.java)
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     @Throws(Exception::class)
     private fun addMember(call: MethodCall): Map<String, String> {
         val uuid: String = call.argument<String>("uuid")!!
@@ -189,10 +200,11 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
         val client: SandnodeClient = taulight.getClient(uuid).client
 
-        return runner.addMember(client, chatID, otherNickname)
+        val code = runner.addMember(client, chatID, otherNickname)
+        return mapOf("code" to code)
     }
 
-    private fun getChannelAvatar(call: MethodCall): Any {
+    private fun getChannelAvatar(call: MethodCall): Map<String, String> {
         val uuid: String = call.argument<String>("uuid")!!
         val chatIDString: String = call.argument<String>("chat-id")!!
 
@@ -200,7 +212,18 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
 
         val client: SandnodeClient = taulight.getClient(uuid).client
 
-        return runner.getChannelAvatar(client, chatID)
+        val file = runner.getChannelAvatar(client, chatID)
+        if (file == null) return mapOf()
+
+        val contentType = file.contentType()
+        val body = file.body()
+
+        val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
+
+        return mapOf(
+            "contentType" to contentType,
+            "avatarBase64" to base64Avatar
+        )
     }
 
     @Throws(Exception::class)
@@ -219,7 +242,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         var clazz: Class<*>
         try {
             clazz = Class.forName("net.result.taulight.chain.sender.$className")
-        } catch (e: ClassNotFoundException) {
+        } catch (_: ClassNotFoundException) {
             clazz = Class.forName("net.result.sandnode.chain.sender.$className")
         }
         val declaredConstructor = clazz.getDeclaredConstructor(IOController::class.java)
