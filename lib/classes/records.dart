@@ -19,21 +19,22 @@ enum Status {
 
 abstract class ChatDTO {
   final String id;
+  final ChatMessageViewDTO lastMessage;
 
-  static ChatDTO fromMap(obj) {
+  static ChatDTO fromMap(client, obj) {
     var map = Map<String, dynamic>.from(obj);
     var type = map["type"];
     switch (type) {
       case "cn":
-        return ChannelDTO.fromMap(map);
+        return ChannelDTO.fromMap(client, map);
       case "dl":
-        return DialogDTO.fromMap(map);
+        return DialogDTO.fromMap(client, map);
       default:
         throw ErrorDescription('Unexpected type "$type", - "cn", "dl"');
     }
   }
 
-  ChatDTO({required this.id});
+  ChatDTO({required this.id, required this.lastMessage});
 
   String getTitle();
 }
@@ -42,11 +43,17 @@ class ChannelDTO extends ChatDTO {
   final String title;
   final String owner;
 
-  ChannelDTO({required super.id, required this.title, required this.owner});
+  ChannelDTO({
+    required super.id,
+    required super.lastMessage,
+    required this.title,
+    required this.owner,
+  });
 
-  factory ChannelDTO.fromMap(Map<String, dynamic> obj) {
+  factory ChannelDTO.fromMap(Client client, Map<String, dynamic> obj) {
     return ChannelDTO(
       id: obj["id"]!,
+      lastMessage: ChatMessageViewDTO.fromMap(client, obj['last-message']),
       title: obj["channel-title"]!,
       owner: obj["channel-owner"]!,
     );
@@ -66,10 +73,18 @@ class ChannelDTO extends ChatDTO {
 class DialogDTO extends ChatDTO {
   final String otherNickname;
 
-  DialogDTO({required super.id, required this.otherNickname});
+  DialogDTO({
+    required super.id,
+    required super.lastMessage,
+    required this.otherNickname,
+  });
 
-  factory DialogDTO.fromMap(Map<String, dynamic> obj) {
-    return DialogDTO(id: obj["id"]!, otherNickname: obj["dialog-other"]!);
+  factory DialogDTO.fromMap(Client client, Map<String, dynamic> obj) {
+    return DialogDTO(
+      id: obj["id"]!,
+      lastMessage: ChatMessageViewDTO.fromMap(client, obj['last-message']),
+      otherNickname: obj["dialog-other"]!,
+    );
   }
 
   @override

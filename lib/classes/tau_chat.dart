@@ -21,7 +21,9 @@ class TauChat {
 
   TauChat(this.client, this.id);
   factory TauChat.fromRecord(Client client, ChatDTO record) {
-    return TauChat(client, record.id)..record = record;
+    return TauChat(client, record.id)
+      ..record = record
+      ..messages.add(record.lastMessage);
   }
 
   void addMessage(ChatMessageViewDTO message) {
@@ -117,10 +119,7 @@ class TauChat {
 
         if (!client.authorized) continue;
 
-        await client.loadChats((chat) async {
-          await chat.loadMessages(0, 2);
-          callback?.call();
-        });
+        await client.loadChats();
       } catch (e) {
         print(e);
         onError?.call(client, e);

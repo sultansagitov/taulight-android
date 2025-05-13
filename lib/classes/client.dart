@@ -60,6 +60,10 @@ class Client {
     return ClientStatus.connected;
   }
 
+  TauChat get(String id) => chats[id]!;
+
+  Future<TauChat> load(String id) async => chats[id] = await loadChat(id);
+
   /// Sends a message to the given chat.
   ///
   /// Returns the sent message.
@@ -72,13 +76,8 @@ class Client {
   ///
   /// Returns the chat.
   ///
-  Future<TauChat> getOrLoadChat(ChatDTO record) async {
-    if (!chats.containsKey(record.id)) {
-      chats[record.id] = await loadChat(record.id);
-    }
-
-    return chats[record.id]!;
-  }
+  Future<TauChat> getOrLoadChat(ChatDTO record) async =>
+      await getOrLoadChatByID(record.id);
 
   /// Gets a chat with the given ID.
   ///
@@ -86,10 +85,10 @@ class Client {
   ///
   Future<TauChat> getOrLoadChatByID(String chatID) async {
     if (!chats.containsKey(chatID)) {
-      chats[chatID] = await loadChat(chatID);
+      await load(chatID);
     }
 
-    return chats[chatID]!;
+    return get(chatID);
   }
 
   /// Gets a chat with the given ID.
@@ -106,14 +105,11 @@ class Client {
   ///
   /// Returns the loaded chats.
   ///
-  Future<List<TauChat>> loadChats([void Function(TauChat)? onLoad]) async {
+  Future<List<TauChat>> loadChats() async {
     List<ChatDTO> loadedChats = await JavaService.instance.loadChats(this);
-    var futures = loadedChats.map((dto) async {
-      TauChat chat = await getOrLoadChat(dto);
-      onLoad?.call(chat);
-      return chat;
-    }).toList();
-    return await Future.wait(futures);
+    return loadedChats
+        .map((dto) => chats[dto.id] = TauChat.fromRecord(this, dto))
+        .toList();
   }
 
   /// Disconnects the client.

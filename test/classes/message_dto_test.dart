@@ -36,6 +36,9 @@ void main() {
         'content': 'Hello',
         'sys': false,
         'repliedToMessages': ['msg-0']
+      },
+      'reactions': {
+        'taulight:fire': ['rizl'],
       }
     };
 

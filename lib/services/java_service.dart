@@ -58,6 +58,7 @@ class JavaService {
   Client? getClientByUUID(String uuid) => clients[uuid];
 
   Future<Result> method(String methodName, Map<String, Object> args) async {
+    print("Called on platform --- \"$methodName\"");
     Map result = (await platform.invokeMethod<Map>(methodName, args))!;
 
     var error = result["error"];
@@ -180,7 +181,7 @@ class JavaService {
       if (list is List) {
         return list
             .where((obj) => ["cn", "dl"].contains(obj["type"]))
-            .map(ChatDTO.fromMap)
+            .map((v) => ChatDTO.fromMap(client, v))
             .toList();
       }
     }
@@ -202,7 +203,8 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      return TauChat.fromRecord(client, ChatDTO.fromMap(result.obj));
+      var dto = ChatDTO.fromMap(client, result.obj);
+      return TauChat.fromRecord(client, dto);
     }
 
     throw IncorrectFormatChannelException();
@@ -567,7 +569,7 @@ class JavaService {
     if (result is SuccessResult) {
       var obj = result.obj;
       if (obj is String) {
-        return await loadChat(client, obj);
+        return await client.loadChat(obj);
       }
     }
 
