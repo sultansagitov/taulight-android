@@ -65,7 +65,7 @@ class _MessageFieldState extends State<MessageField> {
                 controller: _messageController,
                 textAlign: !enabled ? TextAlign.center : TextAlign.left,
                 decoration: InputDecoration(
-                  hintText: enabled ? "Message" : "Disconnected",
+                  hintText: enabled ? "Message as ${widget.chat.client.user?.nickname}" : "Disconnected",
                   hintStyle: TextStyle(
                     color: Colors.grey[lightMode ? 600 : 400],
                   ),

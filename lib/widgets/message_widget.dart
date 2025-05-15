@@ -4,7 +4,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/widgets/chat_avatar.dart';
+import 'package:taulight/widgets/invite_widget.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
@@ -29,8 +29,6 @@ class MessageWidget extends StatefulWidget {
 }
 
 class _MessageWidgetState extends State<MessageWidget> {
-  Future<Widget>? inviteDetails;
-
   Widget _name(BuildContext context, String nickname) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
@@ -58,12 +56,6 @@ class _MessageWidgetState extends State<MessageWidget> {
 
     final match = sandnodeRegExp.firstMatch(text);
     return match?.group(0);
-  }
-
-  String? extractInviteCode(String url) {
-    final RegExp inviteRegExp = RegExp(r'invite/([a-zA-Z0-9]+)');
-    final match = inviteRegExp.firstMatch(url);
-    return match?.group(1);
   }
 
   Widget parseLinks(BuildContext context, String text, Color textColor) {
@@ -168,102 +160,6 @@ class _MessageWidgetState extends State<MessageWidget> {
     return RichText(text: TextSpan(children: spans));
   }
 
-  Future<Widget> buildInviteDetails(BuildContext context, String url) async {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final textColor = isLight ? Colors.black : Colors.white;
-    final Uri uri = Uri.parse(url);
-    var where = uri.path.split("/").where((s) => s.isNotEmpty);
-    var codeString = where.elementAt(1);
-
-    var code = await widget.chat.client
-        .checkCode(codeString)
-        .timeout(Duration(seconds: 5));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        const Divider(height: 1, thickness: 1),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            //TODO Rounded circle placeholder for channel image
-            ChatAvatar(widget.chat, d: 40),
-            const SizedBox(width: 12),
-            Text(
-              code.title,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 18,
-                color: textColor.withAlpha(180),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'From: ${code.sender}',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 12, color: textColor.withAlpha(180)),
-        ),
-        const SizedBox(height: 4),
-        if (code.activation == null)
-          Row(
-            children: [
-              Icon(
-                code.isExpired ? Icons.timer_off : Icons.timer,
-                size: 14,
-                color: code.isExpired ? Colors.red : Colors.green,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Expires: ${formatFutureTime(code.expires.toLocal())}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: code.isExpired ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        if (code.activation != null) ...[
-          Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.red, size: 14),
-              const SizedBox(width: 4),
-              Text(
-                'Activated: ${formatTime(code.activation!.toLocal())}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-        const SizedBox(height: 4),
-        if (code.isExpired && code.activation == null) ...[
-          Row(
-            children: [
-              const Icon(Icons.warning, color: Colors.red, size: 14),
-              const SizedBox(width: 4),
-              Text(
-                'Invitation expired',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.message.sys) {
@@ -353,21 +249,7 @@ class _MessageWidgetState extends State<MessageWidget> {
                 parseLinks(context, widget.message.text, textColor),
 
                 // Invite details if present
-                if (hasInvite)
-                  FutureBuilder(
-                    future: inviteDetails ??= buildInviteDetails(context, url),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        print("Error when loading invite ${snapshot.error}");
-                      }
-
-                      if (snapshot.data == null) {
-                        return Container();
-                      }
-
-                      return snapshot.data!;
-                    },
-                  ),
+                if (hasInvite) InviteWidget(widget.chat, url),
 
                 // Message timestamp
                 Row(

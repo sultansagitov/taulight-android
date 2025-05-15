@@ -133,7 +133,7 @@ class HubsScreenState extends State<HubsScreen> {
                 Icons.close,
                 onPressed: () async {
                   await client.disconnect();
-                  await StorageService.removeClient(client);
+                  await StorageService.instance.removeClient(client);
                   JavaService.instance.clients.remove(client.uuid);
                   connectUpdate();
                 },

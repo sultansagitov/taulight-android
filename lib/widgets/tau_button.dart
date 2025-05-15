@@ -50,7 +50,7 @@ class TauButton extends StatelessWidget {
     Color? color,
     bool loading = false,
     bool disable = false,
-}) =>
+  }) =>
       TauButton._(
         key: key,
         text: null,

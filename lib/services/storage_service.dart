@@ -6,10 +6,13 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/utils.dart';
 
 class StorageService {
+  static final StorageService _instance = StorageService._internal();
+  static StorageService get instance => _instance;
+  StorageService._internal();
 
-  static final _storage = FlutterSecureStorage();
+  final _storage = FlutterSecureStorage();
 
-  static Future<Map<String, ServerRecord>> getClients() async {
+  Future<Map<String, ServerRecord>> getClients() async {
     Map<String, String> all = await _storage.readAll();
     Map<String, ServerRecord> clients = {};
 
@@ -23,12 +26,12 @@ class StorageService {
     return clients;
   }
 
-  static Future<ServerRecord?> getClient(String uuid) async {
+  Future<ServerRecord?> getClient(String uuid) async {
     String? s = await _storage.read(key: "server.$uuid");
     return s != null ? ServerRecord.fromJSON(jsonDecode(s)) : null;
   }
 
-  static Future<void> saveClients(Map<String, ServerRecord> map) async {
+  Future<void> saveClients(Map<String, ServerRecord> map) async {
     for (MapEntry<String, ServerRecord> entry in map.entries) {
       await _storage.write(
         key: 'server.${entry.key}',
@@ -37,15 +40,19 @@ class StorageService {
     }
   }
 
-  static Future<void> saveClient(Client client) async {
-    ServerRecord server = ServerRecord(name: client.name, link: client.link);
+  Future<void> saveClient(Client client) async {
+    ServerRecord server = ServerRecord(
+      name: client.name,
+      link: client.link,
+    );
     await _storage.write(
       key: 'server.${client.uuid}',
       value: jsonEncode(server.toMap()),
     );
   }
 
-  static Future<void> saveWithToken(Client client, UserRecord userRecord) async {
+  Future<void> saveWithToken(
+      Client client, UserRecord userRecord) async {
     String key = 'server.${client.uuid}';
     String? data = await _storage.read(key: key);
 
@@ -59,7 +66,7 @@ class StorageService {
     await _storage.write(key: key, value: jsonEncode(server.toMap()));
   }
 
-  static Future<void> removeToken(Client client) async {
+  Future<void> removeToken(Client client) async {
     String key = 'server.${client.uuid}';
     String? data = await _storage.read(key: key);
 
@@ -73,7 +80,7 @@ class StorageService {
     await _storage.write(key: key, value: jsonEncode(server.toMap()));
   }
 
-  static Future<void> removeClient(Client client) async {
+  Future<void> removeClient(Client client) async {
     String key = 'server.${client.uuid}';
     bool exists = await _storage.containsKey(key: key);
 
@@ -84,7 +91,7 @@ class StorageService {
     await _storage.delete(key: key);
   }
 
-  static Future<void> clear() async {
+  Future<void> clear() async {
     Map<String, String> all = await _storage.readAll();
     for (var key in all.keys) {
       if (key.startsWith('server.')) {

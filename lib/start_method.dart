@@ -15,7 +15,7 @@ Future<void> start(
 ) async {
   await JavaService.instance.loadClients();
 
-  Map<String, ServerRecord> map = await StorageService.getClients();
+  Map<String, ServerRecord> map = await StorageService.instance.getClients();
 
   Set<String> connectedSet = JavaService.instance.clients.keys.toSet();
   Set<String> storageSet = map.keys.toSet();
@@ -58,7 +58,7 @@ Future<void> start(
 
         if (error != null) {
           if (context.mounted) snackBarError(context, error);
-          await StorageService.removeToken(client);
+          await StorageService.instance.removeToken(client);
         }
       }
     }

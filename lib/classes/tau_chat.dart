@@ -86,7 +86,8 @@ class TauChat {
         User user = client.user!;
 
         if (!user.authorized) {
-          ServerRecord? server = await StorageService.getClient(client.uuid);
+          ServerRecord? server =
+              await StorageService.instance.getClient(client.uuid);
 
           if (server == null) {
             client.user = null;

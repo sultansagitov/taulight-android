@@ -75,7 +75,7 @@ class LoginScreenState extends State<LoginScreen> {
       setState(() => _loading = true);
       String token = await JavaService.instance.reg(client, nickname, passwd);
       UserRecord userRecord = UserRecord(nickname, token);
-      await StorageService.saveWithToken(client, userRecord);
+      await StorageService.instance.saveWithToken(client, userRecord);
       setState(() => _loading = false);
       if (mounted) {
         Navigator.pop(context, "register-success");

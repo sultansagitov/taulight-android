@@ -109,7 +109,6 @@ class JavaService {
     Result result = await method("connect", {"uuid": uuid, "link": link});
 
     Client client = Client(
-      name: endpoint,
       uuid: uuid,
       endpoint: endpoint,
       link: link,
@@ -132,6 +131,7 @@ class JavaService {
     if (result is SuccessResult) {
       client.connected = true;
       if (!keep) clients[uuid] = client;
+      await clients[uuid]!.resetName();
       connectUpdate?.call();
       return client;
     }
@@ -157,6 +157,23 @@ class JavaService {
 
     client.connected = true;
     callback?.call();
+  }
+
+  Future<String> name(Client client) async {
+    var result = await chain("NameClientChain.getName", client: client);
+
+    if (result is ExceptionResult) {
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      var obj = result.obj;
+      if (obj is String) {
+        return obj;
+      }
+    }
+
+    throw IncorrectFormatChannelException();
   }
 
   Future<List<ChatDTO>> loadChats(Client client) async {
@@ -265,11 +282,11 @@ class JavaService {
           var uuid = json["uuid"];
           if (!clients.containsKey(uuid)) {
             clients[uuid] = Client(
-              name: json["endpoint"],
               uuid: uuid,
               endpoint: json["endpoint"],
               link: json["link"],
             );
+            await clients[uuid]!.resetName();
           }
         }
         return;
@@ -328,7 +345,7 @@ class JavaService {
         var token = obj;
         client.user = User(client, nickname, token);
         UserRecord userRecord = UserRecord(nickname, token);
-        await StorageService.saveWithToken(client, userRecord);
+        await StorageService.instance.saveWithToken(client, userRecord);
         return token;
       }
     }
@@ -455,7 +472,7 @@ class JavaService {
       var obj = result.obj;
       if (obj is String) {
         String nickname = obj;
-        StorageService.saveWithToken(client, UserRecord(nickname, token));
+        StorageService.instance.saveWithToken(client, UserRecord(nickname, token));
         client.user = User(client, nickname, token);
         return obj;
       }

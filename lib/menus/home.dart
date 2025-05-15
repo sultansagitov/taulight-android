@@ -92,7 +92,7 @@ enum MenuOption {
   }
 
   static Future<void> _clearStorageAction(_, __) async {
-    return StorageService.clear();
+    return StorageService.instance.clear();
   }
 
   static Future<void> _clearMessagesAction(_, VoidCallback callback) async {

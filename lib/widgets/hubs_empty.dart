@@ -74,7 +74,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
         // Ignored: will be reflected after updateHome on HomeScreen
       } finally {
         widget.connectUpdate?.call();
-        setState(() => loadingChats = false);
+        if (mounted) setState(() => loadingChats = false);
       }
 
       if (error != null && context.mounted) {

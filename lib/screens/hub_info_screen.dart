@@ -49,7 +49,8 @@ class HubInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _info(context, "Hub name", client.name),
+                if (client.realName != null)
+                  _info(context, "Hub name", client.name),
                 _info(context, "Link", client.link),
               ],
             ),

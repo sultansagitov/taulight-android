@@ -18,11 +18,13 @@ enum ClientStatus {
 }
 
 class Client {
-  final String name;
   final String uuid;
   final String link;
   final String endpoint;
   final Map<String, TauChat> chats = {};
+
+  String? realName;
+  String get name => realName ?? endpoint;
 
   bool hide = false;
 
@@ -45,7 +47,6 @@ class Client {
   }
 
   Client({
-    required this.name,
     required this.uuid,
     required this.endpoint,
     required this.link,
@@ -111,6 +112,10 @@ class Client {
   ///
   Future<void> disconnect() async {
     await JavaService.instance.disconnect(this);
+  }
+
+  Future<void> resetName() async {
+    realName = await JavaService.instance.name(this);
   }
 
   /// Loads a chat with the given ID.

@@ -120,7 +120,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       }
       return;
     }
-    await StorageService.saveClient(client);
+    await StorageService.instance.saveClient(client);
 
     if (mounted) {
       var result = await moveTo(context, LoginScreen(client: client));
@@ -141,7 +141,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       link,
       connectUpdate: widget.connectUpdate,
     );
-    await StorageService.saveClient(client);
+    await StorageService.instance.saveClient(client);
 
     if (context.mounted) {
       var result = await moveTo(context, LoginScreen(client: client));

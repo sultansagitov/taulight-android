@@ -30,7 +30,8 @@ class AvatarService {
 
     final uuid = client.uuid;
     final avatarFile = File('${dir.path}/avatar_${uuid}_${chat.record.id}');
-    final noAvatarFile = File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
+    final noAvatarFile =
+        File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
 
     if (await noAvatarFile.exists()) {
       return null;
