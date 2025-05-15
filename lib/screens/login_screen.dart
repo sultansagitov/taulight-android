@@ -33,8 +33,8 @@ class LoginScreenState extends State<LoginScreen> {
 
     setState(() => _errorMessage = '');
 
-    var nickname = _nicknameController.text;
-    var passwd = _passwordController.text;
+    var nickname = _nicknameController.text.trim();
+    var passwd = _passwordController.text.trim();
     if (nickname.isEmpty || passwd.isEmpty) {
       setState(() => _errorMessage = "Incorrect username or password.");
       return;
@@ -61,9 +61,9 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> _register() async {
     var client = widget.client;
 
-    String nickname = _nicknameController.text;
-    String passwd = _passwordController.text;
-    String confirmPassword = _confirmPasswordController.text;
+    String nickname = _nicknameController.text.trim();
+    String passwd = _passwordController.text.trim();
+    String confirmPassword = _confirmPasswordController.text.trim();
 
     if (passwd != confirmPassword) {
       setState(() => _errorMessage = "Passwords do not match.");

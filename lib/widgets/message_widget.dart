@@ -181,7 +181,7 @@ class _MessageWidgetState extends State<MessageWidget> {
 
     var width = MediaQuery.of(context).size.width;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final nickname = widget.message.nickname;
+    final nickname = widget.message.nickname.trim();
 
     final first = widget.prev?.sys == true || nickname != widget.prev?.nickname;
     final last = widget.next?.sys == true || nickname != widget.next?.nickname;

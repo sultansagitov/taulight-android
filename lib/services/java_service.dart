@@ -471,7 +471,7 @@ class JavaService {
     if (result is SuccessResult) {
       var obj = result.obj;
       if (obj is String) {
-        String nickname = obj;
+        String nickname = obj.trim();
         StorageService.instance.saveWithToken(client, UserRecord(nickname, token));
         client.user = User(client, nickname, token);
         return obj;

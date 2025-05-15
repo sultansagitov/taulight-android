@@ -86,8 +86,8 @@ class _ChatListState extends State<ChatList> {
       ));
     }
 
-    Iterable<Filter> clientFilter =
-        clients.length != 1 ? clients.map((c) => c.filter) : [];
+    var c = clients.where((c) => c.authorized);
+    Iterable<Filter> clientFilter = c.length != 1 ? c.map((c) => c.filter) : [];
     list.add(ChatsFilter(
       filters: [...filters, ...clientFilter],
       initial: selectedFilters,

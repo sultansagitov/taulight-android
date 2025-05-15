@@ -29,7 +29,7 @@ Future<void> start(
       Client c = JavaService.instance.clients[uuid]!;
       UserRecord? userRecord = sr.user;
       if (userRecord != null) {
-        String nickname = userRecord.nickname;
+        String nickname = userRecord.nickname.trim();
         String token = userRecord.token;
         c.user = User.unauthorized(c, nickname, token);
       }

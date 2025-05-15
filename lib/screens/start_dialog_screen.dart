@@ -47,7 +47,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
     }
 
     setState(() => _fieldEnabled = false);
-    final nickname = _titleController.text;
+    final nickname = _titleController.text.trim();
 
     try {
       await client.createDialog(nickname).timeout(Duration(seconds: 10));

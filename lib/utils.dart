@@ -72,8 +72,8 @@ Color dark(Color color) {
 }
 
 String parseSysMessages(TauChat chat, ChatMessageViewDTO message) {
-  String nickname = message.nickname;
-  String text = message.text;
+  String nickname = message.nickname.trim();
+  String text = message.text.trim();
   List<String> split = text.split(".");
 
   if (split.length < 2) {

@@ -29,7 +29,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
   void _createChannel() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final title = _titleController.text;
+        final title = _titleController.text.trim();
 
         setState(() {
           _error = null;
