@@ -73,7 +73,7 @@ class HomeScreenState extends State<HomeScreen> {
         },
       ).timeout(Duration(seconds: 5));
     } finally {
-      if (animation && mounted) setState(() => loadingChats = false);
+      if (mounted) setState(() => loadingChats = false);
     }
   }
 
@@ -130,6 +130,11 @@ class HomeScreenState extends State<HomeScreen> {
                   await JavaService.instance.loadClients().timeout(duration);
                   for (var c in clients.where((c) => c.realName == null)) {
                     await c.resetName().timeout(duration);
+                  }
+                  for (var client in JavaService.instance.clients.values) {
+                    for (var chat in client.chats.values) {
+                      await chat.loadMessages(0, 1).timeout(duration);
+                    }
                   }
                   await _updateHome(animation: false).timeout(duration);
                 },

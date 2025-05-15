@@ -34,8 +34,9 @@ class TauChat {
   }
 
   Future<void> loadMessages(int offset, int limit) async {
-    bool needsMoreMessages = realMsg.length < (offset + limit);
-    bool hasMoreMessages = totalCount == null || realMsg.length < totalCount!;
+    List<ChatMessageViewDTO> real = realMsg;
+    bool needsMoreMessages = real.length < (offset + limit);
+    bool hasMoreMessages = totalCount == null || real.length < totalCount!;
 
     if (needsMoreMessages && hasMoreMessages) {
       totalCount = await JavaService.instance.loadMessages(this, offset, limit);

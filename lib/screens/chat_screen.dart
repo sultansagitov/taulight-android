@@ -29,13 +29,15 @@ class ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessageViewDTO> replies = [];
 
+  bool _loadingMessages = false;
+
   @override
   void initState() {
     super.initState();
     List<ChatMessageViewDTO> messages = widget.chat.messages;
     int? messagesTotalCount = widget.chat.totalCount;
     if (messages.isEmpty || messages.length != (messagesTotalCount ?? 0)) {
-      _loadMessages(0);
+      _loadMessages(0, stateUpdate: false);
     }
   }
 
@@ -47,11 +49,15 @@ class ChatScreenState extends State<ChatScreen> {
 
   void update() => setState(() {});
 
-  Future<void> _loadMessages(int index) async {
+  Future<void> _loadMessages(int index, {bool stateUpdate = true}) async {
     if (widget.chat.client.connected) {
       if ((index + 20) > widget.chat.messages.length) {
-        await widget.chat.loadMessages(index, 20);
-        setState(() {});
+        if (stateUpdate && mounted) setState(() => _loadingMessages = true);
+        try {
+          await widget.chat.loadMessages(index, 20);
+        } finally {
+          if (stateUpdate && mounted) setState(() => _loadingMessages = false);
+        }
       }
     }
 
@@ -66,9 +72,7 @@ class ChatScreenState extends State<ChatScreen> {
     final messages = widget.chat.messages;
     final messagesTotalCount = widget.chat.totalCount;
 
-    var enabled = widget.chat.client.connected &&
-        widget.chat.client.user != null &&
-        widget.chat.client.user!.authorized;
+    final enabled = widget.chat.client.authorized;
     return Scaffold(
       appBar: AppBar(
         leading: TauButton.icon(
@@ -109,8 +113,16 @@ class ChatScreenState extends State<ChatScreen> {
                 child: ListView.builder(
                   controller: _scrollController,
                   reverse: true,
-                  itemCount: messages.length,
+                  itemCount: messages.length + (_loadingMessages ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (_loadingMessages && index == messages.length) {
+                      // Show loading indicator at the end of the list
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
                     var rev = messages.reversed;
                     ChatMessageViewDTO? prev = rev.elementAtOrNull(index + 1);
                     ChatMessageViewDTO? next;
@@ -122,12 +134,13 @@ class ChatScreenState extends State<ChatScreen> {
 
                     if (messages.length < (messagesTotalCount ?? 0)) {
                       if (index + 1 >= messages.length) {
-                        _loadMessages(messages.length - 1);
+                        Future.microtask(() async {
+                          await _loadMessages(messages.length - 1);
+                        });
                       }
                     }
 
                     if (!enabled) {
-                      // Cannot swipe to reply
                       return MessageWidget(
                         chat: widget.chat,
                         message: message,
@@ -136,49 +149,13 @@ class ChatScreenState extends State<ChatScreen> {
                       );
                     }
 
-                    return SwipeableTile.swipeToTrigger(
-                      behavior: HitTestBehavior.translucent,
-                      isElevated: false,
-                      color: Colors.transparent,
-                      swipeThreshold: 0.2,
-                      direction: SwipeDirection.endToStart,
-                      onSwiped: (_) {
-                        if (!replies.contains(message)) {
-                          setState(() => replies.add(message));
-                        }
-                      },
-                      backgroundBuilder: (_, direction, progress) {
-                        return AnimatedBuilder(
-                          animation: progress,
-                          builder: (_, __) {
-                            var tween = Tween<double>(begin: 0.0, end: 1.2);
-                            var curvedAnimation = CurvedAnimation(
-                              parent: progress,
-                              curve: Interval(0.5, 1.0, curve: Curves.linear),
-                            );
-                            return Container(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 16),
-                                child: Transform.scale(
-                                  scale: tween.animate(curvedAnimation).value,
-                                  child: Icon(Icons.reply),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      key: UniqueKey(),
-                      child: MessageWidget(
-                        chat: widget.chat,
-                        message: message,
-                        prev: prev,
-                        next: next,
-                      ),
-                    );
+                    return buildMessage(message, prev, next);
                   },
                 ),
+              ),
+            ] else if (_loadingMessages) ...[
+              Expanded(
+                child: Center(child: CircularProgressIndicator()),
               ),
             ] else ...[
               Expanded(
@@ -193,16 +170,61 @@ class ChatScreenState extends State<ChatScreen> {
             MessageField(
               chat: widget.chat,
               replies: replies,
-              sendMessage: enabled
-                  ? (text) {
-                      var repliesUuid = replies.map((r) => r.id).toList();
-                      replies.clear();
-                      widget.chat.sendMessage(text, repliesUuid, update);
-                    }
-                  : null,
+              enabled: enabled,
+              sendMessage: (text) {
+                var repliesUuid = replies.map((r) => r.id).toList();
+                replies.clear();
+                widget.chat.sendMessage(text, repliesUuid, update);
+              },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildMessage(
+    ChatMessageViewDTO message,
+    ChatMessageViewDTO? prev,
+    ChatMessageViewDTO? next,
+  ) {
+    return SwipeableTile.swipeToTrigger(
+      behavior: HitTestBehavior.translucent,
+      isElevated: false,
+      color: Colors.transparent,
+      swipeThreshold: 0.2,
+      direction: SwipeDirection.endToStart,
+      onSwiped: (_) {
+        if (!replies.contains(message)) {
+          setState(() => replies.add(message));
+        }
+      },
+      backgroundBuilder: (_, direction, progress) => AnimatedBuilder(
+        animation: progress,
+        builder: (_, __) {
+          var tween = Tween<double>(begin: 0.0, end: 1.2);
+          var curvedAnimation = CurvedAnimation(
+            parent: progress,
+            curve: Interval(0.5, 1.0, curve: Curves.linear),
+          );
+          return Container(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Transform.scale(
+                scale: tween.animate(curvedAnimation).value,
+                child: Icon(Icons.reply),
+              ),
+            ),
+          );
+        },
+      ),
+      key: UniqueKey(),
+      child: MessageWidget(
+        chat: widget.chat,
+        message: message,
+        prev: prev,
+        next: next,
       ),
     );
   }

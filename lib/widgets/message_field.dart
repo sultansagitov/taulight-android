@@ -8,12 +8,14 @@ import 'package:taulight/widgets/tau_button.dart';
 class MessageField extends StatefulWidget {
   final TauChat chat;
   final List<ChatMessageViewDTO> replies;
-  final void Function(String)? sendMessage;
+  final bool enabled;
+  final void Function(String) sendMessage;
 
   const MessageField({
     super.key,
     required this.chat,
     required this.replies,
+    required this.enabled,
     required this.sendMessage,
   });
 
@@ -28,13 +30,15 @@ class _MessageFieldState extends State<MessageField> {
     var t = (text ?? _messageController.text).trim();
     _messageController.clear();
     if (t.isEmpty) return;
-    widget.sendMessage!(t);
+    if (widget.enabled) widget.sendMessage(t);
   }
 
   @override
   Widget build(BuildContext context) {
     bool lightMode = Theme.of(context).brightness == Brightness.light;
-    bool enabled = widget.sendMessage != null;
+
+    TauChat chat = widget.chat;
+    bool enabled = widget.enabled;
 
     return Column(
       children: [
@@ -48,44 +52,47 @@ class _MessageFieldState extends State<MessageField> {
             backgroundBuilder: (_, __, ___) => Container(),
             key: UniqueKey(),
             direction: SwipeDirection.horizontal,
-            child: ReplyPreviewWidget(chat: widget.chat, reply: r),
+            child: ReplyPreviewWidget(chat: chat, reply: r),
           ),
         ),
-        Row(
-          children: [
-            if (enabled)
+        if (enabled)
+          Row(
+            children: [
               TauButton.icon(
                 Icons.add,
                 color: Colors.blue,
                 onPressed: () {},
               ),
-            Expanded(
-              child: TextField(
-                enabled: enabled,
-                controller: _messageController,
-                textAlign: !enabled ? TextAlign.center : TextAlign.left,
-                decoration: InputDecoration(
-                  hintText: enabled ? "Message as ${widget.chat.client.user?.nickname}" : "Disconnected",
-                  hintStyle: TextStyle(
-                    color: Colors.grey[lightMode ? 600 : 400],
+              Expanded(
+                child: TextField(
+                  controller: _messageController,
+                  textAlign: TextAlign.left,
+                  decoration: InputDecoration(
+                    hintText: "Message as ${chat.client.user?.nickname}",
+                    hintStyle: TextStyle(
+                      color: Colors.grey[lightMode ? 600 : 400],
+                    ),
+                    border: InputBorder.none,
                   ),
-                  border: InputBorder.none,
+                  style: TextStyle(
+                    color: lightMode ? Colors.black : Colors.white,
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  onSubmitted: _sendMessage,
                 ),
-                style:
-                    TextStyle(color: lightMode ? Colors.black : Colors.white),
-                textCapitalization: TextCapitalization.sentences,
-                onSubmitted: enabled ? _sendMessage : null,
               ),
-            ),
-            if (enabled) ...[
               TauButton.icon(
                 Icons.arrow_forward_rounded,
                 color: Colors.blue,
                 onPressed: _sendMessage,
               ),
             ],
-          ],
-        ),
+          )
+        else
+          SizedBox(
+            height: 40,
+            child: Center(child: Text("Disconnected")),
+          ),
       ],
     );
   }

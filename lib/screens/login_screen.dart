@@ -141,15 +141,11 @@ class LoginScreenState extends State<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (_loading) ...[
-                  CircularProgressIndicator(),
-                  const SizedBox(width: 10),
-                ] else ...[
-                  TauButton.text(
-                    _isRegistering ? "Register" : "Login",
-                    onPressed: _isRegistering ? _register : _login,
-                  ),
-                ],
+                TauButton.text(
+                  _isRegistering ? "Register" : "Login",
+                  onPressed: _isRegistering ? _register : _login,
+                  loading: _loading,
+                ),
               ],
             ),
             TauButton.text(

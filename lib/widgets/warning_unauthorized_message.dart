@@ -34,8 +34,12 @@ class WarningUnauthorizedMessage extends StatelessWidget {
               ],
             ),
           ),
-          TauButton.text("Login",
-              color: Colors.black, style: BtnStyle.text, onPressed: onLoginTap),
+          TauButton.text(
+            "Login",
+            color: Colors.black,
+            style: BtnStyle.text,
+            onPressed: onLoginTap,
+          ),
         ],
       ),
     );
