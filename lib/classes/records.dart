@@ -204,7 +204,7 @@ class CodeDTO {
 
     return CodeDTO(
       title: map["title"] as String,
-      nickname: map["nickname"] as String,
+      nickname: map["receiver-nickname"] as String,
       sender: map["sender-nickname"] as String,
       creation: DateTime.parse(map["creation-date"] as String),
       expires: DateTime.parse(map["expires-date"] as String),

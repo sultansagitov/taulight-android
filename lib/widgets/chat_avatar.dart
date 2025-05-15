@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/utils.dart';
@@ -22,13 +21,9 @@ class _ChatAvatarState extends State<ChatAvatar> {
   void initState() {
     super.initState();
 
-    if (isChannel(widget.chat)) {
-      final channel = widget.chat.record as ChannelDTO;
-      avatarFuture = AvatarService.instance
-          .loadOrFetchChannelAvatar(widget.chat, channel.id);
-    } else {
-      avatarFuture = Future.value(null);
-    }
+    avatarFuture = isChannel(widget.chat)
+        ? AvatarService.instance.loadOrFetchChannelAvatar(widget.chat)
+        : AvatarService.instance.loadOrFetchDialogAvatar(widget.chat);
   }
 
   @override
@@ -36,7 +31,7 @@ class _ChatAvatarState extends State<ChatAvatar> {
     String initials = "";
 
     try {
-      var title = widget.chat.getTitle();
+      var title = widget.chat.record.getTitle();
       var split = title.split(" ");
       if (split.length >= 2) {
         initials = "";
@@ -57,7 +52,7 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
     initials = initials.toUpperCase();
 
-    Color bg = getRandomColor(widget.chat.id);
+    Color bg = getRandomColor(widget.chat.record.getTitle());
 
     var decoration = BoxDecoration(
       gradient: LinearGradient(
@@ -68,26 +63,13 @@ class _ChatAvatarState extends State<ChatAvatar> {
     var color = Colors.white.withAlpha(192);
 
     if (isDialog(widget.chat)) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: widget.d.toDouble(),
-          height: widget.d.toDouble(),
-          decoration: decoration,
-          child: Center(
-            child: Text(
-              initials,
-              style: TextStyle(
-                color: color,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      );
+      return dialogAvatar(decoration, initials, color);
     }
 
+    return channelAvatar(decoration, initials, color);
+  }
+
+  Widget channelAvatar(BoxDecoration decoration, String initials, Color color) {
     return FutureBuilder<MemoryImage?>(
       future: avatarFuture,
       builder: (context, snapshot) {
@@ -113,6 +95,48 @@ class _ChatAvatarState extends State<ChatAvatar> {
           radius: widget.d / 2,
           backgroundImage: snapshot.data,
           backgroundColor: Colors.grey,
+        );
+      },
+    );
+  }
+
+  Widget dialogAvatar(BoxDecoration decoration, String initials, Color color) {
+    return FutureBuilder(
+      future: avatarFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: widget.d.toDouble(),
+              height: widget.d.toDouble(),
+              decoration: decoration,
+              child: Center(
+                child: Text(
+                  initials,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            width: widget.d.toDouble(),
+            height: widget.d.toDouble(),
+            color: Colors.grey,
+            child: Image.memory(
+              snapshot.data!.bytes,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            ),
+          ),
         );
       },
     );

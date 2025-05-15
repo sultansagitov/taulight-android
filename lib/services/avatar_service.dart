@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/java_service.dart';
 
@@ -13,17 +12,25 @@ class AvatarService {
   static AvatarService get instance => _instance;
   AvatarService._internal();
 
-  Future<MemoryImage?> loadOrFetchChannelAvatar(
+  Future<MemoryImage?> loadOrFetchChannelAvatar(TauChat chat) async {
+    return _loadOrFetchAvatar(chat, JavaService.instance.getChannelAvatar);
+  }
+
+  Future<MemoryImage?> loadOrFetchDialogAvatar(TauChat chat) async {
+    return _loadOrFetchAvatar(chat, JavaService.instance.getDialogAvatar);
+  }
+
+  Future<MemoryImage?> _loadOrFetchAvatar(
     TauChat chat,
-    String channelId,
+    Future<Map<String, dynamic>> Function(TauChat) fetchAvatar,
   ) async {
     final dir = await getApplicationDocumentsDirectory();
 
-    var client = chat.client;
+    final client = chat.client;
 
-    final avatarFile = File('${dir.path}/avatar_${client.uuid}_$channelId');
-    final noAvatarFile =
-        File('${dir.path}/no_avatar_${client.uuid}_$channelId');
+    final uuid = client.uuid;
+    final avatarFile = File('${dir.path}/avatar_${uuid}_${chat.record.id}');
+    final noAvatarFile = File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
 
     if (await noAvatarFile.exists()) {
       return null;
@@ -35,8 +42,7 @@ class AvatarService {
     }
 
     try {
-      final channel = chat.record as ChannelDTO;
-      final map = await JavaService.instance.getChannelAvatar(client, channel);
+      final map = await fetchAvatar(chat);
       final base64Str = map["imageBase64"];
 
       if (base64Str == null) {
@@ -55,8 +61,9 @@ class AvatarService {
   Future<void> updateAvatar(TauChat chat, Uint8List newImageBytes) async {
     final dir = await getApplicationDocumentsDirectory();
     final client = chat.client;
-    var avatarFile = File('${dir.path}/avatar_${client.uuid}_${chat.id}');
-    var noAvatarFile = File('${dir.path}/no_avatar_${client.uuid}_${chat.id}');
+    var uuid = client.uuid;
+    var avatarFile = File('${dir.path}/avatar_${uuid}_${chat.record.id}');
+    var noAvatarFile = File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
 
     if (await noAvatarFile.exists()) {
       await noAvatarFile.delete();
@@ -67,8 +74,7 @@ class AvatarService {
 
   Future<void> setChannelAvatar(TauChat chat, String path) async {
     final bytes = await File(path).readAsBytes();
-    await JavaService.instance
-        .setChannelAvatar(chat.client, chat.record as ChannelDTO, path);
+    await JavaService.instance.setChannelAvatar(chat, path);
     await updateAvatar(chat, bytes);
   }
 }

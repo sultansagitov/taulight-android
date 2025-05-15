@@ -55,6 +55,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "load-chat" to this::loadChat,
             "add-member" to this::addMember,
             "get-channel-avatar" to this::getChannelAvatar,
+            "get-dialog-avatar" to this::getDialogAvatar,
             "chain" to this::chain,
         )
     }
@@ -213,6 +214,28 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         val client: SandnodeClient = taulight.getClient(uuid).client
 
         val file = runner.getChannelAvatar(client, chatID)
+        if (file == null) return mapOf()
+
+        val contentType = file.contentType()
+        val body = file.body()
+
+        val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
+
+        return mapOf(
+            "contentType" to contentType,
+            "avatarBase64" to base64Avatar
+        )
+    }
+
+    private fun getDialogAvatar(call: MethodCall): Map<String, String> {
+        val uuid: String = call.argument<String>("uuid")!!
+        val chatIDString: String = call.argument<String>("chat-id")!!
+
+        val chatID: UUID = UUID.fromString(chatIDString)
+
+        val client: SandnodeClient = taulight.getClient(uuid).client
+
+        val file = runner.getDialogAvatar(client, chatID)
         if (file == null) return mapOf()
 
         val contentType = file.contentType()

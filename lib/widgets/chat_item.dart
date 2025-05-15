@@ -53,7 +53,7 @@ class ChatItem extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     TextSpan(
-                      text: chat.getTitle(),
+                      text: chat.record.getTitle(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

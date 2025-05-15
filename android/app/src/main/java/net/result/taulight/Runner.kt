@@ -12,6 +12,7 @@ import net.result.sandnode.util.IOController
 import net.result.taulight.chain.client.AndroidForwardRequestChain
 import net.result.taulight.chain.sender.ChannelClientChain
 import net.result.taulight.chain.sender.ChatClientChain
+import net.result.taulight.chain.sender.DialogClientChain
 import net.result.taulight.chain.sender.MessageClientChain
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.dto.ChatInfoPropDTO
@@ -108,6 +109,15 @@ class Runner(val taulight: Taulight) {
     @Throws(Exception::class)
     fun getChannelAvatar(client: SandnodeClient, chatID: UUID): FileDTO? {
         val chain = ChannelClientChain(client.io)
+        client.io.chainManager.linkChain(chain)
+        val file = chain.getAvatar(chatID)
+        client.io.chainManager.removeChain(chain)
+        return file;
+    }
+
+    @Throws(Exception::class)
+    fun getDialogAvatar(client: SandnodeClient, chatID: UUID): FileDTO? {
+        val chain = DialogClientChain(client.io)
         client.io.chainManager.linkChain(chain)
         val file = chain.getAvatar(chatID)
         client.io.chainManager.removeChain(chain)

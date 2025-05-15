@@ -50,7 +50,10 @@ class Client {
     required this.endpoint,
     required this.link,
   }) {
-    filter = Filter(name, (chat) => chat.client == this);
+    filter = Filter(
+      () => (authorized) ? "$name (${user!.nickname})" : name,
+      (chat) => chat.client == this,
+    );
   }
 
   ClientStatus get status {
@@ -62,7 +65,7 @@ class Client {
 
   TauChat get(String id) => chats[id]!;
 
-  Future<TauChat> load(String id) async => chats[id] = await loadChat(id);
+  Future<TauChat> save(String id) async => chats[id] = await loadChat(id);
 
   /// Sends a message to the given chat.
   ///
@@ -76,16 +79,9 @@ class Client {
   ///
   /// Returns the chat.
   ///
-  Future<TauChat> getOrLoadChat(ChatDTO record) async =>
-      await getOrLoadChatByID(record.id);
-
-  /// Gets a chat with the given ID.
-  ///
-  /// Returns the chat.
-  ///
-  Future<TauChat> getOrLoadChatByID(String chatID) async {
+  Future<TauChat> getOrSaveChatByID(String chatID) async {
     if (!chats.containsKey(chatID)) {
-      await load(chatID);
+      await save(chatID);
     }
 
     return get(chatID);
@@ -105,11 +101,10 @@ class Client {
   ///
   /// Returns the loaded chats.
   ///
-  Future<List<TauChat>> loadChats() async {
-    List<ChatDTO> loadedChats = await JavaService.instance.loadChats(this);
-    return loadedChats
-        .map((dto) => chats[dto.id] = TauChat.fromRecord(this, dto))
-        .toList();
+  Future<void> loadChats() async {
+    for (var dto in await JavaService.instance.loadChats(this)) {
+      chats[dto.id] ??= TauChat(this, dto);
+    }
   }
 
   /// Disconnects the client.

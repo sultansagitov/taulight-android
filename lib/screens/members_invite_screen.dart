@@ -67,7 +67,7 @@ class MembersInviteScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            chat.getTitle(),
+                            chat.record.getTitle(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(

@@ -57,7 +57,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
     );
 
     if (client != null) {
-      widget.controller.setClient(client);
+      setState(() => widget.controller.setClient(client));
     }
   }
 

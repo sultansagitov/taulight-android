@@ -81,7 +81,7 @@ class ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 12),
             Flexible(
               child: Text(
-                widget.chat.getTitle(),
+                widget.chat.record.getTitle(),
                 style: const TextStyle(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),

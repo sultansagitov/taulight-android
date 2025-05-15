@@ -203,8 +203,7 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      var dto = ChatDTO.fromMap(client, result.obj);
-      return TauChat.fromRecord(client, dto);
+      return TauChat(client, ChatDTO.fromMap(client, result.obj));
     }
 
     throw IncorrectFormatChannelException();
@@ -213,7 +212,7 @@ class JavaService {
   Future<int> loadMessages(TauChat chat, int i, int size) async {
     var result = await method("load-messages", {
       "uuid": chat.client.uuid,
-      "chat-id": chat.id,
+      "chat-id": chat.record.id,
       "index": i,
       "size": size,
     });
@@ -379,7 +378,7 @@ class JavaService {
   ) async {
     Result result = await method("send", {
       "uuid": client.uuid,
-      "chat-id": chat.id,
+      "chat-id": chat.record.id,
       "content": message.text,
       "repliedToMessages": message.repliedToMessages,
     });
@@ -405,7 +404,7 @@ class JavaService {
     Result result = await chain(
       "MembersClientChain.getMembers",
       client: chat.client,
-      params: [chat.id],
+      params: [chat.record.id],
     );
 
     if (result is ExceptionResult) {
@@ -468,7 +467,7 @@ class JavaService {
   Future<String> addMember(Client client, TauChat chat, String nickname) async {
     Result result = await method("add-member", {
       "uuid": client.uuid,
-      "chat-id": chat.id,
+      "chat-id": chat.record.id,
       "nickname": nickname,
     });
 
@@ -580,7 +579,7 @@ class JavaService {
     Result result = await chain(
       "ChannelClientChain.sendLeaveRequest",
       client: client,
-      params: [chat.id],
+      params: [chat.record.id],
     );
 
     if (result is ExceptionResult) {
@@ -601,7 +600,7 @@ class JavaService {
     Result result = await chain(
       "ChannelClientChain.getChannelCodes",
       client: client,
-      params: [chat.id],
+      params: [chat.record.id],
     );
 
     if (result is ExceptionResult) {
@@ -677,49 +676,68 @@ class JavaService {
     }
   }
 
-  Future<void> setChannelAvatar(
-    Client client,
-    ChannelDTO channel,
-    String imagePath,
-  ) async {
+  Future<void> setChannelAvatar(TauChat chat, String imagePath) async {
     var result = await chain(
       "ChannelClientChain.setAvatar",
-      client: client,
-      params: [channel.id, imagePath],
+      client: chat.client,
+      params: [chat.record.id, imagePath],
     );
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(client);
+        throw ChatNotFoundException(chat.client);
       }
       if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
+        throw UnauthorizedException(chat.client);
       }
       if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
+        throw DisconnectException(chat.client);
       }
       throw result;
     }
   }
 
-  Future<Map<String, String>> getChannelAvatar(
-    Client client,
-    ChannelDTO channel,
-  ) async {
+  Future<Map<String, String>> getChannelAvatar(TauChat chat) async {
     Result result = await method("get-channel-avatar", {
-      "uuid": client.uuid,
-      "chat-id": channel.id,
+      "uuid": chat.client.uuid,
+      "chat-id": chat.record.id,
     });
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(client);
+        throw ChatNotFoundException(chat.client);
       }
       if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
+        throw UnauthorizedException(chat.client);
       }
       if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
+        throw DisconnectException(chat.client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      return Map<String, String>.from(result.obj as Map);
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<Map<String, String>> getDialogAvatar(TauChat chat) async {
+    Result result = await method("get-dialog-avatar", {
+      "uuid": chat.client.uuid,
+      "chat-id": chat.record.id,
+    });
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(chat.client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(chat.client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(chat.client);
       }
       throw result;
     }

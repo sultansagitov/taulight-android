@@ -33,8 +33,8 @@ class HomeScreenState extends State<HomeScreen> {
   late final MethodCallHandler methodCallHandler;
 
   final List<Filter> filters = [
-    Filter('Channels', isChannel),
-    Filter('Dialogs', isDialog),
+    Filter(() => 'Channels', isChannel),
+    Filter(() => 'Dialogs', isDialog),
   ];
 
   bool _fullLoading = true;
@@ -58,10 +58,10 @@ class HomeScreenState extends State<HomeScreen> {
       setState(() => _fullLoading = true);
       try {
         await start(context, methodCallHandler, () {
-          setState(() => _fullLoading = false);
+          if (mounted) setState(() => _fullLoading = false);
         });
       } finally {
-        setState(() => _fullLoading = false);
+        if (mounted) setState(() => _fullLoading = false);
       }
     });
   }

@@ -30,7 +30,7 @@ class MethodCallHandler {
     }
 
     var message = ChatMessageViewDTO.fromMap(client, messageMap);
-    TauChat chat = await client.getOrLoadChatByID(message.chatID);
+    TauChat chat = await client.getOrSaveChatByID(message.chatID);
     if (!yourSession) chat.addMessage(message);
   }
 

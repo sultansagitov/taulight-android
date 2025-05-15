@@ -4,6 +4,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
@@ -187,10 +188,7 @@ class _MessageWidgetState extends State<MessageWidget> {
         Row(
           children: [
             //TODO Rounded circle placeholder for channel image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: Container(width: 40, height: 40, color: Colors.black),
-            ),
+            ChatAvatar(widget.chat, d: 40),
             const SizedBox(width: 12),
             Text(
               code.title,

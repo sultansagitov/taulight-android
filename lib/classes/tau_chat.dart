@@ -9,21 +9,17 @@ import 'package:taulight/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 class TauChat {
-  final String id;
   final Client client;
-  ChatDTO? record;
-  int? totalCount;
+  final ChatDTO record;
+  final List<ChatMessageViewDTO> messages;
 
-  final List<ChatMessageViewDTO> messages = [];
+  int? totalCount;
   List<ChatMessageViewDTO> get realMsg {
     return messages.where((m) => !m.text.startsWith("temp_")).toList();
   }
 
-  TauChat(this.client, this.id);
-  factory TauChat.fromRecord(Client client, ChatDTO record) {
-    return TauChat(client, record.id)
-      ..record = record
-      ..messages.add(record.lastMessage);
+  TauChat(this.client, this.record) : messages = [record.lastMessage] {
+    print("new TauChat");
   }
 
   void addMessage(ChatMessageViewDTO message) {
@@ -55,7 +51,7 @@ class TauChat {
 
     var message = ChatMessageViewDTO(
       id: tempUuid,
-      chatID: id,
+      chatID: record.id,
       nickname: client.user!.nickname,
       text: text,
       isMe: true,
@@ -73,11 +69,6 @@ class TauChat {
     callback();
   }
 
-  String getTitle() => record?.getTitle() ?? "Unknown";
-
-  @override
-  String toString() => "TauChat{$id ${realMsg.length}/$totalCount messages}";
-
   Future<List<Member>> getMembers() => JavaService.instance.getMembers(this);
 
   Future<String> addMember(String nickname) async {
@@ -88,8 +79,6 @@ class TauChat {
     VoidCallback? callback,
     void Function(Client, Object)? onError,
   }) async {
-    Map<String, ServerRecord>? map;
-
     for (Client client in JavaService.instance.clients.values) {
       try {
         if (!client.connected || client.user == null) continue;
@@ -97,16 +86,14 @@ class TauChat {
         User user = client.user!;
 
         if (!user.authorized) {
-          map ??= await StorageService.getClients();
+          ServerRecord? server = await StorageService.getClient(client.uuid);
 
-          ServerRecord? serverRecord = map[client.uuid];
-
-          if (serverRecord == null) {
+          if (server == null) {
             client.user = null;
             continue;
           }
 
-          UserRecord? record = serverRecord.user;
+          UserRecord? record = server.user;
 
           if (record == null) {
             client.user = null;
@@ -126,4 +113,8 @@ class TauChat {
       }
     }
   }
+
+  @override
+  String toString() =>
+      "TauChat{${record.id} ${realMsg.length}/$totalCount messages}";
 }

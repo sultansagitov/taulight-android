@@ -6,83 +6,91 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/utils.dart';
 
 class StorageService {
+
   static final _storage = FlutterSecureStorage();
 
   static Future<Map<String, ServerRecord>> getClients() async {
-    String? serversStr = await _storage.read(key: "servers");
+    Map<String, String> all = await _storage.readAll();
+    Map<String, ServerRecord> clients = {};
 
-    if (serversStr != null) {
-      print("from storage: $serversStr");
-      var decoded = Map<String, Object>.from(jsonDecode(serversStr));
-      Map<String, ServerRecord> l = {};
-      for (MapEntry<String, Object> entry in decoded.entries) {
-        l[entry.key] = ServerRecord.fromJSON(entry.value);
+    for (var entry in all.entries) {
+      if (entry.key.startsWith('server.')) {
+        String uuid = entry.key.substring(7);
+        clients[uuid] = ServerRecord.fromJSON(jsonDecode(entry.value));
       }
-      return l;
     }
 
-    return {};
+    return clients;
+  }
+
+  static Future<ServerRecord?> getClient(String uuid) async {
+    String? s = await _storage.read(key: "server.$uuid");
+    return s != null ? ServerRecord.fromJSON(jsonDecode(s)) : null;
   }
 
   static Future<void> saveClients(Map<String, ServerRecord> map) async {
-    Map<String, Map<String, Object>> forEncode = {};
-
     for (MapEntry<String, ServerRecord> entry in map.entries) {
-      forEncode[entry.key] = entry.value.toMap();
+      await _storage.write(
+        key: 'server.${entry.key}',
+        value: jsonEncode(entry.value.toMap()),
+      );
     }
-
-    await _storage.write(key: "servers", value: jsonEncode(forEncode));
   }
 
   static Future<void> saveClient(Client client) async {
-    Map<String, ServerRecord> map = await getClients();
-    map[client.uuid] = ServerRecord(
-      name: client.name,
-      link: client.link,
+    ServerRecord server = ServerRecord(name: client.name, link: client.link);
+    await _storage.write(
+      key: 'server.${client.uuid}',
+      value: jsonEncode(server.toMap()),
     );
-    await saveClients(map);
   }
 
-  static Future<void> saveWithToken(
-    Client client,
-    UserRecord userRecord,
-  ) async {
-    Map<String, ServerRecord> map = await getClients();
+  static Future<void> saveWithToken(Client client, UserRecord userRecord) async {
+    String key = 'server.${client.uuid}';
+    String? data = await _storage.read(key: key);
 
-    var serverRecord = map[client.uuid]!;
-    serverRecord.user = userRecord;
+    if (data == null) {
+      throw ClientNotFoundException(client.uuid);
+    }
 
-    await saveClients(map);
+    ServerRecord server = ServerRecord.fromJSON(jsonDecode(data));
+    server.user = userRecord;
+
+    await _storage.write(key: key, value: jsonEncode(server.toMap()));
   }
 
   static Future<void> removeToken(Client client) async {
-    var map = await getClients();
+    String key = 'server.${client.uuid}';
+    String? data = await _storage.read(key: key);
 
-    if (map.containsKey(client.uuid)) {
-      map[client.uuid]!.user = null;
-      await saveClients(map);
-    } else {
+    if (data == null) {
       throw ClientNotFoundException(client.uuid);
     }
 
-    await saveClients(map);
+    ServerRecord server = ServerRecord.fromJSON(jsonDecode(data));
+    server.user = null;
+
+    await _storage.write(key: key, value: jsonEncode(server.toMap()));
   }
 
   static Future<void> removeClient(Client client) async {
-    var map = await getClients();
+    String key = 'server.${client.uuid}';
+    bool exists = await _storage.containsKey(key: key);
 
-    if (map.containsKey(client.uuid)) {
-      map.remove(client.uuid);
-      await saveClients(map);
-    } else {
+    if (!exists) {
       throw ClientNotFoundException(client.uuid);
     }
 
-    await saveClients(map);
+    await _storage.delete(key: key);
   }
 
   static Future<void> clear() async {
-    await _storage.deleteAll();
+    Map<String, String> all = await _storage.readAll();
+    for (var key in all.keys) {
+      if (key.startsWith('server.')) {
+        await _storage.delete(key: key);
+      }
+    }
   }
 }
 

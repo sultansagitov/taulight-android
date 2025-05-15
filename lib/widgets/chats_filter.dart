@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/tau_chat.dart';
 
 class Filter {
-  final String label;
+  final String Function() label;
   final bool Function(TauChat) condition;
 
   Filter(this.label, this.condition);
@@ -72,7 +72,7 @@ class _ChatsFilterState extends State<ChatsFilter> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            filter.label,
+            filter.label(),
             style: TextStyle(
               color: selected ? selectedTextColor : unselectedTextColor,
             ),
