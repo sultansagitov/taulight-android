@@ -4,6 +4,7 @@ import 'package:collection/collection.dart' show ListExtensions;
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
@@ -80,7 +81,7 @@ class TauChat {
     VoidCallback? callback,
     void Function(Client, Object)? onError,
   }) async {
-    for (Client client in JavaService.instance.clients.values) {
+    for (Client client in ClientService.instance.clientsList) {
       try {
         if (!client.connected || client.user == null) continue;
 

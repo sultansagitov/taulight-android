@@ -4,6 +4,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/java_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
@@ -17,7 +18,7 @@ Future<void> start(
 
   Map<String, ServerRecord> map = await StorageService.instance.getClients();
 
-  Set<String> connectedSet = JavaService.instance.clients.keys.toSet();
+  Set<String> connectedSet = ClientService.instance.keys;
   Set<String> storageSet = map.keys.toSet();
 
   Set<String> notConnectedId = storageSet.difference(connectedSet);
@@ -26,7 +27,7 @@ Future<void> start(
     ServerRecord sr = map[uuid]!;
     try {
       await JavaService.instance.connectWithUUID(uuid, sr.link, keep: true);
-      Client c = JavaService.instance.clients[uuid]!;
+      Client c = ClientService.instance.get(uuid)!;
       UserRecord? userRecord = sr.user;
       if (userRecord != null) {
         String nickname = userRecord.nickname.trim();
@@ -40,7 +41,7 @@ Future<void> start(
     }
   }
 
-  for (var client in JavaService.instance.clients.values) {
+  for (var client in ClientService.instance.clientsList) {
     if (!client.connected) continue;
 
     if (client.user == null || !client.user!.authorized) {
@@ -52,7 +53,7 @@ Future<void> start(
           await client.authByToken(serverRecord.user!.token, store: false);
         } on ExpiredTokenException {
           error = "Session expired. ${client.name}";
-        } on InvalidTokenException {
+        } on InvalidArgumentException {
           error = "Invalid token. ${client.name}";
         }
 

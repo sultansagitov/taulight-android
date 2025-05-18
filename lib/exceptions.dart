@@ -70,13 +70,13 @@ class AddressedMemberNotFoundException extends ClientException {
   AddressedMemberNotFoundException(super.client, this.nickname);
 }
 
-class InvalidTokenException extends ClientException {
-  InvalidTokenException(super.client) {
+class InvalidArgumentException extends ClientException {
+  InvalidArgumentException(super.client) {
     client.user?.authorized = false;
   }
 }
 
-class ExpiredTokenException extends InvalidTokenException {
+class ExpiredTokenException extends InvalidArgumentException {
   ExpiredTokenException(super.client) {
     client.user?.expiredToken = true;
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/connection_screen.dart';
-import 'package:taulight/services/java_service.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsEmpty extends StatefulWidget {
@@ -24,7 +24,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = JavaService.instance.clients;
+    var clients = ClientService.instance.clientsList;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -62,8 +62,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   Future<void> _loadChats(BuildContext context) async {
     setState(() => loadingChats = true);
-    var clients = List.of(JavaService.instance.clients.values);
-    for (var client in clients) {
+    for (var client in ClientService.instance.clientsList) {
       String? error;
 
       try {

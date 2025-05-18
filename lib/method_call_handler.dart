@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/classes/client.dart';
 
 class MethodCallHandler {
@@ -23,7 +23,7 @@ class MethodCallHandler {
     var messageMap = call.arguments["message"];
     bool yourSession = call.arguments["your-session"];
 
-    Client? client = JavaService.instance.getClientByUUID(clientUUID);
+    Client? client = ClientService.instance.get(clientUUID);
 
     if (client == null) {
       throw ClientNotFoundException(clientUUID);
@@ -36,7 +36,7 @@ class MethodCallHandler {
 
   static Future<void> _disconnect(call) async {
     String clientUUID = call.arguments["uuid"];
-    Client? client = JavaService.instance.getClientByUUID(clientUUID);
+    Client? client = ClientService.instance.get(clientUUID);
 
     if (client == null) {
       throw ClientNotFoundException(clientUUID);

@@ -3,10 +3,10 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/hub_info_screen.dart';
 import 'package:taulight/screens/login_screen.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
-import 'package:taulight/services/java_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -27,7 +27,7 @@ class HubsScreenState extends State<HubsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = JavaService.instance.clients.values.toList();
+    var clients = ClientService.instance.clientsList;
 
     return Scaffold(
       appBar: AppBar(
@@ -134,7 +134,7 @@ class HubsScreenState extends State<HubsScreen> {
                 onPressed: () async {
                   await client.disconnect();
                   await StorageService.instance.removeClient(client);
-                  JavaService.instance.clients.remove(client.uuid);
+                  ClientService.instance.remove(client);
                   connectUpdate();
                 },
               )

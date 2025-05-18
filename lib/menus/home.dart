@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/screens/start_dialog_screen.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/screens/hubs_screen.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/create_channel_screen.dart';
@@ -96,7 +96,7 @@ enum MenuOption {
   }
 
   static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
-    for (var client in JavaService.instance.clients.values) {
+    for (var client in ClientService.instance.clientsList) {
       for (var chat in client.chats.values) {
         chat.messages.clear();
       }
@@ -105,7 +105,7 @@ enum MenuOption {
   }
 
   static Future<void> _printClientsAction(_, __) async =>
-      print("Clients: ${JavaService.instance.clients}");
+      print("Clients: ${ClientService.instance.clientsList}");
 }
 
 Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {

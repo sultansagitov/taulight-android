@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/menus/home.dart';
 import 'package:taulight/screens/login_screen.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/start_method.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/method_call_handler.dart';
@@ -82,7 +83,7 @@ class HomeScreenState extends State<HomeScreen> {
     var isLight = Theme.of(context).brightness == Brightness.light;
     var color = Colors.deepOrange[isLight ? 700 : 300];
 
-    var names = JavaService.instance.clients.values
+    var names = ClientService.instance.clientsList
         .where((c) => c.user != null)
         .map((c) => c.user!.nickname)
         .toList();
@@ -123,7 +124,7 @@ class HomeScreenState extends State<HomeScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   const duration = Duration(seconds: 5);
-                  var clients = JavaService.instance.clients.values;
+                  var clients = ClientService.instance.clientsList;
                   for (var c in clients.where((c) => !c.connected)) {
                     await c.reload().timeout(duration);
                   }
@@ -131,7 +132,7 @@ class HomeScreenState extends State<HomeScreen> {
                   for (var c in clients.where((c) => c.realName == null)) {
                     await c.resetName().timeout(duration);
                   }
-                  for (var client in JavaService.instance.clients.values) {
+                  for (var client in ClientService.instance.clientsList) {
                     for (var chat in client.chats.values) {
                       await chat.loadMessages(0, 1).timeout(duration);
                     }
@@ -158,7 +159,7 @@ class HomeScreenState extends State<HomeScreen> {
       return Center(child: CircularProgressIndicator());
     }
 
-    var clients = JavaService.instance.clients.values;
+    var clients = ClientService.instance.clientsList;
 
     // Collect all connected but unauthorized hubs
     var unauthorizedHubs = clients

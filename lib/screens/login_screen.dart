@@ -29,14 +29,19 @@ class LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
 
   Future<void> _login() async {
-    var client = widget.client;
+    Client client = widget.client;
 
     setState(() => _errorMessage = '');
 
     var nickname = _nicknameController.text.trim();
     var passwd = _passwordController.text.trim();
-    if (nickname.isEmpty || passwd.isEmpty) {
-      setState(() => _errorMessage = "Incorrect username or password.");
+    if (nickname.isEmpty) {
+      setState(() => _errorMessage = "Please enter nickname");
+      return;
+    }
+
+    if (passwd.isEmpty) {
+      setState(() => _errorMessage = "Please enter password");
       return;
     }
 
@@ -46,15 +51,15 @@ class LoginScreenState extends State<LoginScreen> {
       setState(() => _loading = false);
       if (mounted) Navigator.pop(context, "login-success");
     } on IncorrectUserDataException {
-      setState(() {
-        _errorMessage = "Incorrect username or password.";
-        _loading = false;
-      });
+      _errorMessage = "Incorrect username or password.";
     } on DisconnectException {
-      setState(() {
-        _errorMessage = "Connection error. Try again.";
-        _loading = false;
-      });
+      _errorMessage = "Connection error. Try again.";
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      _errorMessage = "Unknown error. Try again.";
+    } finally {
+      setState(() => _loading = false);
     }
   }
 
@@ -64,6 +69,21 @@ class LoginScreenState extends State<LoginScreen> {
     String nickname = _nicknameController.text.trim();
     String passwd = _passwordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
+
+    if (nickname.isEmpty) {
+      setState(() => _errorMessage = "Please enter nickname");
+      return;
+    }
+
+    if (passwd.isEmpty) {
+      setState(() => _errorMessage = "Please enter password");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      setState(() => _errorMessage = "Please enter password");
+      return;
+    }
 
     if (passwd != confirmPassword) {
       setState(() => _errorMessage = "Passwords do not match.");

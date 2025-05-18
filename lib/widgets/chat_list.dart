@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/client_service.dart';
 import 'package:taulight/widgets/chat_item.dart';
 import 'package:taulight/widgets/chats_filter.dart';
 import 'package:taulight/widgets/warning_disconnect_message.dart';
@@ -34,7 +34,7 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = JavaService.instance.clients.values;
+    var clients = ClientService.instance.clientsList;
 
     // Collect all disconnected (but not hidden) hubs
     var disconnectedHubs =

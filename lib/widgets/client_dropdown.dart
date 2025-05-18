@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/client_service.dart';
 
 class ClientDropdown extends StatefulWidget {
   final ClientDropdownController controller;
@@ -17,7 +17,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
   @override
   void initState() {
     super.initState();
-    clients = JavaService.instance.clients.values.toList();
+    clients = ClientService.instance.clientsList;
 
     Client? selectedClient = clients.where((c) => c.authorized).first;
     widget.controller.setClient(selectedClient);
