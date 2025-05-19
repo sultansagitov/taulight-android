@@ -4,20 +4,21 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 
 class AvatarService {
   static final AvatarService _instance = AvatarService._internal();
-  static AvatarService get instance => _instance;
+  static AvatarService get ins => _instance;
   AvatarService._internal();
 
   Future<MemoryImage?> loadOrFetchChannelAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, JavaService.instance.getChannelAvatar);
+    return _loadOrFetchAvatar(chat, PlatformService.ins.getChannelAvatar);
   }
 
   Future<MemoryImage?> loadOrFetchDialogAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, JavaService.instance.getDialogAvatar);
+    return _loadOrFetchAvatar(chat, PlatformService.ins.getDialogAvatar);
   }
 
   Future<MemoryImage?> _loadOrFetchAvatar(
@@ -59,23 +60,26 @@ class AvatarService {
     }
   }
 
-  Future<void> updateAvatar(TauChat chat, Uint8List newImageBytes) async {
+  Future<void> setChannelAvatar(TauChat chat, String path) async {
+    await PlatformService.ins.setChannelAvatar(chat, path);
+    final bytes = await File(path).readAsBytes();
+    await updateAvatar(chat.client, chat.record.id, bytes);
+  }
+
+  Future<void> updateAvatar(
+    Client client,
+    String filename,
+    Uint8List newImageBytes,
+  ) async {
     final dir = await getApplicationDocumentsDirectory();
-    final client = chat.client;
     var uuid = client.uuid;
-    var avatarFile = File('${dir.path}/avatar_${uuid}_${chat.record.id}');
-    var noAvatarFile = File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
+    var avatarFile = File('${dir.path}/avatar_${uuid}_$filename');
+    var noAvatarFile = File('${dir.path}/no_avatar_${uuid}_$filename');
 
     if (await noAvatarFile.exists()) {
       await noAvatarFile.delete();
     }
 
     await avatarFile.writeAsBytes(newImageBytes, flush: true);
-  }
-
-  Future<void> setChannelAvatar(TauChat chat, String path) async {
-    final bytes = await File(path).readAsBytes();
-    await JavaService.instance.setChannelAvatar(chat, path);
-    await updateAvatar(chat, bytes);
   }
 }

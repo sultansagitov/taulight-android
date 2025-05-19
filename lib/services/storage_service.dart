@@ -7,7 +7,7 @@ import 'package:taulight/utils.dart';
 
 class StorageService {
   static final StorageService _instance = StorageService._internal();
-  static StorageService get instance => _instance;
+  static StorageService get ins => _instance;
   StorageService._internal();
 
   final _storage = FlutterSecureStorage();
@@ -51,8 +51,7 @@ class StorageService {
     );
   }
 
-  Future<void> saveWithToken(
-      Client client, UserRecord userRecord) async {
+  Future<void> saveWithToken(Client client, UserRecord userRecord) async {
     String key = 'server.${client.uuid}';
     String? data = await _storage.read(key: key);
 

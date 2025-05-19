@@ -92,11 +92,11 @@ enum MenuOption {
   }
 
   static Future<void> _clearStorageAction(_, __) async {
-    return StorageService.instance.clear();
+    return StorageService.ins.clear();
   }
 
   static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
-    for (var client in ClientService.instance.clientsList) {
+    for (var client in ClientService.ins.clientsList) {
       for (var chat in client.chats.values) {
         chat.messages.clear();
       }
@@ -105,7 +105,7 @@ enum MenuOption {
   }
 
   static Future<void> _printClientsAction(_, __) async =>
-      print("Clients: ${ClientService.instance.clientsList}");
+      print("Clients: ${ClientService.ins.clientsList}");
 }
 
 Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {

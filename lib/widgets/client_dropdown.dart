@@ -17,7 +17,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
   @override
   void initState() {
     super.initState();
-    clients = ClientService.instance.clientsList;
+    clients = ClientService.ins.clientsList;
 
     Client? selectedClient = clients.where((c) => c.authorized).first;
     widget.controller.setClient(selectedClient);

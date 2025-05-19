@@ -7,7 +7,7 @@ abstract class AuthState<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.instance.clientsList;
+    var clients = ClientService.ins.clientsList;
     var auth = clients.any((c) => c.authorized);
 
     if (auth) return authorizedBuild(context);

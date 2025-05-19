@@ -24,7 +24,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.instance.clientsList;
+    var clients = ClientService.ins.clientsList;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -62,7 +62,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   Future<void> _loadChats(BuildContext context) async {
     setState(() => loadingChats = true);
-    for (var client in ClientService.instance.clientsList) {
+    for (var client in ClientService.ins.clientsList) {
       String? error;
 
       try {

@@ -22,8 +22,8 @@ class _ChatAvatarState extends State<ChatAvatar> {
     super.initState();
 
     avatarFuture = isChannel(widget.chat)
-        ? AvatarService.instance.loadOrFetchChannelAvatar(widget.chat)
-        : AvatarService.instance.loadOrFetchDialogAvatar(widget.chat);
+        ? AvatarService.ins.loadOrFetchChannelAvatar(widget.chat)
+        : AvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
   }
 
   @override

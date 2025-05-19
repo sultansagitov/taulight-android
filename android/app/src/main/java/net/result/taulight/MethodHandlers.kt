@@ -8,6 +8,11 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.IChain
+import net.result.sandnode.chain.sender.WhoAmIClientChain
+import net.result.sandnode.exception.ExpectedMessageException
+import net.result.sandnode.exception.FSException
+import net.result.sandnode.exception.UnknownSandnodeErrorException
+import net.result.sandnode.exception.UnprocessedMessagesException
 import net.result.sandnode.exception.error.SandnodeErrorException
 import net.result.sandnode.link.Links
 import net.result.sandnode.serverclient.SandnodeClient
@@ -56,6 +61,8 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "add-member" to this::addMember,
             "get-channel-avatar" to this::getChannelAvatar,
             "get-dialog-avatar" to this::getDialogAvatar,
+            "get-avatar" to this::getAvatar,
+            "set-avatar" to this::setAvatar,
             "chain" to this::chain,
         )
     }
@@ -297,4 +304,47 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             client.io.chainManager.removeChain(chain)
         }
     }
+
+    @Throws(UnprocessedMessagesException::class, InterruptedException::class)
+    private fun getAvatar(call: MethodCall): Map<String, String> {
+        val uuid: String = call.argument<String>("uuid")!!
+        val client = taulight.getClient(uuid).client
+
+        try {
+            val avatar = runner.getAvatar(client);
+
+            if (avatar != null) {
+                val mimeType = avatar.contentType()
+                val base64 = Base64.encodeToString(avatar.body(), Base64.NO_WRAP)
+                return mapOf("contentType" to mimeType, "avatarBase64" to base64)
+            }
+        } catch (e: Exception) {
+            println("Exception: ${e.javaClass.simpleName}")
+        }
+        return mapOf()
+    }
+
+    @Throws(UnprocessedMessagesException::class, InterruptedException::class)
+    private fun setAvatar(call: MethodCall): Boolean {
+        val uuid: String = call.argument<String>("uuid")!!
+        val path: String? = call.argument<String>("path")
+
+        if (path.isNullOrEmpty()) {
+            println("Usage: setAvatar <path>")
+            return false
+        }
+
+        val client = taulight.getClient(uuid).client
+
+         try {
+             runner.setAvatar(client, path);
+
+             return true
+        } catch (e: Exception) {
+            println("Exception: ${e.javaClass.simpleName}")
+        }
+
+        return false;
+    }
+
 }

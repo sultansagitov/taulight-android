@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/widgets/chats_filter.dart';
 
 enum ClientStatus {
@@ -73,7 +73,7 @@ class Client {
   /// Returns the sent message.
   ///
   Future<String> sendMessage(TauChat chat, ChatMessageViewDTO message) async {
-    return await JavaService.instance.sendMessage(this, chat, message);
+    return await PlatformService.ins.sendMessage(this, chat, message);
   }
 
   /// Gets a chat with the given ID.
@@ -103,7 +103,7 @@ class Client {
   /// Returns the loaded chats.
   ///
   Future<void> loadChats() async {
-    for (var dto in await JavaService.instance.loadChats(this)) {
+    for (var dto in await PlatformService.ins.loadChats(this)) {
       chats[dto.id] ??= TauChat(this, dto);
     }
   }
@@ -111,11 +111,11 @@ class Client {
   /// Disconnects the client.
   ///
   Future<void> disconnect() async {
-    await JavaService.instance.disconnect(this);
+    await PlatformService.ins.disconnect(this);
   }
 
   Future<void> resetName() async {
-    realName = await JavaService.instance.name(this);
+    realName = await PlatformService.ins.name(this);
   }
 
   /// Loads a chat with the given ID.
@@ -123,7 +123,7 @@ class Client {
   /// Returns the loaded chat.
   ///
   Future<TauChat> loadChat(String id) async {
-    return await JavaService.instance.loadChat(this, id);
+    return await PlatformService.ins.loadChat(this, id);
   }
 
   /// Creates a channel with the given title.
@@ -131,7 +131,7 @@ class Client {
   /// Returns the created channel.
   ///
   Future<String> createChannel(String title) async {
-    return await JavaService.instance.createChannel(this, title);
+    return await PlatformService.ins.createChannel(this, title);
   }
 
   /// Authenticates the client using the provided token.
@@ -141,7 +141,7 @@ class Client {
   /// Returns the nickname of the user.
   ///
   Future<String> authByToken(String token, {bool store = true}) async {
-    return await JavaService.instance.authByToken(this, token);
+    return await PlatformService.ins.authByToken(this, token);
   }
 
   /// Reloads the client.
@@ -150,7 +150,7 @@ class Client {
   ///
   Future<void> reload() async {
     await disconnect();
-    await JavaService.instance.reconnect(this);
+    await PlatformService.ins.reconnect(this);
     await user?.reloadIfUnauthorized();
     if (!authorized) return;
     await loadChats();
@@ -159,7 +159,7 @@ class Client {
   /// Uses the given code.
   ///
   Future<void> useCode(String code) async {
-    return await JavaService.instance.useCode(this, code);
+    return await PlatformService.ins.useCode(this, code);
   }
 
   /// Creates a dialog with the given nickname.
@@ -167,7 +167,7 @@ class Client {
   /// Returns the created dialog.
   ///
   Future<TauChat?> createDialog(String nickname) async {
-    return await JavaService.instance.createDialog(this, nickname);
+    return await PlatformService.ins.createDialog(this, nickname);
   }
 
   /// Checks the code.
@@ -175,16 +175,16 @@ class Client {
   /// Returns the code information.
   ///
   Future<CodeDTO> checkCode(String code) async {
-    var map = await JavaService.instance.checkCode(this, code);
+    var map = await PlatformService.ins.checkCode(this, code);
     return CodeDTO.fromMap(map);
   }
 
   Future<void> react(ChatMessageViewDTO message, String reactionType) async {
-    await JavaService.instance.react(this, message, reactionType);
+    await PlatformService.ins.react(this, message, reactionType);
   }
 
   Future<void> unreact(ChatMessageViewDTO message, String reactionType) async {
-    await JavaService.instance.unreact(this, message, reactionType);
+    await PlatformService.ins.unreact(this, message, reactionType);
   }
 
   @override

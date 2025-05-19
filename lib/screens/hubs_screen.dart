@@ -27,7 +27,7 @@ class HubsScreenState extends State<HubsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.instance.clientsList;
+    var clients = ClientService.ins.clientsList;
 
     return Scaffold(
       appBar: AppBar(
@@ -133,8 +133,8 @@ class HubsScreenState extends State<HubsScreen> {
                 Icons.close,
                 onPressed: () async {
                   await client.disconnect();
-                  await StorageService.instance.removeClient(client);
-                  ClientService.instance.remove(client);
+                  await StorageService.ins.removeClient(client);
+                  ClientService.ins.remove(client);
                   connectUpdate();
                 },
               )

@@ -23,7 +23,7 @@ class MethodCallHandler {
     var messageMap = call.arguments["message"];
     bool yourSession = call.arguments["your-session"];
 
-    Client? client = ClientService.instance.get(clientUUID);
+    Client? client = ClientService.ins.get(clientUUID);
 
     if (client == null) {
       throw ClientNotFoundException(clientUUID);
@@ -36,7 +36,7 @@ class MethodCallHandler {
 
   static Future<void> _disconnect(call) async {
     String clientUUID = call.arguments["uuid"];
-    Client? client = ClientService.instance.get(clientUUID);
+    Client? client = ClientService.ins.get(clientUUID);
 
     if (client == null) {
       throw ClientNotFoundException(clientUUID);

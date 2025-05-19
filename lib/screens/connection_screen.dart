@@ -6,7 +6,7 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -110,7 +110,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   Future<void> _recommended(String link) async {
     Client client;
     try {
-      client = await JavaService.instance.connect(
+      client = await PlatformService.ins.connect(
         link,
         connectUpdate: widget.connectUpdate,
       );
@@ -120,7 +120,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       }
       return;
     }
-    await StorageService.instance.saveClient(client);
+    await StorageService.ins.saveClient(client);
 
     if (mounted) {
       var result = await moveTo(context, LoginScreen(client: client));
@@ -137,11 +137,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   }
 
   void _connect(BuildContext context, String link) async {
-    var client = await JavaService.instance.connect(
+    var client = await PlatformService.ins.connect(
       link,
       connectUpdate: widget.connectUpdate,
     );
-    await StorageService.instance.saveClient(client);
+    await StorageService.ins.saveClient(client);
 
     if (context.mounted) {
       var result = await moveTo(context, LoginScreen(client: client));

@@ -2,32 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/screens/profile_screen.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class HubInfoScreen extends StatelessWidget {
   final Client client;
   const HubInfoScreen(this.client, {super.key});
 
+  Future<void> showQR(BuildContext context, double size) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SizedBox(
+          width: size,
+          height: size,
+          child: QrImageView(
+            data: client.link,
+            version: QrVersions.auto,
+            backgroundColor: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
     var status = client.status;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(client.name),
+        actions: [
+          TauButton.icon(Icons.qr_code, onPressed: () {
+            showQR(context, size.width * 0.6);
+          }),
+        ],
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          QrImageView(
-            data: client.link,
-            version: QrVersions.auto,
-            size: size.width * 0.8,
-            backgroundColor: Colors.white,
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             client.name,
             style: const TextStyle(
@@ -55,6 +72,11 @@ class HubInfoScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (client.user != null) ...[
+            TauButton.text(client.user!.nickname, onPressed: () {
+              moveTo(context, ProfileScreen(client));
+            }),
+          ],
         ],
       ),
     );

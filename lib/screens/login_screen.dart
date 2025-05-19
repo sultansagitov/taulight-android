@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -47,7 +47,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       setState(() => _loading = true);
-      await JavaService.instance.log(client, nickname, passwd);
+      await PlatformService.ins.log(client, nickname, passwd);
       setState(() => _loading = false);
       if (mounted) Navigator.pop(context, "login-success");
     } on IncorrectUserDataException {
@@ -93,9 +93,9 @@ class LoginScreenState extends State<LoginScreen> {
     setState(() => _errorMessage = '');
     try {
       setState(() => _loading = true);
-      String token = await JavaService.instance.reg(client, nickname, passwd);
+      String token = await PlatformService.ins.reg(client, nickname, passwd);
       UserRecord userRecord = UserRecord(nickname, token);
-      await StorageService.instance.saveWithToken(client, userRecord);
+      await StorageService.ins.saveWithToken(client, userRecord);
       setState(() => _loading = false);
       if (mounted) {
         Navigator.pop(context, "register-success");

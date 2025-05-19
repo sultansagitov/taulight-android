@@ -1,6 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/login_history_dto.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
@@ -26,14 +27,14 @@ final incorrectUserDataExceptions = [
   "MemberNotFoundException",
 ];
 
-class JavaService {
-  static final JavaService _instance = JavaService._internal();
-  static JavaService get instance => _instance;
-  JavaService._internal();
+class PlatformService {
+  static final PlatformService _instance = PlatformService._internal();
+  static PlatformService get ins => _instance;
+  PlatformService._internal();
 
   static const methodChannelName = 'net.result.taulight/messenger';
-  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   final MethodChannel platform = MethodChannel(methodChannelName);
+  String? _device;
 
   void setMethodCallHandler(Future Function(MethodCall call)? handler) {
     platform.setMethodCallHandler(handler);
@@ -96,7 +97,7 @@ class JavaService {
       link: link,
     );
 
-    if (keep) ClientService.instance.add(client);
+    if (keep) ClientService.ins.add(client);
     connectUpdate?.call();
 
     if (result is ExceptionResult) {
@@ -111,7 +112,7 @@ class JavaService {
 
     if (result is SuccessResult) {
       client.connected = true;
-      if (!keep) ClientService.instance.add(client);
+      if (!keep) ClientService.ins.add(client);
       await client.resetName();
       connectUpdate?.call();
       return client;
@@ -257,7 +258,7 @@ class JavaService {
     }
 
     if (result is SuccessResult) {
-      ClientService clientService = ClientService.instance;
+      ClientService clientService = ClientService.ins;
 
       var obj = result.obj;
       if (obj is List) {
@@ -301,13 +302,12 @@ class JavaService {
   Future<String> log(Client client, String nickname, String password) async {
     client.user?.expiredToken = false;
 
-    var baseDeviceInfo = await deviceInfoPlugin.deviceInfo;
-    var device = baseDeviceInfo.data['name'];
+    _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
 
     Result result = await chain(
       "LogPasswdClientChain.getToken",
       client: client,
-      params: [nickname, password, device],
+      params: [nickname, password, _device!],
     );
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -327,7 +327,7 @@ class JavaService {
         var token = obj;
         client.user = User(client, nickname, token);
         UserRecord userRecord = UserRecord(nickname, token);
-        await StorageService.instance.saveWithToken(client, userRecord);
+        await StorageService.ins.saveWithToken(client, userRecord);
         return token;
       }
     }
@@ -338,13 +338,12 @@ class JavaService {
   Future<String> reg(Client client, String nickname, String password) async {
     client.user?.expiredToken = false;
 
-    var baseDeviceInfo = await deviceInfoPlugin.deviceInfo;
-    var device = baseDeviceInfo.data['name'];
+    _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
 
     Result result = await chain(
       "RegistrationClientChain.getTokenFromRegistration",
       client: client,
-      params: [nickname, password, device],
+      params: [nickname, password, _device!],
     );
 
     if (result is ExceptionResult) {
@@ -458,8 +457,7 @@ class JavaService {
       var obj = result.obj;
       if (obj is String) {
         String nickname = obj.trim();
-        StorageService.instance
-            .saveWithToken(client, UserRecord(nickname, token));
+        StorageService.ins.saveWithToken(client, UserRecord(nickname, token));
         client.user = User(client, nickname, token);
         return obj;
       }
@@ -748,6 +746,33 @@ class JavaService {
 
     if (result is SuccessResult) {
       return Map<String, String>.from(result.obj as Map);
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<List<LoginHistoryDTO>> loginHistory(Client client) async {
+    var result = await chain("LoginClientChain.getHistory", client: client);
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      List<dynamic> login = result.obj as List<dynamic>;
+      return login
+          .map((invite) => Map<String, dynamic>.from(invite as Map))
+          .map((map) => LoginHistoryDTO.fromMap(map))
+          .toList();
     }
 
     throw IncorrectFormatChannelException();

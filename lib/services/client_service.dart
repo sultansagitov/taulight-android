@@ -2,7 +2,7 @@ import 'package:taulight/classes/client.dart';
 
 class ClientService {
   static final ClientService _instance = ClientService._internal();
-  static ClientService get instance => _instance;
+  static ClientService get ins => _instance;
   ClientService._internal();
 
   final Map<String, Client> _clients = {};

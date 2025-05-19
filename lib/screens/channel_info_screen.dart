@@ -154,6 +154,6 @@ class ChannelInfoScreen extends StatelessWidget {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
-    await AvatarService.instance.setChannelAvatar(chat, pickedFile.path);
+    await AvatarService.ins.setChannelAvatar(chat, pickedFile.path);
   }
 }

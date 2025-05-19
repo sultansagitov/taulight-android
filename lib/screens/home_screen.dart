@@ -8,7 +8,7 @@ import 'package:taulight/start_method.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/screens/chat_screen.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/widgets/animated_greetings.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/chat_list.dart';
@@ -38,7 +38,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     var methodCallHandler = MethodCallHandler();
 
-    JavaService.instance.setMethodCallHandler((call) async {
+    PlatformService.ins.setMethodCallHandler((call) async {
       await methodCallHandler.handle(call);
       setState(() {});
       chatKey.currentState?.update();
@@ -83,7 +83,7 @@ class HomeScreenState extends State<HomeScreen> {
     var isLight = Theme.of(context).brightness == Brightness.light;
     var color = Colors.deepOrange[isLight ? 700 : 300];
 
-    var names = ClientService.instance.clientsList
+    var names = ClientService.ins.clientsList
         .where((c) => c.user != null)
         .map((c) => c.user!.nickname)
         .toList();
@@ -124,15 +124,15 @@ class HomeScreenState extends State<HomeScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   const duration = Duration(seconds: 5);
-                  var clients = ClientService.instance.clientsList;
+                  var clients = ClientService.ins.clientsList;
                   for (var c in clients.where((c) => !c.connected)) {
                     await c.reload().timeout(duration);
                   }
-                  await JavaService.instance.loadClients().timeout(duration);
+                  await PlatformService.ins.loadClients().timeout(duration);
                   for (var c in clients.where((c) => c.realName == null)) {
                     await c.resetName().timeout(duration);
                   }
-                  for (var client in ClientService.instance.clientsList) {
+                  for (var client in ClientService.ins.clientsList) {
                     for (var chat in client.chats.values) {
                       await chat.loadMessages(0, 1).timeout(duration);
                     }
@@ -159,7 +159,7 @@ class HomeScreenState extends State<HomeScreen> {
       return Center(child: CircularProgressIndicator());
     }
 
-    var clients = ClientService.instance.clientsList;
+    var clients = ClientService.ins.clientsList;
 
     // Collect all connected but unauthorized hubs
     var unauthorizedHubs = clients

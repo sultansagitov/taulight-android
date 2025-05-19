@@ -27,7 +27,7 @@ class _InviteWidgetState extends State<InviteWidget> {
     var codeString = where.elementAt(1);
 
     return FutureBuilder(
-      future: inviteDetails ??= InviteService.instance
+      future: inviteDetails ??= InviteService.ins
           .checkCode(widget.chat.client, codeString)
           .timeout(Duration(seconds: 5)),
       builder: (context, snapshot) {

@@ -34,7 +34,7 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.instance.clientsList;
+    var clients = ClientService.ins.clientsList;
 
     // Collect all disconnected (but not hidden) hubs
     var disconnectedHubs =

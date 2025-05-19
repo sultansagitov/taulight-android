@@ -5,7 +5,7 @@ import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
 
@@ -14,11 +14,11 @@ Future<void> start(
   MethodCallHandler methodCallHandler,
   VoidCallback callback,
 ) async {
-  await JavaService.instance.loadClients();
+  await PlatformService.ins.loadClients();
 
-  Map<String, ServerRecord> map = await StorageService.instance.getClients();
+  Map<String, ServerRecord> map = await StorageService.ins.getClients();
 
-  Set<String> connectedSet = ClientService.instance.keys;
+  Set<String> connectedSet = ClientService.ins.keys;
   Set<String> storageSet = map.keys.toSet();
 
   Set<String> notConnectedId = storageSet.difference(connectedSet);
@@ -26,8 +26,8 @@ Future<void> start(
   for (String uuid in notConnectedId) {
     ServerRecord sr = map[uuid]!;
     try {
-      await JavaService.instance.connectWithUUID(uuid, sr.link, keep: true);
-      Client c = ClientService.instance.get(uuid)!;
+      await PlatformService.ins.connectWithUUID(uuid, sr.link, keep: true);
+      Client c = ClientService.ins.get(uuid)!;
       UserRecord? userRecord = sr.user;
       if (userRecord != null) {
         String nickname = userRecord.nickname.trim();
@@ -41,7 +41,7 @@ Future<void> start(
     }
   }
 
-  for (var client in ClientService.instance.clientsList) {
+  for (var client in ClientService.ins.clientsList) {
     if (!client.connected) continue;
 
     if (client.user == null || !client.user!.authorized) {
@@ -59,7 +59,7 @@ Future<void> start(
 
         if (error != null) {
           if (context.mounted) snackBarError(context, error);
-          await StorageService.instance.removeToken(client);
+          await StorageService.ins.removeToken(client);
         }
       }
     }

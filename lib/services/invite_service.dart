@@ -3,7 +3,7 @@ import 'package:taulight/classes/records.dart';
 
 class InviteService {
   static final InviteService _instance = InviteService._internal();
-  static InviteService get instance => _instance;
+  static InviteService get ins => _instance;
   InviteService._internal();
 
   Map<String, Map<String, CodeDTO>> codes = {};

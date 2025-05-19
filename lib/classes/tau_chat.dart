@@ -5,7 +5,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/java_service.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -40,7 +40,7 @@ class TauChat {
     bool hasMoreMessages = totalCount == null || real.length < totalCount!;
 
     if (needsMoreMessages && hasMoreMessages) {
-      totalCount = await JavaService.instance.loadMessages(this, offset, limit);
+      totalCount = await PlatformService.ins.loadMessages(this, offset, limit);
     }
   }
 
@@ -71,17 +71,17 @@ class TauChat {
     callback();
   }
 
-  Future<List<Member>> getMembers() => JavaService.instance.getMembers(this);
+  Future<List<Member>> getMembers() => PlatformService.ins.getMembers(this);
 
   Future<String> addMember(String nickname) async {
-    return await JavaService.instance.addMember(client, this, nickname);
+    return await PlatformService.ins.addMember(client, this, nickname);
   }
 
   static Future<void> loadAll({
     VoidCallback? callback,
     void Function(Client, Object)? onError,
   }) async {
-    for (Client client in ClientService.instance.clientsList) {
+    for (Client client in ClientService.ins.clientsList) {
       try {
         if (!client.connected || client.user == null) continue;
 
@@ -89,7 +89,7 @@ class TauChat {
 
         if (!user.authorized) {
           ServerRecord? server =
-              await StorageService.instance.getClient(client.uuid);
+              await StorageService.ins.getClient(client.uuid);
 
           if (server == null) {
             client.user = null;
