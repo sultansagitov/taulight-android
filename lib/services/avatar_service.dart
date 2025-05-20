@@ -28,13 +28,11 @@ class AvatarService {
     final dir = await getApplicationDocumentsDirectory();
 
     final client = chat.client;
+    final id = chat.record.id;
 
-    final uuid = client.uuid;
-    final avatarFile = File('${dir.path}/avatar_${uuid}_${chat.record.id}');
-    final noAvatarFile =
-        File('${dir.path}/no_avatar_${uuid}_${chat.record.id}');
+    final avatarFile = File('${dir.path}/avatar_${client.uuid}_$id');
 
-    if (await noAvatarFile.exists()) {
+    if (!await hasAvatar(chat)) {
       return null;
     }
 
@@ -48,7 +46,7 @@ class AvatarService {
       final base64Str = map["imageBase64"];
 
       if (base64Str == null) {
-        await noAvatarFile.writeAsString('no avatar');
+        await setNoAvatar(client, id);
         return null;
       }
 
@@ -57,6 +55,40 @@ class AvatarService {
       return MemoryImage(bytes);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<bool> hasAvatar(TauChat chat) async {
+    final dir = await getApplicationDocumentsDirectory();
+
+    final uuid = chat.client.uuid;
+    final id = chat.record.id;
+
+    return !await File('${dir.path}/no_avatar_${uuid}_$id').exists();
+  }
+
+  Future<void> setNoAvatar(Client client, String id) async {
+    final dir = await getApplicationDocumentsDirectory();
+
+    final uuid = client.uuid;
+
+    final avatarFile = File('${dir.path}/avatar_${uuid}_$id');
+    final noAvatarFile = File('${dir.path}/no_avatar_${uuid}_$id');
+
+    if (await avatarFile.exists()) {
+      await avatarFile.delete();
+    }
+
+    await noAvatarFile.writeAsString('no avatar');
+  }
+
+  Future<void> removeNoAvatar(Client client, String id) async {
+    final dir = await getApplicationDocumentsDirectory();
+
+    final noAvatarFile = File('${dir.path}/no_avatar_${client.uuid}_$id');
+
+    if (await noAvatarFile.exists()) {
+      await noAvatarFile.delete();
     }
   }
 
@@ -72,9 +104,9 @@ class AvatarService {
     Uint8List newImageBytes,
   ) async {
     final dir = await getApplicationDocumentsDirectory();
-    var uuid = client.uuid;
-    var avatarFile = File('${dir.path}/avatar_${uuid}_$filename');
-    var noAvatarFile = File('${dir.path}/no_avatar_${uuid}_$filename');
+    final uuid = client.uuid;
+    final avatarFile = File('${dir.path}/avatar_${uuid}_$filename');
+    final noAvatarFile = File('${dir.path}/no_avatar_${uuid}_$filename');
 
     if (await noAvatarFile.exists()) {
       await noAvatarFile.delete();

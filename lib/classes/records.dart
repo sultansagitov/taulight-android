@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/services/avatar_service.dart';
 
 enum Status {
   online,
@@ -22,7 +23,20 @@ abstract class ChatDTO {
   final ChatMessageViewDTO lastMessage;
 
   static ChatDTO fromMap(client, obj) {
-    var map = Map<String, dynamic>.from(obj);
+    final map = Map<String, dynamic>.from(obj);
+
+    bool? hasAvatar = map['has-avatar'];
+    if (hasAvatar != null) {
+      final id = obj["id"]!;
+      if (hasAvatar) {
+        print("remove no avatar $id");
+        AvatarService.ins.removeNoAvatar(client, id);
+      } else {
+        print("set no avatar $id");
+        AvatarService.ins.setNoAvatar(client, id);
+      }
+    }
+
     var type = map["type"];
     switch (type) {
       case "cn":
