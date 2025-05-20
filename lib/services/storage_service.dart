@@ -90,13 +90,30 @@ class StorageService {
     await _storage.delete(key: key);
   }
 
+  Future<bool?> getFingerprintEnabled() async {
+    var bool = await _storage.read(key: "fp") == "true";
+    print('$bool hh');
+    return bool;
+  }
+
+  Future<void> setFingerprintEnabled() async {
+    return await _storage.write(key: "fp", value: "true");
+  }
+
+  Future<void> setFingerprintDisabled() async {
+    return await _storage.write(key: "fp", value: "false");
+  }
+
+  Future<String?> getPIN() async {
+    return await _storage.read(key: "pin");
+  }
+
+  Future<void> setPIN(String pin) async {
+    await _storage.write(key: "pin", value: pin);
+  }
+
   Future<void> clear() async {
-    Map<String, String> all = await _storage.readAll();
-    for (var key in all.keys) {
-      if (key.startsWith('server.')) {
-        await _storage.delete(key: key);
-      }
-    }
+    await _storage.deleteAll();
   }
 }
 

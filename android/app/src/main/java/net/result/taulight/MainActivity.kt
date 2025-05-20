@@ -1,13 +1,13 @@
 package net.result.taulight
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import net.result.sandnode.encryption.EncryptionManager
 import net.result.taulight.message.TauMessageTypes
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         EncryptionManager.registerAll()

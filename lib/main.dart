@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:taulight/screens/home_screen.dart';
+import 'package:taulight/screens/pin_screen.dart';
 
 void main() {
   runApp(const TaulightApp());
@@ -67,7 +67,7 @@ class _TaulightAppState extends State<TaulightApp> {
           titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      home: HomeScreen(),
+      home: PinScreen(),
     );
   }
 }

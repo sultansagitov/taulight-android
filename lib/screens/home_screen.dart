@@ -19,7 +19,7 @@ import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen() : super(key: GlobalKey<HomeScreenState>());
+  const HomeScreen({super.key});
 
   @override
   HomeScreenState createState() => HomeScreenState();
