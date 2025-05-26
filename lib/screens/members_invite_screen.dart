@@ -30,7 +30,7 @@ class MembersInviteScreen extends StatelessWidget {
               onTap: () async {
                 if (nickname.isNotEmpty) {
                   try {
-                    String code = await chatToInvite.addMember(nickname);
+                    String code = await chatToInvite.addMember(nickname, Duration(days: 1));
 
                     String endpoint = chatToInvite.client.endpoint;
                     String text = "sandnode://$endpoint/invite/$code";

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 
+import 'classes/chat_message_wrapper_dto.dart';
+
 String formatTime(DateTime dateTime) {
   DateTime now = DateTime.now();
 
@@ -71,9 +73,9 @@ Color dark(Color color) {
   );
 }
 
-String parseSysMessages(TauChat chat, ChatMessageViewDTO message) {
-  String nickname = message.nickname.trim();
-  String text = message.text.trim();
+String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
+  String nickname = message.view.nickname.trim();
+  String text = message.decrypted.trim();
   List<String> split = text.split(".");
 
   if (split.length < 2) {

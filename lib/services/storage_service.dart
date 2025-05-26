@@ -141,10 +141,10 @@ class ServerRecord {
   ServerRecord({required this.name, required this.link, this.user});
 
   factory ServerRecord.fromJSON(dynamic json) {
-    Map<String, Object> map = Map<String, Object>.from(json);
+    Map<String, dynamic> map = Map<String, dynamic>.from(json);
     String name = map["name"]! as String;
     String link = map["link"]! as String;
-    Object? userMap = map["user"];
+    dynamic userMap = map["user"];
 
     if (userMap == null) {
       return ServerRecord(name: name, link: link);
@@ -156,8 +156,8 @@ class ServerRecord {
 
   String get endpoint => link2endpoint(link);
 
-  Map<String, Object> toMap() {
-    Map<String, Object> map = {"name": name, "link": link};
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map = {"name": name, "link": link};
     if (user != null) {
       map["user"] = user!.toMap();
     }

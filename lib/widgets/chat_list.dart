@@ -67,7 +67,8 @@ class _ChatListState extends State<ChatList> {
     chats.sort((a, b) {
       if (a.messages.isEmpty) return 1;
       if (b.messages.isEmpty) return -1;
-      return b.messages.last.dateTime.compareTo(a.messages.last.dateTime);
+      return b.messages.last.view.dateTime
+          .compareTo(a.messages.last.view.dateTime);
     });
 
     List<Widget> list = [];
@@ -95,12 +96,13 @@ class _ChatListState extends State<ChatList> {
     ));
 
     if (chats.isNotEmpty) {
-      for (TauChat chat in chats) {
-        list.add(ChatItem(
+      list.addAll(chats.map((chat) {
+        return ChatItem(
+          key: ValueKey(chat.record.id),
           chat: chat,
           onTap: widget.onChatTap,
-        ));
-      }
+        );
+      }));
     } else {
       list.add(const Center(
         child: SizedBox(

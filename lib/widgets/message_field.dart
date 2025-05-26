@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class MessageField extends StatefulWidget {
   final TauChat chat;
-  final List<ChatMessageViewDTO> replies;
+  final List<ChatMessageWrapperDTO> replies;
   final bool enabled;
   final void Function(String) sendMessage;
 

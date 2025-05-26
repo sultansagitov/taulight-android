@@ -1,27 +1,20 @@
 package net.result.taulight.chain.client
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import net.result.sandnode.util.IOController
+import net.result.sandnode.serverclient.SandnodeClient
+import net.result.taulight.Taulight
 import net.result.taulight.chain.receiver.ForwardClientChain
 import net.result.taulight.dto.ChatMessageViewDTO
-import net.result.taulight.message.types.ForwardResponse
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import java.util.UUID
 
-class AndroidForwardClientChain(
-    io: IOController,
-    val onMessage: (ChatMessageViewDTO, Boolean) -> Unit
-) : ForwardClientChain(io) {
-
-    companion object {
-        private val LOGGER: Logger = LogManager.getLogger(AndroidForwardClientChain::class.java)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onMessage(response: ForwardResponse) {
-        LOGGER.info(response)
-        val message: ChatMessageViewDTO = response.serverMessage
-        onMessage(message, response.isYourSession)
+class AndroidForwardClientChain(client: SandnodeClient, val taulight: Taulight, val clientID: UUID)
+    : ForwardClientChain(client) {
+    override fun onMessage(message: ChatMessageViewDTO, decrypted: String, yourSession: Boolean) {
+        val messageJson = taulight.objectMapper.convertValue(message, Map::class.java)
+        taulight.sendToFlutter("onmessage", mapOf(
+            "uuid" to clientID.toString(),
+            "your-session" to yourSession,
+            "message" to messageJson,
+            "decrypted" to decrypted
+        ))
     }
 }

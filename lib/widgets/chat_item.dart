@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -19,17 +19,18 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    ChatMessageViewDTO? message;
+    ChatMessageWrapperDTO? wrapper;
     if (chat.messages.isNotEmpty) {
-      message = chat.messages.last;
+      wrapper = chat.messages.last;
     }
 
     Color? nicknameColor;
     var client = chat.client;
     var user = client.user;
 
-    if (message != null) {
-      nicknameColor = getRandomColor(message.nickname);
+    var view = wrapper?.view;
+    if (view != null) {
+      nicknameColor = getRandomColor(view.nickname);
       if (!client.connected || user == null || !user.authorized) {
         nicknameColor = grey(nicknameColor);
       }
@@ -61,20 +62,20 @@ class ChatItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  if (message == null) ...[
+                  if (view == null) ...[
                     Text(
                       "No messages",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: textColor, fontSize: 14),
                     ),
-                  ] else if (!message.sys) ...[
+                  ] else if (!view.sys) ...[
                     Text.rich(
                       TextSpan(
                         children: [
                           if (isChannel(chat)) ...[
                             TextSpan(
-                              text: message.nickname,
+                              text: view.nickname,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: nicknameColor,
@@ -89,7 +90,7 @@ class ChatItem extends StatelessWidget {
                             ),
                           ],
                           TextSpan(
-                            text: message.text,
+                            text: wrapper!.decrypted, // TODO possible null
                             style: TextStyle(color: textColor, fontSize: 14),
                           ),
                         ],
@@ -99,7 +100,7 @@ class ChatItem extends StatelessWidget {
                     ),
                   ] else ...[
                     Text(
-                      parseSysMessages(chat, message),
+                      parseSysMessages(chat, wrapper!), // TODO possible null
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -112,9 +113,9 @@ class ChatItem extends StatelessWidget {
                 ],
               ),
             ),
-            if (message != null) ...[
+            if (view != null) ...[
               Text(
-                "  ${formatTime(message.dateTime)}",
+                "  ${formatTime(view.dateTime)}",
                 style: TextStyle(color: textColor, fontSize: 12),
               ),
             ],

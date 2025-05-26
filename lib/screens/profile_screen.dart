@@ -88,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<dynamic> showQR(BuildContext context, double size) async {
+  Future showQR(BuildContext context, double size) async {
     await showDialog(
       context: context,
       builder: (context) {

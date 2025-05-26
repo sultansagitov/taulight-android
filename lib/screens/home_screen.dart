@@ -39,9 +39,10 @@ class HomeScreenState extends State<HomeScreen> {
     var methodCallHandler = MethodCallHandler();
 
     PlatformService.ins.setMethodCallHandler((call) async {
-      await methodCallHandler.handle(call);
+      var result = await methodCallHandler.handle(call);
       setState(() {});
       chatKey.currentState?.update();
+      return result;
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -196,7 +197,9 @@ class HomeScreenState extends State<HomeScreen> {
         _updateHome(animation: true);
       },
       onChatTap: (TauChat chat) async {
-        await moveTo(context, ChatScreen(chat, key: chatKey));
+        await moveTo(context, ChatScreen(chat, key: chatKey, updateHome: () {
+          _updateHome(animation: true);
+        }));
         await _updateHome(animation: true);
       },
       onLoginTap: (Client client) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/avatar_service.dart';
 
@@ -20,14 +21,14 @@ enum Status {
 
 abstract class ChatDTO {
   final String id;
-  final ChatMessageViewDTO lastMessage;
+  final ChatMessageWrapperDTO lastMessage;
 
   static ChatDTO fromMap(client, obj) {
     final map = Map<String, dynamic>.from(obj);
 
-    bool? hasAvatar = map['has-avatar'];
+    bool? hasAvatar = map["chat"]['has-avatar'];
     if (hasAvatar != null) {
-      final id = obj["id"]!;
+      final id = obj["chat"]["id"]!;
       if (hasAvatar) {
         print("remove no avatar $id");
         AvatarService.ins.removeNoAvatar(client, id);
@@ -37,7 +38,7 @@ abstract class ChatDTO {
       }
     }
 
-    var type = map["type"];
+    var type = map["chat"]["type"];
     switch (type) {
       case "cn":
         return ChannelDTO.fromMap(client, map);
@@ -66,10 +67,13 @@ class ChannelDTO extends ChatDTO {
 
   factory ChannelDTO.fromMap(Client client, Map<String, dynamic> obj) {
     return ChannelDTO(
-      id: obj["id"]!,
-      lastMessage: ChatMessageViewDTO.fromMap(client, obj['last-message']),
-      title: obj["channel-title"]!,
-      owner: obj["channel-owner"]!,
+      id: obj["chat"]["id"]!,
+      lastMessage: ChatMessageWrapperDTO(
+        obj["decrypted-last-message"],
+        ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+      ),
+      title: obj["chat"]["channel-title"]!,
+      owner: obj["chat"]["channel-owner"]!,
     );
   }
 
@@ -95,9 +99,12 @@ class DialogDTO extends ChatDTO {
 
   factory DialogDTO.fromMap(Client client, Map<String, dynamic> obj) {
     return DialogDTO(
-      id: obj["id"]!,
-      lastMessage: ChatMessageViewDTO.fromMap(client, obj['last-message']),
-      otherNickname: obj["dialog-other"]!,
+      id: obj["chat"]["id"]!,
+      lastMessage: ChatMessageWrapperDTO(
+        obj["decrypted-last-message"],
+        ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+      ),
+      otherNickname: obj["chat"]["dialog-other"]!,
     );
   }
 

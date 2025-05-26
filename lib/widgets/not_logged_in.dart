@@ -6,7 +6,7 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class NotLoggedIn extends StatelessWidget {
   final Client client;
-  final Future<void> Function(Object)? onLogin;
+  final Future<void> Function(dynamic)? onLogin;
 
   const NotLoggedIn(this.client, {super.key, this.onLogin});
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/channel_info_screen.dart';
@@ -27,14 +27,14 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<ChatMessageViewDTO> replies = [];
+  List<ChatMessageWrapperDTO> replies = [];
 
   bool _loadingMessages = false;
 
   @override
   void initState() {
     super.initState();
-    List<ChatMessageViewDTO> messages = widget.chat.messages;
+    List<ChatMessageWrapperDTO> messages = widget.chat.messages;
     int? messagesTotalCount = widget.chat.totalCount;
     if (messages.isEmpty || messages.length != (messagesTotalCount ?? 0)) {
       _loadMessages(0, stateUpdate: false);
@@ -62,6 +62,7 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     if (index == 0) {
+      setState(() {});
       widget.updateHome?.call();
     }
   }
@@ -98,7 +99,13 @@ class ChatScreenState extends State<ChatScreen> {
             onPressed: () async {
               Widget screen = isDialog(widget.chat)
                   ? DialogInfoScreen(widget.chat)
-                  : ChannelInfoScreen(widget.chat);
+                  : ChannelInfoScreen(
+                      widget.chat,
+                      updateHome: () {
+                        setState(() {});
+                        widget.updateHome?.call();
+                      },
+                    );
 
               await moveTo(context, screen);
             },
@@ -124,13 +131,14 @@ class ChatScreenState extends State<ChatScreen> {
                     }
 
                     var rev = messages.reversed;
-                    ChatMessageViewDTO? prev = rev.elementAtOrNull(index + 1);
-                    ChatMessageViewDTO? next;
+                    ChatMessageWrapperDTO? prev =
+                        rev.elementAtOrNull(index + 1);
+                    ChatMessageWrapperDTO? next;
                     if (index != 0) {
                       next = rev.elementAtOrNull(index - 1);
                     }
 
-                    ChatMessageViewDTO message = rev.elementAt(index);
+                    ChatMessageWrapperDTO message = rev.elementAt(index);
 
                     if (messages.length < (messagesTotalCount ?? 0)) {
                       if (index + 1 >= messages.length) {
@@ -172,7 +180,7 @@ class ChatScreenState extends State<ChatScreen> {
               replies: replies,
               enabled: enabled,
               sendMessage: (text) {
-                var repliesUuid = replies.map((r) => r.id).toList();
+                var repliesUuid = replies.map((r) => r.view.id).toList();
                 replies.clear();
                 widget.chat.sendMessage(text, repliesUuid, update);
               },
@@ -184,9 +192,9 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Widget buildMessage(
-    ChatMessageViewDTO message,
-    ChatMessageViewDTO? prev,
-    ChatMessageViewDTO? next,
+    ChatMessageWrapperDTO message,
+    ChatMessageWrapperDTO? prev,
+    ChatMessageWrapperDTO? next,
   ) {
     return SwipeableTile.swipeToTrigger(
       behavior: HitTestBehavior.translucent,

@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
 import 'package:taulight/classes/records.dart';
@@ -40,9 +41,10 @@ class PlatformService {
     platform.setMethodCallHandler(handler);
   }
 
-  Future<Result> method(String methodName, Map<String, Object> args) async {
+  Future<Result> method(String methodName, Map<String, dynamic> args) async {
     print("Called on platform --- \"$methodName\"");
     Map result = (await platform.invokeMethod<Map>(methodName, args))!;
+    print("Result of \"$methodName\" - $result");
 
     var error = result["error"];
     if (error != null) {
@@ -57,7 +59,7 @@ class PlatformService {
     required Client client,
     List<String>? params,
   }) {
-    Map<String, Object> args = {"uuid": client.uuid, "method": methodName};
+    Map<String, dynamic> args = {"uuid": client.uuid, "method": methodName};
     if (params != null) args["params"] = params;
     return method("chain", args);
   }
@@ -89,7 +91,7 @@ class PlatformService {
       throw InvalidSandnodeLinkException(link);
     }
 
-    Result result = await method("connect", {"uuid": uuid, "link": link});
+    // TODO add connecting status
 
     Client client = Client(
       uuid: uuid,
@@ -99,6 +101,8 @@ class PlatformService {
 
     if (keep) ClientService.ins.add(client);
     connectUpdate?.call();
+
+    Result result = await method("connect", {"uuid": uuid, "link": link});
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
@@ -179,7 +183,7 @@ class PlatformService {
       var list = result.obj;
       if (list is List) {
         return list
-            .where((obj) => ["cn", "dl"].contains(obj["type"]))
+            .where((obj) => ["cn", "dl"].contains(obj["chat"]["type"]!))
             .map((v) => ChatDTO.fromMap(client, v))
             .toList();
       }
@@ -229,7 +233,7 @@ class PlatformService {
       if (obj is Map) {
         var messages = obj["messages"];
         for (var json in messages) {
-          var message = ChatMessageViewDTO.fromMap(chat.client, json);
+          var message = ChatMessageWrapperDTO.fromMap(chat.client, json);
           chat.addMessage(message);
         }
         return obj["count"];
@@ -322,14 +326,12 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
-      if (obj is String) {
-        var token = obj;
-        client.user = User(client, nickname, token);
-        UserRecord userRecord = UserRecord(nickname, token);
-        await StorageService.ins.saveWithToken(client, userRecord);
-        return token;
-      }
+      var map = Map<String, String>.from(result.obj);
+      var token = map['token']!;
+      client.user = User(client, nickname, token);
+      UserRecord userRecord = UserRecord(nickname, token);
+      await StorageService.ins.saveWithToken(client, userRecord);
+      return token;
     }
 
     throw IncorrectFormatChannelException();
@@ -340,11 +342,12 @@ class PlatformService {
 
     _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
 
-    Result result = await chain(
-      "RegistrationClientChain.getTokenFromRegistration",
-      client: client,
-      params: [nickname, password, _device!],
-    );
+    Result result = await method("register", {
+      "uuid": client.uuid,
+      "nickname": nickname,
+      "password": password,
+      "device": _device!,
+    });
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -363,11 +366,10 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
-      if (obj is String) {
-        client.user = User(client, nickname, obj);
-        return obj;
-      }
+      var map = Map<String, String>.from(result.obj);
+      var token = map["token"]!;
+      client.user = User(client, nickname, token);
+      return token;
     }
 
     throw IncorrectFormatChannelException();
@@ -428,11 +430,10 @@ class PlatformService {
 
   Future<String> authByToken(Client client, String token) async {
     client.user?.expiredToken = false;
-    Result result = await chain(
-      "LoginClientChain.getNickname",
-      client: client,
-      params: [token],
-    );
+    Result result = await method("login", {
+      "uuid": client.uuid,
+      "token": token,
+    });
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -466,12 +467,14 @@ class PlatformService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> addMember(Client client, TauChat chat, String nickname) async {
-    Result result = await method("add-member", {
-      "uuid": client.uuid,
-      "chat-id": chat.record.id,
-      "nickname": nickname,
-    });
+  Future<String> addMember(
+      TauChat chat, String nickname, Duration expirationTime) async {
+    var client = chat.client;
+    Result result = await chain(
+      "ChannelClientChain.createInviteCode",
+      client: client,
+      params: [chat.record.id, nickname, expirationTime.inSeconds.toString()],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -494,8 +497,8 @@ class PlatformService {
 
     if (result is SuccessResult) {
       var obj = result.obj;
-      if (obj is Map && obj.containsKey("code")) {
-        return obj["code"];
+      if (obj is String) {
+        return obj;
       }
     }
 
@@ -792,6 +795,6 @@ class ExceptionResult extends Result implements Exception {
 }
 
 class SuccessResult extends Result {
-  final Object? obj;
+  final dynamic obj;
   SuccessResult(this.obj);
 }

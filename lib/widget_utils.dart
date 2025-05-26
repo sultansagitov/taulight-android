@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<dynamic> moveTo(
+Future moveTo(
   BuildContext context,
   Widget screen, {
   bool fromLeft = false,

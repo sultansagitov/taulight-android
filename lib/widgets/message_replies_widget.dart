@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
@@ -19,9 +20,9 @@ class MessageRepliesWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final List<ChatMessageViewDTO> validReplies = [];
+    final List<ChatMessageWrapperDTO> validReplies = [];
     for (final id in message.repliedToMessages) {
-      final replyMessage = chat.messages.where((m) => m.id == id).firstOrNull;
+      final replyMessage = chat.messages.where((m) => m.view.id == id).firstOrNull;
       if (replyMessage != null) {
         validReplies.add(replyMessage);
       }
@@ -34,8 +35,8 @@ class MessageRepliesWidget extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final replyBgColor = Colors.grey[isLight ? 100 : 850];
 
-    final int userReplies = validReplies.where((m) => !m.sys).length;
-    final int sysReplies = validReplies.where((m) => m.sys).length;
+    final int userReplies = validReplies.where((m) => !m.view.sys).length;
+    final int sysReplies = validReplies.where((m) => m.view.sys).length;
 
     String replyCountText;
     if (sysReplies > 0 && userReplies > 0) {
@@ -89,7 +90,7 @@ class MessageRepliesWidget extends StatelessWidget {
 
 class ReplyPreviewWidget extends StatelessWidget {
   final TauChat chat;
-  final ChatMessageViewDTO reply;
+  final ChatMessageWrapperDTO reply;
 
   const ReplyPreviewWidget({
     super.key,
@@ -102,7 +103,8 @@ class ReplyPreviewWidget extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final textColor = isLight ? Colors.black : Colors.white;
 
-    if (reply.sys) {
+    var message = reply.view;
+    if (message.sys) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
@@ -135,7 +137,7 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
-    String previewText = reply.text;
+    String previewText = reply.decrypted;
     if (previewText.length > 50) {
       previewText = "${previewText.substring(0, 47)}...";
     }
@@ -148,7 +150,7 @@ class ReplyPreviewWidget extends StatelessWidget {
           Container(
             width: 2,
             height: 20,
-            color: getRandomColor(reply.nickname),
+            color: getRandomColor(message.nickname),
             margin: const EdgeInsets.only(left: 4, right: 8, top: 2),
           ),
           Expanded(
@@ -158,16 +160,16 @@ class ReplyPreviewWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      reply.nickname,
+                      message.nickname,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: getRandomColor(reply.nickname),
+                        color: getRandomColor(message.nickname),
                       ),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      formatOnlyTime(reply.dateTime),
+                      formatOnlyTime(message.dateTime),
                       style: TextStyle(
                         fontSize: 8,
                         color: textColor.withAlpha(128),

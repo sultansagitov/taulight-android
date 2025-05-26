@@ -9,25 +9,27 @@ import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
+import 'chat_message_wrapper_dto.dart';
+
 class TauChat {
   final Client client;
   final ChatDTO record;
-  final List<ChatMessageViewDTO> messages;
+  final List<ChatMessageWrapperDTO> messages;
 
   int? totalCount;
-  List<ChatMessageViewDTO> get realMsg {
-    return messages.where((m) => !m.text.startsWith("temp_")).toList();
+  List<ChatMessageWrapperDTO> get realMsg {
+    return messages.where((m) => !m.view.id.startsWith("temp_")).toList();
   }
 
   TauChat(this.client, this.record) : messages = [record.lastMessage] {
     print("new TauChat");
   }
 
-  void addMessage(ChatMessageViewDTO message) {
-    if (!messages.any((m) => m.id == message.id)) {
+  void addMessage(ChatMessageWrapperDTO message) {
+    if (!messages.any((m) => m.view.id == message.view.id)) {
       int index = messages.lowerBound(
         message,
-        (a, b) => a.dateTime.compareTo(b.dateTime),
+        (a, b) => a.view.dateTime.compareTo(b.view.dateTime),
       );
       totalCount = totalCount != null ? totalCount! + 1 : null;
       messages.insert(index, message);
@@ -35,7 +37,7 @@ class TauChat {
   }
 
   Future<void> loadMessages(int offset, int limit) async {
-    List<ChatMessageViewDTO> real = realMsg;
+    List<ChatMessageWrapperDTO> real = realMsg;
     bool needsMoreMessages = real.length < (offset + limit);
     bool hasMoreMessages = totalCount == null || real.length < totalCount!;
 
@@ -63,7 +65,9 @@ class TauChat {
       reactions: {},
     );
 
-    addMessage(message);
+    var wrapper = ChatMessageWrapperDTO(text, message);
+
+    addMessage(wrapper);
     callback();
 
     var messageUuid = await client.sendMessage(this, message);
@@ -73,13 +77,13 @@ class TauChat {
 
   Future<List<Member>> getMembers() => PlatformService.ins.getMembers(this);
 
-  Future<String> addMember(String nickname) async {
-    return await PlatformService.ins.addMember(client, this, nickname);
+  Future<String> addMember(String nickname, Duration expirationTime) async {
+    return await PlatformService.ins.addMember(this, nickname, expirationTime);
   }
 
   static Future<void> loadAll({
     VoidCallback? callback,
-    void Function(Client, Object)? onError,
+    void Function(Client, dynamic)? onError,
   }) async {
     for (Client client in ClientService.ins.clientsList) {
       try {
@@ -110,8 +114,9 @@ class TauChat {
         if (!client.authorized) continue;
 
         await client.loadChats();
-      } catch (e) {
+      } catch (e, stackTrace) {
         print(e);
+        print(stackTrace);
         onError?.call(client, e);
       }
     }

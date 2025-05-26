@@ -9,29 +9,35 @@ import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
-class ChannelInfoScreen extends StatelessWidget {
+class ChannelInfoScreen extends StatefulWidget {
   final TauChat chat;
+  final VoidCallback? updateHome;
 
-  const ChannelInfoScreen(this.chat, {super.key});
+  const ChannelInfoScreen(this.chat, {super.key, this.updateHome});
 
   @override
+  State<ChannelInfoScreen> createState() => _ChannelInfoScreenState();
+}
+
+class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
+  @override
   Widget build(BuildContext context) {
-    final record = chat.record as ChannelDTO;
+    final record = widget.chat.record as ChannelDTO;
     final Future<List<Member>?> membersFuture = _fetchMembers();
 
     return Scaffold(
       appBar: AppBar(
         title: _buildAppBarTitle(context, record.title),
       ),
-      body: chat.client.connected
+      body: widget.chat.client.connected
           ? _buildMemberList(membersFuture, record, context)
           : _buildInfo(),
     );
   }
 
   Future<List<Member>?> _fetchMembers() async {
-    if (chat.client.connected) {
-      return await chat.getMembers();
+    if (widget.chat.client.connected) {
+      return await widget.chat.getMembers();
     }
     return null;
   }
@@ -41,9 +47,9 @@ class ChannelInfoScreen extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            _pickAndSetChannelAvatar(context, chat);
+            _pickAndSetChannelAvatar(context, widget.chat);
           },
-          child: ChatAvatar(chat, d: 40),
+          child: ChatAvatar(widget.chat, d: 40),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -61,10 +67,10 @@ class ChannelInfoScreen extends StatelessWidget {
   }
 
   Widget _buildMemberList(
-    Future<List<Member>?> membersFuture,
-    ChannelDTO record,
-    BuildContext context,
-  ) {
+      Future<List<Member>?> membersFuture,
+      ChannelDTO record,
+      BuildContext context,
+      ) {
     return FutureBuilder<List<Member>?>(
       future: membersFuture,
       builder: (context, snapshot) {
@@ -78,12 +84,12 @@ class ChannelInfoScreen extends StatelessWidget {
 
         final bool isLight = Theme.of(context).brightness == Brightness.light;
         final List<Member> members = snapshot.data!;
-        final bool isOwner = chat.client.user != null &&
-            chat.client.user!.nickname == record.owner;
+        final bool isOwner = widget.chat.client.user != null &&
+            widget.chat.client.user!.nickname == record.owner;
 
         return ListView.builder(
           itemCount:
-              members.length + 2, // +1 for info, +1 for add member button
+          members.length + 2, // +1 for info, +1 for add member button
           itemBuilder: (_, index) {
             if (index == 0) {
               return _buildInfo(members);
@@ -95,9 +101,9 @@ class ChannelInfoScreen extends StatelessWidget {
             }
 
             final Member member =
-                members[index - 2]; // -2 to account for info and add button
+            members[index - 2]; // -2 to account for info and add button
             final String role =
-                member.nickname == record.owner ? "owner" : "member";
+            member.nickname == record.owner ? "owner" : "member";
 
             Color color = getRandomColor(member.nickname);
             if (isLight) {
@@ -105,7 +111,7 @@ class ChannelInfoScreen extends StatelessWidget {
             }
 
             return ListTile(
-              leading: ChatAvatar(chat, d: 40),
+              leading: ChatAvatar(widget.chat, d: 40),
               title: Text(
                 member.nickname,
                 style: TextStyle(
@@ -143,8 +149,8 @@ class ChannelInfoScreen extends StatelessWidget {
   }
 
   Future<void> _showAddMemberDialog(BuildContext context) async {
-    var c = chat.client.chats.values.where(isDialog).toList();
-    await moveTo(context, MembersInviteScreen(chats: c, chatToInvite: chat));
+    var c = widget.chat.client.chats.values.where(isDialog).toList();
+    await moveTo(context, MembersInviteScreen(chats: c, chatToInvite: widget.chat));
   }
 
   Future<void> _pickAndSetChannelAvatar(
@@ -155,5 +161,7 @@ class ChannelInfoScreen extends StatelessWidget {
     if (pickedFile == null) return;
 
     await AvatarService.ins.setChannelAvatar(chat, pickedFile.path);
+    setState(() {});
+    widget.updateHome?.call();
   }
 }

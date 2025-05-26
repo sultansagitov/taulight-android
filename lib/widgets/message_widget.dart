@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/widgets/invite_widget.dart';
@@ -12,9 +12,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MessageWidget extends StatefulWidget {
   final TauChat chat;
-  final ChatMessageViewDTO message;
-  final ChatMessageViewDTO? prev;
-  final ChatMessageViewDTO? next;
+  final ChatMessageWrapperDTO message;
+  final ChatMessageWrapperDTO? prev;
+  final ChatMessageWrapperDTO? next;
 
   const MessageWidget({
     super.key,
@@ -162,12 +162,14 @@ class _MessageWidgetState extends State<MessageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.message.sys) {
+    var wrapper = widget.message;
+    var message = wrapper.view;
+    if (message.sys) {
       return Padding(
         padding: const EdgeInsets.all(8),
         child: Center(
           child: Text(
-            parseSysMessages(widget.chat, widget.message),
+            parseSysMessages(widget.chat, wrapper),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -181,16 +183,16 @@ class _MessageWidgetState extends State<MessageWidget> {
 
     var width = MediaQuery.of(context).size.width;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final nickname = widget.message.nickname.trim();
+    final nickname = message.nickname.trim();
 
-    final first = widget.prev?.sys == true || nickname != widget.prev?.nickname;
-    final last = widget.next?.sys == true || nickname != widget.next?.nickname;
+    final first = widget.prev?.view.sys == true || nickname != widget.prev?.view.nickname;
+    final last = widget.next?.view.sys == true || nickname != widget.next?.view.nickname;
 
-    final loading = widget.message.id.startsWith("temp_");
+    final loading = message.id.startsWith("temp_");
 
     final MainAxisAlignment align;
     final Color? bgColor;
-    if (widget.message.isMe) {
+    if (message.isMe) {
       align = MainAxisAlignment.end;
       bgColor = Colors.blue[isLight ? 100 : 900];
     } else {
@@ -203,7 +205,7 @@ class _MessageWidgetState extends State<MessageWidget> {
     final textColor = isLight ? Colors.black : Colors.white;
     final subTextColor = isLight ? Colors.black54 : Colors.white70;
 
-    final url = extractSandnodeUrl(widget.message.text);
+    final url = extractSandnodeUrl(wrapper.decrypted);
     final hasInvite = url != null;
 
     return Padding(
@@ -222,31 +224,31 @@ class _MessageWidgetState extends State<MessageWidget> {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(widget.message.isMe ? 6 : 16),
-                topRight: Radius.circular(widget.message.isMe ? 16 : 6),
-                bottomLeft: Radius.circular(widget.message.isMe ? 16 : 6),
-                bottomRight: Radius.circular(widget.message.isMe ? 6 : 16),
+                topLeft: Radius.circular(message.isMe ? 6 : 16),
+                topRight: Radius.circular(message.isMe ? 16 : 6),
+                bottomLeft: Radius.circular(message.isMe ? 16 : 6),
+                bottomRight: Radius.circular(message.isMe ? 6 : 16),
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isDialog(widget.chat) && first && !widget.message.isMe)
+                if (!isDialog(widget.chat) && first && !message.isMe)
                   _name(context, nickname),
 
                 // Show replies first if available
-                if (widget.message.repliedToMessages.isNotEmpty)
+                if (message.repliedToMessages.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: MessageRepliesWidget(
                       chat: widget.chat,
-                      message: widget.message,
+                      message: message,
                     ),
                   ),
 
                 // Message text content
-                parseLinks(context, widget.message.text, textColor),
+                parseLinks(context, wrapper.decrypted, textColor),
 
                 // Invite details if present
                 if (hasInvite) InviteWidget(widget.chat, url),
@@ -258,7 +260,7 @@ class _MessageWidgetState extends State<MessageWidget> {
                     Icon(currentIcon, size: 10, color: subTextColor),
                     const SizedBox(width: 4),
                     Text(
-                      formatOnlyTime(widget.message.dateTime),
+                      formatOnlyTime(message.dateTime),
                       style: TextStyle(fontSize: 10, color: subTextColor),
                     ),
                   ],
