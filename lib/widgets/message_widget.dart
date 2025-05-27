@@ -185,8 +185,10 @@ class _MessageWidgetState extends State<MessageWidget> {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final nickname = message.nickname.trim();
 
-    final first = widget.prev?.view.sys == true || nickname != widget.prev?.view.nickname;
-    final last = widget.next?.view.sys == true || nickname != widget.next?.view.nickname;
+    final first =
+        widget.prev?.view.sys == true || nickname != widget.prev?.view.nickname;
+    final last =
+        widget.next?.view.sys == true || nickname != widget.next?.view.nickname;
 
     final loading = message.id.startsWith("temp_");
 
@@ -205,7 +207,9 @@ class _MessageWidgetState extends State<MessageWidget> {
     final textColor = isLight ? Colors.black : Colors.white;
     final subTextColor = isLight ? Colors.black54 : Colors.white70;
 
-    final url = extractSandnodeUrl(wrapper.decrypted);
+    final url = wrapper.decrypted != null
+        ? extractSandnodeUrl(wrapper.decrypted!)
+        : null;
     final hasInvite = url != null;
 
     return Padding(
@@ -247,8 +251,14 @@ class _MessageWidgetState extends State<MessageWidget> {
                     ),
                   ),
 
-                // Message text content
-                parseLinks(context, wrapper.decrypted, textColor),
+                if (wrapper.decrypted == null)
+                  Text(
+                    "Cannot decrypt message - ${wrapper.view.text}",
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  )
+                else
+                  // Message text content
+                  parseLinks(context, wrapper.decrypted!, textColor),
 
                 // Invite details if present
                 if (hasInvite) InviteWidget(widget.chat, url),

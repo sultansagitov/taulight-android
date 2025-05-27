@@ -91,9 +91,7 @@ class StorageService {
   }
 
   Future<bool?> getFingerprintEnabled() async {
-    var bool = await _storage.read(key: "fp") == "true";
-    print('$bool hh');
-    return bool;
+    return await _storage.read(key: "fp") == "true";
   }
 
   Future<void> setFingerprintEnabled() async {
@@ -138,6 +136,8 @@ class ServerRecord {
   String link;
   UserRecord? user;
 
+  String get endpoint => link2endpoint(link);
+
   ServerRecord({required this.name, required this.link, this.user});
 
   factory ServerRecord.fromJSON(dynamic json) {
@@ -153,8 +153,6 @@ class ServerRecord {
     UserRecord userRecord = UserRecord.fromJSON(userMap);
     return ServerRecord(name: name, link: link, user: userRecord);
   }
-
-  String get endpoint => link2endpoint(link);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {"name": name, "link": link};

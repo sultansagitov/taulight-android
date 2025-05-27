@@ -168,8 +168,8 @@ class HomeScreenState extends State<HomeScreen> {
         .toList();
 
     // Show "No hubs"
-    // if there are no connected hubs
-    if (clients.where((c) => c.connected).isEmpty) {
+    // if there are no connected hubs (show grey chats if disconnect)
+    if (clients.where((c) => c.connected || c.chats.isNotEmpty).isEmpty) {
       return HubsEmpty(connectUpdate: () => _updateHome(animation: true));
     }
 

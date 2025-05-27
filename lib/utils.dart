@@ -59,6 +59,34 @@ Color getRandomColor(String seed) {
   return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
 }
 
+String getInitials(String title) {
+  String initials = "";
+
+  try {
+    var split = title.split(" ");
+    if (split.length >= 2) {
+      initials = "";
+      for (int i = 0; i < 2; i++) {
+        initials += split[i][0];
+      }
+    } else {
+      if (title.isNotEmpty) {
+        initials = title[0];
+        if (title.length > 1) {
+          initials += title[1];
+        }
+      }
+    }
+  } catch (e, stackTrace) {
+    print(e);
+    print(stackTrace);
+    initials = "??";
+  }
+
+  initials = initials.toUpperCase();
+  return initials;
+}
+
 Color grey(Color color) {
   var avg = ((color.r + color.g + color.b) * 255 / 3).round();
   return Color.fromRGBO(avg, avg, avg, 1.0);
@@ -75,7 +103,7 @@ Color dark(Color color) {
 
 String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
   String nickname = message.view.nickname.trim();
-  String text = message.decrypted.trim();
+  String text = message.decrypted!.trim();
   List<String> split = text.split(".");
 
   if (split.length < 2) {

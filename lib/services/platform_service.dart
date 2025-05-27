@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
@@ -87,17 +88,15 @@ class PlatformService {
     String endpoint;
     try {
       endpoint = link2endpoint(link);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       throw InvalidSandnodeLinkException(link);
     }
 
     // TODO add connecting status
 
-    Client client = Client(
-      uuid: uuid,
-      endpoint: endpoint,
-      link: link,
-    );
+    Client client = Client(uuid: uuid, endpoint: endpoint, link: link);
 
     if (keep) ClientService.ins.add(client);
     connectUpdate?.call();
@@ -245,8 +244,7 @@ class PlatformService {
 
   Future<void> disconnect(Client client) async {
     if (client.connected) {
-      String uuid = client.uuid;
-      Result result = await method("disconnect", {"uuid": uuid});
+      Result result = await method("disconnect", {"uuid": client.uuid});
 
       if (result is ExceptionResult) {
         throw result;
@@ -270,6 +268,13 @@ class PlatformService {
           String uuid = map["uuid"];
           if (clientService.contains(uuid)) continue;
           Client client = clientService.fromMap(map);
+          client.connected = true;
+
+          if (map["nickname"] != null) {
+            var record = await StorageService.ins.getClient(uuid);
+            client.user = User(client, map["nickname"], record!.user!.token);
+          }
+
           await client.resetName();
         }
         return;
@@ -380,12 +385,18 @@ class PlatformService {
     TauChat chat,
     ChatMessageViewDTO message,
   ) async {
-    Result result = await method("send", {
+    var args = {
       "uuid": client.uuid,
       "chat-id": chat.record.id,
       "content": message.text,
       "repliedToMessages": message.repliedToMessages,
-    });
+    };
+    Result result = isChannel(chat)
+        ? await method("group-send", args)
+        : await method("dialog-send", {
+            ...args,
+            "nickname": (chat.record as DialogDTO).otherNickname,
+          });
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {

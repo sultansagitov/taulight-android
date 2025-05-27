@@ -65,7 +65,7 @@ class TauChat {
       reactions: {},
     );
 
-    var wrapper = ChatMessageWrapperDTO(text, message);
+    var wrapper = ChatMessageWrapperDTO(message, text);
 
     addMessage(wrapper);
     callback();

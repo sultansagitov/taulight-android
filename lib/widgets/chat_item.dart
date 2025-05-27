@@ -90,8 +90,15 @@ class ChatItem extends StatelessWidget {
                             ),
                           ],
                           TextSpan(
-                            text: wrapper!.decrypted, // TODO possible null
-                            style: TextStyle(color: textColor, fontSize: 14),
+                            text: wrapper!.decrypted ?? // TODO possible null
+                                "Cannot decrypt message - ${wrapper.view.text}",
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 14,
+                              fontStyle: wrapper.decrypted == null
+                                  ? FontStyle.italic
+                                  : null,
+                            ),
                           ),
                         ],
                       ),

@@ -110,8 +110,10 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
               color = dark(color);
             }
 
+            var initials = getInitials(member.nickname);
+            var bg = getRandomColor(member.nickname);
             return ListTile(
-              leading: ChatAvatar(widget.chat, d: 40),
+              leading: DialogInitials(initials: initials, bgColor: bg, d: 40),
               title: Text(
                 member.nickname,
                 style: TextStyle(
@@ -161,7 +163,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     if (pickedFile == null) return;
 
     await AvatarService.ins.setChannelAvatar(chat, pickedFile.path);
-    setState(() {});
+    if (mounted) setState(() {});
     widget.updateHome?.call();
   }
 }

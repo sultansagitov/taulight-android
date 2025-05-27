@@ -69,8 +69,8 @@ class ChannelDTO extends ChatDTO {
     return ChannelDTO(
       id: obj["chat"]["id"]!,
       lastMessage: ChatMessageWrapperDTO(
-        obj["decrypted-last-message"],
         ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+        obj["decrypted-last-message"],
       ),
       title: obj["chat"]["channel-title"]!,
       owner: obj["chat"]["channel-owner"]!,
@@ -101,8 +101,8 @@ class DialogDTO extends ChatDTO {
     return DialogDTO(
       id: obj["chat"]["id"]!,
       lastMessage: ChatMessageWrapperDTO(
-        obj["decrypted-last-message"],
         ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+        obj["decrypted-last-message"],
       ),
       otherNickname: obj["chat"]["dialog-other"]!,
     );

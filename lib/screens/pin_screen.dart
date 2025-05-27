@@ -49,8 +49,9 @@ class _PinScreenState extends State<PinScreen> {
       if (storedPin != null && fingerprintEnabled && biometricAvailable) {
         _authenticateWithBiometrics();
       }
-    } catch (e) {
-      debugPrint('Biometric check error: $e');
+    } catch (e, stackTrace) {
+      print('Biometric check error: $e');
+      print(stackTrace);
     }
   }
 
@@ -61,8 +62,9 @@ class _PinScreenState extends State<PinScreen> {
         options: const AuthenticationOptions(biometricOnly: true),
       );
       if (didAuthenticate) _goToHome();
-    } catch (e) {
-      debugPrint('Biometric auth error: $e');
+    } catch (e, stackTrace) {
+      print('Biometric auth error: $e');
+      print(stackTrace);
     }
   }
 

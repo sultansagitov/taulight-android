@@ -22,7 +22,8 @@ class MessageRepliesWidget extends StatelessWidget {
 
     final List<ChatMessageWrapperDTO> validReplies = [];
     for (final id in message.repliedToMessages) {
-      final replyMessage = chat.messages.where((m) => m.view.id == id).firstOrNull;
+      final replyMessage =
+          chat.messages.where((m) => m.view.id == id).firstOrNull;
       if (replyMessage != null) {
         validReplies.add(replyMessage);
       }
@@ -137,7 +138,8 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
-    String previewText = reply.decrypted;
+    var decrypted = reply.decrypted != null;
+    String previewText = reply.decrypted ?? "Cannot decrypt message - ${reply.view.text}";
     if (previewText.length > 50) {
       previewText = "${previewText.substring(0, 47)}...";
     }
@@ -179,7 +181,11 @@ class ReplyPreviewWidget extends StatelessWidget {
                 ),
                 Text(
                   previewText,
-                  style: TextStyle(fontSize: 10, color: textColor),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: textColor,
+                    fontStyle: !decrypted ? FontStyle.italic : null,
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),

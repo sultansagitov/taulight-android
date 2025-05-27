@@ -33,7 +33,9 @@ class ProfileAvatarService {
       final bytes = base64Decode(base64Str);
       await avatarFile.writeAsBytes(bytes, flush: true);
       return MemoryImage(bytes);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       return null;
     }
   }

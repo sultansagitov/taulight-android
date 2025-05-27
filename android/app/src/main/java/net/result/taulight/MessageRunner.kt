@@ -1,14 +1,24 @@
 package net.result.taulight
 
+import net.result.sandnode.chain.sender.DEKClientChain
+import net.result.sandnode.config.KeyEntry
 import net.result.sandnode.dto.PaginatedDTO
+import net.result.sandnode.encryption.SymmetricEncryptions
+import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.chain.sender.ForwardRequestClientChain
 import net.result.taulight.chain.sender.MessageClientChain
 import net.result.taulight.dto.ChatMessageInputDTO
 import net.result.taulight.dto.ChatMessageViewDTO
-import java.util.UUID
+import net.result.taulight.dto.KeyDTO
+import org.apache.logging.log4j.LogManager
+import java.util.*
 
-fun send(client: SandnodeClient, chatID: UUID, content: String, repliedToMessages: Set<UUID>): UUID {
+object MessageRunner {
+    val LOGGER = LogManager.getLogger("MessageRunner")!!
+}
+
+fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMessages: Set<UUID>): UUID {
     val chain = ForwardRequestClientChain(client)
 
     client.io.chainManager.linkChain(chain)
@@ -18,6 +28,60 @@ fun send(client: SandnodeClient, chatID: UUID, content: String, repliedToMessage
         .setContent(content)
         .setRepliedToMessages(repliedToMessages)
         .setSentDatetimeNow()
+
+    val id = chain.message(message)
+
+    client.io.chainManager.removeChain(chain)
+
+    return id
+}
+
+fun dialogSend(
+    client: SandnodeClient,
+    nickname: String,
+    chatID: UUID,
+    content: String,
+    repliedToMessages: Set<UUID>
+): UUID {
+    val chain = ForwardRequestClientChain(client)
+
+    client.io.chainManager.linkChain(chain)
+
+    val message = ChatMessageInputDTO()
+        .setChatID(chatID)
+        .setRepliedToMessages(repliedToMessages)
+        .setSentDatetimeNow()
+
+    var dekChain: DEKClientChain? = null
+    try {
+        val dek = try {
+            client.clientConfig.loadDEK(nickname)
+        } catch (_: KeyStorageNotFoundException) {
+            dekChain = DEKClientChain(client)
+            client.io.chainManager.linkChain(dekChain)
+
+            val encryptor = try {
+                client.clientConfig.loadEncryptor(nickname)
+            } catch (_: KeyStorageNotFoundException) {
+                val dto = dekChain.getKeyOf(nickname)
+                KeyEntry(dto.keyID, dto.keyStorage)
+            }
+
+            val dek = SymmetricEncryptions.AES.generate()
+            val dekID = dekChain.sendDEK(nickname, KeyDTO(encryptor.id, encryptor.keyStorage), dek)
+
+            client.clientConfig.saveDEK(nickname, dekID, dek)
+
+            KeyEntry(dekID, dek)
+        } finally {
+            dekChain?.also { client.io.chainManager.removeChain(it) }
+        }
+
+        message.setEncryptedContent(dek.id, dek.keyStorage, content)
+    } catch (e: Exception) {
+        MessageRunner.LOGGER.error("Sending unencrypted", e)
+        message.setContent(content)
+    }
 
     val id = chain.message(message)
 

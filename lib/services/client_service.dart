@@ -12,7 +12,12 @@ class ClientService {
 
   Client? get(String uuid) => _clients[uuid];
   bool contains(uuid) => _clients.containsKey(uuid);
-  void add(Client client) => _clients[client.uuid] = client;
+  void add(Client client) {
+    if (_clients.containsKey(client.uuid)) {
+      throw Exception("Busy uuid : $client");
+    }
+    _clients[client.uuid] = client;
+  }
   void remove(Client client) => _clients.remove(client.uuid);
 
   Client fromMap(map) {

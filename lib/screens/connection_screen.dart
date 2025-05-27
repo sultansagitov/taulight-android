@@ -67,8 +67,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       return "Enter sandnode link";
                     }
                     return null;
-                  } catch (e) {
-                    return "Link not valid";
+                  } catch (e, stackTrace) {
+                    print(e);
+                    print(stackTrace);return "Link not valid";
                   }
                 },
               ),

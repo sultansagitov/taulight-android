@@ -2,10 +2,10 @@ package net.result.taulight
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.flutter.Log
 import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
@@ -13,10 +13,15 @@ import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.chain.AndroidClientChainManager
 import net.result.taulight.config.AndroidClientConfig
 import net.result.taulight.exception.ClientNotFoundException
+import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class Taulight(val methodChannel: MethodChannel) {
+    companion object {
+        val LOGGER = LogManager.getLogger(Taulight::class.java)!!
+    }
+
     val clients: MutableMap<UUID, MemberClient> = mutableMapOf()
     val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
@@ -33,7 +38,7 @@ class Taulight(val methodChannel: MethodChannel) {
         handler.post {
             methodChannel.invokeMethod(method, obj, object : MethodChannel.Result {
                 override fun success(result: Any?) {
-                    Log.d(javaClass.simpleName, result.toString())
+                    LOGGER.debug("Result from flutter: {}", result.toString())
                     resultMap = (result as? Map<*, *>)?.mapNotNull {
                         val key = it.key as? String
                         val value = it.value as? String
@@ -43,14 +48,14 @@ class Taulight(val methodChannel: MethodChannel) {
                 }
 
                 override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                    Log.e(javaClass.simpleName, errorCode)
-                    Log.e(javaClass.simpleName, errorMessage ?: "null")
-                    Log.e(javaClass.simpleName, errorDetails?.toString() ?: "null")
+                    LOGGER.error(errorCode)
+                    LOGGER.error(errorMessage ?: "null")
+                    LOGGER.error(errorDetails?.toString() ?: "null")
                     latch.countDown()
                 }
 
                 override fun notImplemented() {
-                    Log.e(javaClass.simpleName, "notImplemented")
+                    LOGGER.error("notImplemented")
                     latch.countDown()
                 }
             })
@@ -67,7 +72,7 @@ class Taulight(val methodChannel: MethodChannel) {
         val clientConfig = AndroidClientConfig(this, uuid)
         val client = SandnodeClient.fromLink(link, agent, clientConfig)
 
-        Log.d(javaClass.simpleName, "Saving client of ${client.endpoint} with uuid $uuid")
+        LOGGER.info("Saving client of {} with uuid {}", client.endpoint, uuid)
         val mc = MemberClient(uuid, client, link)
 
         client.start(AndroidClientChainManager(mc, this))

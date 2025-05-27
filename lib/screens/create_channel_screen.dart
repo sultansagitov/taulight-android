@@ -56,7 +56,9 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
         if (mounted) {
           Navigator.pop(context, "success");
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        print(e);
+        print(stackTrace);
         setState(() => _error = "Failed to create channel");
       } finally {
         if (mounted) {

@@ -3,18 +3,18 @@ package net.result.taulight
 import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
-import io.flutter.Log
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.IChain
-import net.result.sandnode.encryption.interfaces.KeyStorage
+import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.exception.error.SandnodeErrorException
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.Links
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.dto.ChatMessageInputDTO
+import org.apache.logging.log4j.LogManager
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -27,6 +27,10 @@ val executorService: ExecutorService = Executors.newCachedThreadPool()
 var methodHandlerMap: Map<String, (MethodCall) -> Any?> = emptyMap()
 
 var taulight: Taulight? = null
+
+object M {
+    val LOGGER = LogManager.getLogger("MethodHandlers")!!
+}
 
 @RequiresApi(Build.VERSION_CODES.N)
 class MethodHandlers(flutterEngine: FlutterEngine) {
@@ -45,7 +49,8 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "disconnect" to ::disconnect,
             "register" to ::register,
             "login" to ::login,
-            "send" to ::send,
+            "group-send" to ::groupSend,
+            "dialog-send" to ::dialogSend,
             "group" to ::groupAdd,
             "get-chats" to ::getChats,
             "load-messages" to ::loadMessages,
@@ -72,17 +77,17 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
                     result.success(
                         mapOf(
                             "error" to mapOf(
-                                "name" to e.javaClass.getSimpleName(),
+                                "name" to e.javaClass.simpleName,
                                 "message" to e.message
                             )
                         )
                     )
                 } catch (e: Exception) {
-                    Log.e(javaClass.simpleName, "Unhandled", e)
+                    M.LOGGER.error("Unhandled", e)
                     result.success(
                         mapOf(
                             "error" to mapOf(
-                                "name" to e.javaClass.getSimpleName(),
+                                "name" to e.javaClass.simpleName,
                                 "message" to e.message
                             )
                         )
@@ -135,7 +140,7 @@ fun login(call: MethodCall): String {
     return login(client, token)
 }
 
-fun send(call: MethodCall): String {
+fun groupSend(call: MethodCall): String {
     val uuid: String = call.argument<String>("uuid")!!
     val chatID: String = call.argument<String>("chat-id")!!
     val content: String = call.argument<String>("content")!!
@@ -144,8 +149,21 @@ fun send(call: MethodCall): String {
     val mc: MemberClient = taulight!!.getClient(uuid)
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
 
-    return send(mc.client, UUID.fromString(chatID), content, repliedToMessages).toString()
-    }
+    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages).toString()
+}
+
+fun dialogSend(call: MethodCall): String {
+    val uuid: String = call.argument<String>("uuid")!!
+    val chatID: String = call.argument<String>("chat-id")!!
+    val nickname: String = call.argument<String>("nickname")!!
+    val content: String = call.argument<String>("content")!!
+    val repliedToMessagesString: List<String> = call.argument<List<String>>("repliedToMessages")!!
+
+    val mc: MemberClient = taulight!!.getClient(uuid)
+    val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
+
+    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages).toString()
+}
 
 fun groupAdd(call: MethodCall): String {
     val uuid: String = call.argument<String>("uuid")!!
@@ -159,16 +177,10 @@ fun groupAdd(call: MethodCall): String {
 }
 
 fun getChats(call: MethodCall): List<Map<String, Any>> {
-        val uuid: String = call.argument<String>("uuid")!!
+    val uuid: String = call.argument<String>("uuid")!!
     val client = taulight!!.getClient(uuid).client
 
-    return getChats(client).map {
-        it.decrypt(client)
-        mapOf(
-            "decrypted-last-message" to it.decryptedMessage!!,
-            "chat" to taulight!!.objectMapper.convertValue(it, Map::class.java)!!
-        )
-    }
+    return getChats(client)
 }
 
 @Throws(Exception::class)
@@ -187,33 +199,43 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
     return mapOf(
         "count" to paginated.totalCount,
         "messages" to messages.map {
-            val decrypted: String
-            val input: ChatMessageInputDTO = it.message
-            if (input.keyID != null) {
-                val keyStorage: KeyStorage = client.clientConfig.loadDEK(input.keyID)
-                val encryption = keyStorage.encryption()
-                val decoded = Base64.decode(input.content, Base64.NO_WRAP)
-                decrypted = encryption.decrypt(decoded, keyStorage)
-            } else {
-                decrypted = input.content
-            }
-
-            mapOf(
-                "decrypted" to decrypted,
+            val map: MutableMap<String, Any> = mutableMapOf(
                 "message" to taulight!!.objectMapper.convertValue(it, Map::class.java)
             )
+            try {
+                val decrypted: String
+                val input: ChatMessageInputDTO = it.message
+                if (input.keyID != null) {
+                    val keyStorage = client.clientConfig.loadDEK(input.keyID)
+                    val decoded = Base64.decode(input.content, Base64.NO_WRAP)
+                    decrypted = keyStorage.encryption().decrypt(decoded, keyStorage)
+                } else {
+                    decrypted = input.content
+                }
+
+                map["decrypted"] = decrypted
+            } catch (e: KeyStorageNotFoundException) {
+                M.LOGGER.error("Send to flutter without decrypting - {}, {}", client, it, e)
+            }
+
+            map
         }
     )
 }
 
+@Suppress("unused")
 fun loadClients(ignoredCall: MethodCall): List<Map<String, String>> {
-        return taulight!!.clients.entries.map { (clientID, mc) ->
-            mapOf(
-                "uuid" to clientID.toString(),
-                "endpoint" to mc.client.endpoint.toString(),
-                "link" to mc.link.toString()
-            )
-        }
+    return taulight!!.clients.entries.map { (clientID, mc) ->
+        val map = mutableMapOf(
+            "uuid" to clientID.toString(),
+            "endpoint" to mc.client.endpoint.toString(),
+            "link" to mc.link.toString(),
+        )
+
+        if (mc.nickname != null) map["nickname"] = mc.nickname!!
+
+        map
+    }
 }
 
 fun loadChat(call: MethodCall): Map<String, Any> {
@@ -223,16 +245,11 @@ fun loadChat(call: MethodCall): Map<String, Any> {
     val chatID: UUID = UUID.fromString(chatString)
     val client: SandnodeClient = taulight!!.getClient(uuid).client
 
-    val chat = loadChat(client, chatID)
-    chat.decrypt(client)
-    return mapOf(
-        "decrypted-last-message" to chat.decryptedMessage!!,
-        "chat" to taulight!!.objectMapper.convertValue(chat, Map::class.java)!!
-    )
+    return loadChat(client, chatID)
 }
 
 fun getChannelAvatar(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
+    val uuid: String = call.argument<String>("uuid")!!
     val chatIDString: String = call.argument<String>("chat-id")!!
 
     val chatID: UUID = UUID.fromString(chatIDString)
@@ -254,8 +271,8 @@ fun getChannelAvatar(call: MethodCall): Map<String, String> {
 }
 
 fun getDialogAvatar(call: MethodCall): Map<String, String> {
-        val uuid: String = call.argument<String>("uuid")!!
-        val chatIDString: String = call.argument<String>("chat-id")!!
+    val uuid: String = call.argument<String>("uuid")!!
+    val chatIDString: String = call.argument<String>("chat-id")!!
 
     val chatID: UUID = UUID.fromString(chatIDString)
 

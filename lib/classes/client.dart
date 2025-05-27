@@ -110,9 +110,7 @@ class Client {
 
   /// Disconnects the client.
   ///
-  Future<void> disconnect() async {
-    await PlatformService.ins.disconnect(this);
-  }
+  Future<void> disconnect() => PlatformService.ins.disconnect(this);
 
   Future<void> resetName() async {
     realName = await PlatformService.ins.name(this);
@@ -122,9 +120,7 @@ class Client {
   ///
   /// Returns the loaded chat.
   ///
-  Future<TauChat> loadChat(String id) async {
-    return await PlatformService.ins.loadChat(this, id);
-  }
+  Future<TauChat> loadChat(String id) => PlatformService.ins.loadChat(this, id);
 
   /// Creates a channel with the given title.
   ///

@@ -40,6 +40,9 @@ class _InviteWidgetState extends State<InviteWidget> {
           return Container();
         }
 
+        final initials = getInitials(code.title);
+        final bg = getRandomColor(code.title);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -48,8 +51,11 @@ class _InviteWidgetState extends State<InviteWidget> {
             const SizedBox(height: 8),
             Row(
               children: [
-                //TODO Rounded circle placeholder for channel image
-                ChatAvatar(widget.chat, d: 40),
+                ChannelInitials(
+                  initials: initials,
+                  bgColor: bg,
+                  d: 40,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   code.title,

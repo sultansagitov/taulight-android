@@ -27,16 +27,19 @@ Future<void> start(
     ServerRecord sr = map[uuid]!;
     try {
       await PlatformService.ins.connectWithUUID(uuid, sr.link, keep: true);
-      Client c = ClientService.ins.get(uuid)!;
-      UserRecord? userRecord = sr.user;
-      if (userRecord != null) {
-        String nickname = userRecord.nickname.trim();
-        String token = userRecord.token;
-        c.user = User.unauthorized(c, nickname, token);
-      }
     } on ConnectionException {
       if (context.mounted) {
         snackBarError(context, "Connection error: ${sr.name}");
+      }
+    } finally {
+      Client? c = ClientService.ins.get(uuid);
+      if (c != null) {
+        UserRecord? userRecord = sr.user;
+        if (userRecord != null) {
+          String nickname = userRecord.nickname.trim();
+          String token = userRecord.token;
+          c.user = User.unauthorized(c, nickname, token);
+        }
       }
     }
   }

@@ -51,9 +51,12 @@ class AvatarService {
       }
 
       final bytes = base64Decode(base64Str);
+      print("Saving avatar for $client:$id in $avatarFile");
       await avatarFile.writeAsBytes(bytes, flush: true);
       return MemoryImage(bytes);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       return null;
     }
   }
@@ -95,10 +98,10 @@ class AvatarService {
   Future<void> setChannelAvatar(TauChat chat, String path) async {
     await PlatformService.ins.setChannelAvatar(chat, path);
     final bytes = await File(path).readAsBytes();
-    await updateAvatar(chat.client, chat.record.id, bytes);
+    await _updateAvatar(chat.client, chat.record.id, bytes);
   }
 
-  Future<void> updateAvatar(
+  Future<void> _updateAvatar(
     Client client,
     String filename,
     Uint8List newImageBytes,

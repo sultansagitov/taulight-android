@@ -115,7 +115,9 @@ class LoginScreenState extends State<LoginScreen> {
         _errorMessage = "Connection error. Try again.";
         _loading = false;
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       setState(() {
         _errorMessage = "Unknown error. Try again.";
         _loading = false;

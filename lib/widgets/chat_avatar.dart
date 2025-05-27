@@ -5,140 +5,149 @@ import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/utils.dart';
 
 class ChatAvatar extends StatefulWidget {
-  final int d;
   final TauChat chat;
+  final int d;
 
-  ChatAvatar(this.chat, {required this.d}) : super(key: UniqueKey());
+  const ChatAvatar(this.chat, {required this.d, super.key});
 
   @override
   State<ChatAvatar> createState() => _ChatAvatarState();
 }
 
 class _ChatAvatarState extends State<ChatAvatar> {
-  late final Future<MemoryImage?> avatarFuture;
+  MemoryImage? avatarImage;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadAvatar();
+  }
 
-    avatarFuture = isChannel(widget.chat)
-        ? AvatarService.ins.loadOrFetchChannelAvatar(widget.chat)
-        : AvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
+  Future<void> _loadAvatar() async {
+    MemoryImage? image;
+    if (isChannel(widget.chat)) {
+      image = await AvatarService.ins.loadOrFetchChannelAvatar(widget.chat);
+    } else if (isDialog(widget.chat)) {
+      image = await AvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
+    }
+
+    if (mounted) {
+      setState(() {
+        avatarImage = image;
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    String initials = "";
+    final title = widget.chat.record.getTitle();
+    final initials = getInitials(title);
+    final bgColor = getRandomColor(title);
 
-    try {
-      var title = widget.chat.record.getTitle();
-      var split = title.split(" ");
-      if (split.length >= 2) {
-        initials = "";
-        for (int i = 0; i < 2; i++) {
-          initials += split[i][0];
-        }
-      } else {
-        if (title.isNotEmpty) {
-          initials = title[0];
-          if (title.length > 1) {
-            initials += title[1];
-          }
-        }
+    if (isChannel(widget.chat)) {
+      if (isLoading || avatarImage == null) {
+        return ChannelInitials(initials: initials, bgColor: bgColor, d: widget.d);
       }
-    } catch (e) {
-      initials = "??";
+      return ChannelAvatar(avatarImage: avatarImage!, d: widget.d);
+    } else if (isDialog(widget.chat)) {
+      if (isLoading || avatarImage == null) {
+        return DialogInitials(initials: initials, bgColor: bgColor, d: widget.d);
+      }
+      return DialogAvatar(avatarImage: avatarImage!, d: widget.d);
     }
 
-    initials = initials.toUpperCase();
+    return SizedBox(width: widget.d.toDouble(), height: widget.d.toDouble());
+  }
+}
 
-    Color bg = getRandomColor(widget.chat.record.getTitle());
+class ChannelInitials extends StatelessWidget {
+  final String initials;
+  final Color bgColor;
+  final int d;
+  const ChannelInitials({required this.initials, required this.bgColor, required this.d, super.key});
 
-    var decoration = BoxDecoration(
-      gradient: LinearGradient(
-        colors: [bg, bg.withAlpha(200)],
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: d.toDouble(),
+      height: d.toDouble(),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(colors: [bgColor, bgColor.withAlpha(200)]),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
       ),
     );
-
-    var color = Colors.white.withAlpha(192);
-
-    if (isDialog(widget.chat)) {
-      return dialogAvatar(decoration, initials, color);
-    }
-
-    return channelAvatar(decoration, initials, color);
   }
+}
 
-  Widget channelAvatar(BoxDecoration decoration, String initials, Color color) {
-    return FutureBuilder<MemoryImage?>(
-      future: avatarFuture,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return Container(
-            width: widget.d.toDouble(),
-            height: widget.d.toDouble(),
-            decoration: decoration.copyWith(shape: BoxShape.circle),
-            child: Center(
-              child: Text(
-                initials,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          );
-        }
+class ChannelAvatar extends StatelessWidget {
+  final MemoryImage avatarImage;
+  final int d;
+  const ChannelAvatar({required this.avatarImage, required this.d, super.key});
 
-        return CircleAvatar(
-          radius: widget.d / 2,
-          backgroundImage: snapshot.data,
-          backgroundColor: Colors.grey,
-        );
-      },
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: d / 2,
+      backgroundImage: avatarImage,
+      backgroundColor: Colors.grey,
     );
   }
+}
 
-  Widget dialogAvatar(BoxDecoration decoration, String initials, Color color) {
-    return FutureBuilder(
-      future: avatarFuture,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              width: widget.d.toDouble(),
-              height: widget.d.toDouble(),
-              decoration: decoration,
-              child: Center(
-                child: Text(
-                  initials,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
+class DialogInitials extends StatelessWidget {
+  final String initials;
+  final Color bgColor;
+  final int d;
+  const DialogInitials({required this.initials, required this.bgColor, required this.d, super.key});
 
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            width: widget.d.toDouble(),
-            height: widget.d.toDouble(),
-            color: Colors.grey,
-            child: Image.memory(
-              snapshot.data!.bytes,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: d.toDouble(),
+        height: d.toDouble(),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [bgColor, bgColor.withAlpha(200)]),
+        ),
+        child: Center(
+          child: Text(
+            initials,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+}
+
+class DialogAvatar extends StatelessWidget {
+  final MemoryImage avatarImage;
+  final int d;
+  const DialogAvatar({required this.avatarImage, required this.d, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: d.toDouble(),
+        height: d.toDouble(),
+        color: Colors.grey,
+        child: Image.memory(
+          avatarImage.bytes,
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
+        ),
+      ),
     );
   }
 }

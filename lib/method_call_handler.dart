@@ -38,7 +38,7 @@ class MethodCallHandler {
     if (client == null) throw ClientNotFoundException(clientUUID);
 
     final view = ChatMessageViewDTO.fromMap(client, messageMap);
-    final wrapper = ChatMessageWrapperDTO(decrypted, view);
+    final wrapper = ChatMessageWrapperDTO(view, decrypted);
     final chat = await client.getOrSaveChatByID(view.chatID);
     if (!yourSession) chat.addMessage(wrapper);
   }
