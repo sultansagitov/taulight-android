@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/platform_service.dart';
-import 'package:taulight/widgets/chats_filter.dart';
 
 enum ClientStatus {
   connected("Connected", Colors.green),
@@ -46,16 +46,7 @@ class Client {
     }
   }
 
-  Client({
-    required this.uuid,
-    required this.endpoint,
-    required this.link,
-  }) {
-    filter = Filter(
-      () => (authorized) ? "$name (${user!.nickname})" : name,
-      (chat) => chat.client == this,
-    );
-  }
+  Client({required this.uuid, required this.endpoint, required this.link});
 
   ClientStatus get status {
     if (!connected) return ClientStatus.disconnected;

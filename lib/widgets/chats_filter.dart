@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/tau_chat.dart';
-
-class Filter {
-  final String Function() label;
-  final bool Function(TauChat) condition;
-
-  Filter(this.label, this.condition);
-}
+import 'package:taulight/classes/filter.dart';
 
 class ChatsFilter extends StatefulWidget {
   final List<Filter> filters;
-  final Set<Filter> initial;
-  final void Function(Set<Filter> selectedFilters) onChange;
+  final void Function() onChange;
 
   const ChatsFilter({
     super.key,
     required this.filters,
     required this.onChange,
-    required this.initial,
   });
 
   @override
@@ -25,14 +16,6 @@ class ChatsFilter extends StatefulWidget {
 }
 
 class _ChatsFilterState extends State<ChatsFilter> {
-  late final Set<Filter> selectedFilters;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() => selectedFilters = widget.initial);
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -45,7 +28,6 @@ class _ChatsFilterState extends State<ChatsFilter> {
   }
 
   Widget buildFilter(Filter filter) {
-    bool selected = selectedFilters.contains(filter);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final selectedColor = isDark ? Colors.blue[300]! : Colors.blue;
@@ -58,23 +40,26 @@ class _ChatsFilterState extends State<ChatsFilter> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            selected
-                ? selectedFilters.remove(filter)
-                : selectedFilters.add(filter);
+            if (filter.isEnabled()) {
+              filter.disable();
+            } else {
+              filter.enable();
+            }
           });
-          widget.onChange(selectedFilters);
+          widget.onChange();
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           decoration: BoxDecoration(
-            color: selected ? selectedColor : unselectedColor,
+            color: filter.isEnabled() ? selectedColor : unselectedColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             filter.label(),
             style: TextStyle(
-              color: selected ? selectedTextColor : unselectedTextColor,
+              color:
+                  filter.isEnabled() ? selectedTextColor : unselectedTextColor,
             ),
           ),
         ),

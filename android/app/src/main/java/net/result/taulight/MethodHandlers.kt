@@ -185,7 +185,7 @@ fun getChats(call: MethodCall): List<Map<String, Any>> {
 
 @Throws(Exception::class)
 fun loadMessages(call: MethodCall): Map<String, Any> {
-        val uuid: String = call.argument<String>("uuid")!!
+    val uuid: String = call.argument<String>("uuid")!!
     val chatIDStr: String = call.argument<String>("chat-id")!!
     val index: Int = call.argument<Int>("index")!!
     val size: Int = call.argument<Int>("size")!!

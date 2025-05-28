@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/widgets/chat_item.dart';
@@ -25,12 +26,17 @@ class ChatList extends StatefulWidget {
 }
 
 class _ChatListState extends State<ChatList> {
-  final List<Filter> filters = [
-    Filter(() => 'Channels', isChannel),
-    Filter(() => 'Dialogs', isDialog),
-  ];
+  final manager = FilterManager();
+  late final List<Filter> filters;
 
-  Set<Filter> selectedFilters = {};
+  @override
+  void initState() {
+    super.initState();
+    filters = [
+      RadioFilter(manager, () => 'Channels', isChannel),
+      RadioFilter(manager, () => 'Dialogs', isDialog),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +54,8 @@ class _ChatListState extends State<ChatList> {
     // Collect all chats from clients that have a valid user
     List<TauChat> chats =
         clients.expand((client) => client.chats.values).where((chat) {
-      if (selectedFilters.isEmpty) {
-        return true;
-      }
-
-      for (Filter filter in selectedFilters) {
-        if (!filter.condition(chat)) {
+      for (Filter filter in filters) {
+        if (filter.isEnabled() && !filter.check(chat)) {
           return false;
         }
       }
@@ -91,8 +93,7 @@ class _ChatListState extends State<ChatList> {
     Iterable<Filter> clientFilter = c.length != 1 ? c.map((c) => c.filter) : [];
     list.add(ChatsFilter(
       filters: [...filters, ...clientFilter],
-      initial: selectedFilters,
-      onChange: (selected) => setState(() => selectedFilters = selected),
+      onChange: () => setState(() {}),
     ));
 
     if (chats.isNotEmpty) {

@@ -1,9 +1,12 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/filter.dart';
 
 class ClientService {
   static final ClientService _instance = ClientService._internal();
   static ClientService get ins => _instance;
   ClientService._internal();
+
+  FilterManager filterManager = FilterManager();
 
   final Map<String, Client> _clients = {};
 
@@ -17,7 +20,16 @@ class ClientService {
       throw Exception("Busy uuid : $client");
     }
     _clients[client.uuid] = client;
+
+    client.filter = AnyFilter(
+      ClientService.ins.filterManager,
+      () => (client.authorized)
+          ? "${client.name} (${client.user!.nickname})"
+          : client.name,
+      (chat) => chat.client == client,
+    );
   }
+
   void remove(Client client) => _clients.remove(client.uuid);
 
   Client fromMap(map) {
