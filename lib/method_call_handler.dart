@@ -163,24 +163,44 @@ class MethodCallHandler {
 
     await _secureStorage.write(key: "dek-id:$uuid:$nickname", value: keyID);
     await _secureStorage.write(
-      key: "dek-encryption:$uuid:$nickname",
-      value: encryption,
-    );
+        key: "dek-encryption:$uuid:$nickname", value: encryption);
+
+    await _secureStorage.write(
+        key: "dek-encryption:$uuid:$keyID", value: encryption);
 
     if (call.arguments.containsKey("sym-key")) {
+      String symKey = call.arguments["sym-key"];
       await _secureStorage.write(
         key: "dek-sym-key:$uuid:$nickname",
-        value: call.arguments["sym-key"],
+        value: symKey,
+      );
+      await _secureStorage.write(
+        key: "dek-sym-key:$uuid:$keyID",
+        value: symKey,
       );
     }
-    if (call.arguments.containsKey("public-key")) {
+
+    if (call.arguments.containsKey("public-key") &&
+        call.arguments.containsKey("private-key")) {
+      String publicKey = call.arguments["public-key"];
+      String privateKey = call.arguments["private-key"];
+
       await _secureStorage.write(
         key: "dek-public-key:$uuid:$nickname",
-        value: call.arguments["public-key"],
+        value: publicKey,
       );
       await _secureStorage.write(
         key: "dek-private-key:$uuid:$nickname",
-        value: call.arguments["private-key"],
+        value: privateKey,
+      );
+
+      await _secureStorage.write(
+        key: "dek-public-key:$uuid:$keyID",
+        value: publicKey,
+      );
+      await _secureStorage.write(
+        key: "dek-private-key:$uuid:$keyID",
+        value: privateKey,
       );
     }
   }
@@ -255,28 +275,17 @@ class MethodCallHandler {
     String nickname = call.arguments["nickname"];
 
     final keyID = await _secureStorage.read(key: "dek-id:$uuid:$nickname");
-    final encryption =
-        await _secureStorage.read(key: "dek-encryption:$uuid:$nickname");
-    if (keyID == null || encryption == null) {
+    if (keyID == null) {
       throw PlatformException(
         code: "key_not_found",
-        message: "DEK not found for nickname $nickname",
+        message: "DEK ID not found for nickname $nickname",
       );
     }
 
-    final result = <String, String?>{"key-id": keyID, "encryption": encryption};
-
-    if (await _secureStorage.containsKey(key: "dek-sym-key:$uuid:$nickname")) {
-      result["sym-key"] =
-          await _secureStorage.read(key: "dek-sym-key:$uuid:$nickname");
-    } else {
-      result["public-key"] =
-          await _secureStorage.read(key: "dek-public-key:$uuid:$nickname");
-      result["private-key"] =
-          await _secureStorage.read(key: "dek-private-key:$uuid:$nickname");
-    }
-
-    return result;
+    return _loadDEKByID(MethodCall("loadDEKByID", {
+      "uuid": uuid,
+      "key-id": keyID,
+    }));
   }
 
   static Future<Map<String, String?>> _loadDEKByID(MethodCall call) async {
@@ -292,18 +301,19 @@ class MethodCallHandler {
       );
     }
 
-    final result = <String, String?>{"encryption": encryption};
+    final result = <String, String?>{
+      "key-id": keyID,
+      "encryption": encryption,
+    };
 
     if (await _secureStorage.containsKey(key: "dek-sym-key:$uuid:$keyID")) {
       result["sym-key"] =
           await _secureStorage.read(key: "dek-sym-key:$uuid:$keyID");
     } else {
-      result["public-key"] = await _secureStorage.read(
-        key: "dek-public-key:$uuid:$keyID",
-      );
-      result["private-key"] = await _secureStorage.read(
-        key: "dek-private-key:$uuid:$keyID",
-      );
+      result["public-key"] =
+          await _secureStorage.read(key: "dek-public-key:$uuid:$keyID");
+      result["private-key"] =
+          await _secureStorage.read(key: "dek-private-key:$uuid:$keyID");
     }
 
     return result;
