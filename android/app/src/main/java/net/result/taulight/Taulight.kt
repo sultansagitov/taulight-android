@@ -2,7 +2,6 @@ package net.result.taulight
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -11,6 +10,7 @@ import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.chain.AndroidClientChainManager
+import net.result.taulight.config.AndroidAgentConfig
 import net.result.taulight.config.AndroidClientConfig
 import net.result.taulight.exception.ClientNotFoundException
 import org.apache.logging.log4j.LogManager
@@ -67,10 +67,11 @@ class Taulight(val methodChannel: MethodChannel) {
 
 
     fun addClient(uuid: UUID, link: SandnodeLinkRecord) {
-        val agent = AndroidAgent(this, uuid)
+        val agentConfig = AndroidAgentConfig(this, uuid)
+        val agent = AndroidAgent(this, uuid, agentConfig)
 
-        val clientConfig = AndroidClientConfig(this, uuid)
-        val client = SandnodeClient.fromLink(link, agent, clientConfig)
+        val clientConfig = AndroidClientConfig()
+        val client = SandnodeClient.fromLink(link, agent, clientConfig);
 
         LOGGER.info("Saving client of {} with uuid {}", client.endpoint, uuid)
         val mc = MemberClient(uuid, client, link)

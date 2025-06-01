@@ -3,6 +3,7 @@ package net.result.taulight
 import android.util.Base64
 import net.result.sandnode.chain.sender.DEKClientChain
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
+import net.result.sandnode.hubagent.Agent
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.chain.sender.ChatClientChain
 import net.result.taulight.dto.ChatInfoDTO
@@ -69,10 +70,12 @@ private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
         ChatRunner.LOGGER.debug("DEKs from hub - {}", deks)
         client.io.chainManager.removeChain(chain)
 
+        val agent = client.node as Agent
+
         var decrypted = false
         for (dek in deks) {
-            val keyStorage = dek.decrypt(client)
-            client.clientConfig.saveDEK(dek.receiverNickname, dek.id, keyStorage)
+            val keyStorage = dek.decrypt(agent.config.loadPersonalKey(dek.encryptorID))
+            agent.config.saveDEK(dek.receiverNickname, dek.id, keyStorage)
 
             if (dek.id == chat.lastMessage!!.id) {
                 val bytes = Base64.decode(chat.lastMessage!!.message.content, Base64.NO_WRAP)

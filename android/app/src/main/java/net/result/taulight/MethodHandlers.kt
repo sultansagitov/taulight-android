@@ -10,6 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.IChain
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.exception.error.SandnodeErrorException
+import net.result.sandnode.hubagent.Agent
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.Links
 import net.result.sandnode.serverclient.SandnodeClient
@@ -206,7 +207,8 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
                 val decrypted: String
                 val input: ChatMessageInputDTO = it.message
                 if (input.keyID != null) {
-                    val keyStorage = client.clientConfig.loadDEK(input.keyID)
+                    val agent = client.node as Agent
+                    val keyStorage = agent.config.loadDEK(input.keyID)
                     val decoded = Base64.decode(input.content, Base64.NO_WRAP)
                     decrypted = keyStorage.encryption().decrypt(decoded, keyStorage)
                 } else {
