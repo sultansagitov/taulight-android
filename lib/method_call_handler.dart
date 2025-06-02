@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/classes/records.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/exceptions.dart';
 

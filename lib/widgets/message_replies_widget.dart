@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
-import 'package:taulight/classes/records.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
 
@@ -139,7 +139,8 @@ class ReplyPreviewWidget extends StatelessWidget {
     }
 
     var decrypted = reply.decrypted != null;
-    String previewText = reply.decrypted ?? "Cannot decrypt message - ${reply.view.text}";
+    String previewText =
+        reply.decrypted ?? "Cannot decrypt message - ${reply.view.text}";
     if (previewText.length > 50) {
       previewText = "${previewText.substring(0, 47)}...";
     }

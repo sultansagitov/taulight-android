@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_member.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
@@ -32,7 +33,7 @@ class DialogInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget buildInfo(List<Member> members) {
+  Widget buildInfo(List<ChatMember> members) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Text(

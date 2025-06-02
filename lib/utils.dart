@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 
 import 'classes/chat_message_wrapper_dto.dart';

@@ -69,7 +69,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                     return null;
                   } catch (e, stackTrace) {
                     print(e);
-                    print(stackTrace);return "Link not valid";
+                    print(stackTrace);
+                    return "Link not valid";
                   }
                 },
               ),

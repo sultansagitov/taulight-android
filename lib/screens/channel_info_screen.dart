@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_member.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
 import 'package:taulight/services/avatar_service.dart';
@@ -20,7 +21,7 @@ class ChannelInfoScreen extends StatefulWidget {
 }
 
 class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
-  List<Member> _members = [];
+  List<ChatMember> _members = [];
   bool _loadingError = false;
   bool _isLoading = true;
 
@@ -41,16 +42,15 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
             _isLoading = false;
           });
         } else {
-          setState(() {
-            _isLoading = false;
-          });
+          setState(() => _isLoading = false);
         }
       } else {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
-    } catch (_) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+
       if (mounted) {
         setState(() {
           _loadingError = true;
@@ -60,7 +60,8 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     }
   }
 
-  Future<void> _pickAndSetChannelAvatar(BuildContext context, TauChat chat) async {
+  Future<void> _pickAndSetChannelAvatar(
+      BuildContext context, TauChat chat) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
@@ -105,7 +106,8 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(12),
@@ -130,19 +132,16 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
               ],
             ),
             const SizedBox(height: 12),
-
             if (_loadingError)
               const Text(
                 'Failed to load members.',
                 style: TextStyle(color: Colors.red),
               ),
-
             if (!_loadingError && _members.isEmpty)
               const Text(
                 'No members found.',
                 style: TextStyle(color: Colors.grey),
               ),
-
             if (_members.isNotEmpty)
               Expanded(
                 child: ListView.separated(
@@ -150,18 +149,21 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      final isOwner = widget.chat.client.user?.nickname == record.owner;
+                      final isOwner =
+                          widget.chat.client.user?.nickname == record.owner;
                       return isOwner
                           ? TextButton.icon(
-                        onPressed: () => _showAddMemberDialog(context),
-                        icon: const Icon(Icons.person_add_outlined),
-                        label: const Text('Add member'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.blueAccent,
-                          textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      )
+                              onPressed: () => _showAddMemberDialog(context),
+                              icon: const Icon(Icons.person_add_outlined),
+                              label: const Text('Add member'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.blueAccent,
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w600),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            )
                           : const SizedBox.shrink();
                     }
 
@@ -203,6 +205,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
 
   Future<void> _showAddMemberDialog(BuildContext context) async {
     var dialogs = widget.chat.client.chats.values.where(isDialog).toList();
-    await moveTo(context, MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat));
+    await moveTo(context,
+        MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat));
   }
 }

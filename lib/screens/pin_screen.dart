@@ -33,7 +33,8 @@ class _PinScreenState extends State<PinScreen> {
   Future<void> _initPinFlow() async {
     try {
       final storedPin = await StorageService.ins.getPIN();
-      final fingerprintEnabled = await StorageService.ins.getFingerprintEnabled() ?? false;
+      final fingerprintEnabled =
+          await StorageService.ins.getFingerprintEnabled() ?? false;
 
       final canCheckBiometrics = await auth.canCheckBiometrics;
       final isDeviceSupported = await auth.isDeviceSupported();
@@ -132,10 +133,15 @@ class _PinScreenState extends State<PinScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Enable Fingerprint?'),
-        content: const Text('Would you like to use fingerprint authentication?'),
+        content:
+            const Text('Would you like to use fingerprint authentication?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('No')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Yes')),
         ],
       ),
     );
@@ -157,7 +163,7 @@ class _PinScreenState extends State<PinScreen> {
   Widget _buildKeyboardButton(String value) {
     final theme = Theme.of(context);
     final bgColor = theme.colorScheme.surfaceContainerHighest;
-  final textColor = theme.colorScheme.onSurface;
+    final textColor = theme.colorScheme.onSurface;
 
     return GestureDetector(
       onTap: () => _onKeyTap(value),
@@ -190,7 +196,8 @@ class _PinScreenState extends State<PinScreen> {
   }
 
   Widget _buildFingerprintButton() {
-    if (!_fingerprintEnabled || !_biometricAvailable) return const SizedBox.shrink();
+    if (!_fingerprintEnabled || !_biometricAvailable)
+      return const SizedBox.shrink();
     return GestureDetector(
       onTap: _authenticateWithBiometrics,
       child: const Icon(Icons.fingerprint, size: 32),
@@ -204,7 +211,8 @@ class _PinScreenState extends State<PinScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: keys.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       itemBuilder: (context, index) {
         final key = keys[index];
         if (key == 'del') return Center(child: _buildDeleteButton());

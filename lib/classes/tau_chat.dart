@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart' show ListExtensions;
+import 'package:taulight/classes/chat_member.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/platform_service.dart';
@@ -15,6 +18,7 @@ class TauChat {
   final Client client;
   final ChatDTO record;
   final List<ChatMessageWrapperDTO> messages;
+  final List<RoleDTO> roles = [];
 
   int? totalCount;
   List<ChatMessageWrapperDTO> get realMsg {
@@ -75,7 +79,7 @@ class TauChat {
     callback();
   }
 
-  Future<List<Member>> getMembers() => PlatformService.ins.getMembers(this);
+  Future<List<ChatMember>> getMembers() => PlatformService.ins.getMembers(this);
 
   Future<String> addMember(String nickname, Duration expirationTime) async {
     return await PlatformService.ins.addMember(this, nickname, expirationTime);

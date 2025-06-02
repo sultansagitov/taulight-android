@@ -48,12 +48,14 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
     if (isChannel(widget.chat)) {
       if (isLoading || avatarImage == null) {
-        return ChannelInitials(initials: initials, bgColor: bgColor, d: widget.d);
+        return ChannelInitials(
+            initials: initials, bgColor: bgColor, d: widget.d);
       }
       return ChannelAvatar(avatarImage: avatarImage!, d: widget.d);
     } else if (isDialog(widget.chat)) {
       if (isLoading || avatarImage == null) {
-        return DialogInitials(initials: initials, bgColor: bgColor, d: widget.d);
+        return DialogInitials(
+            initials: initials, bgColor: bgColor, d: widget.d);
       }
       return DialogAvatar(avatarImage: avatarImage!, d: widget.d);
     }
@@ -66,7 +68,11 @@ class ChannelInitials extends StatelessWidget {
   final String initials;
   final Color bgColor;
   final int d;
-  const ChannelInitials({required this.initials, required this.bgColor, required this.d, super.key});
+  const ChannelInitials(
+      {required this.initials,
+      required this.bgColor,
+      required this.d,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +86,8 @@ class ChannelInitials extends StatelessWidget {
       child: Center(
         child: Text(
           initials,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
     );
@@ -106,7 +113,11 @@ class DialogInitials extends StatelessWidget {
   final String initials;
   final Color bgColor;
   final int d;
-  const DialogInitials({required this.initials, required this.bgColor, required this.d, super.key});
+  const DialogInitials(
+      {required this.initials,
+      required this.bgColor,
+      required this.d,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +132,8 @@ class DialogInitials extends StatelessWidget {
         child: Center(
           child: Text(
             initials,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
       ),

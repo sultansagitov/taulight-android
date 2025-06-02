@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/utils.dart';
@@ -36,17 +36,18 @@ class MembersInviteScreen extends StatelessWidget {
   Widget _buildMember(String nickname, TauChat chat, BuildContext context) {
     var initials = getInitials(nickname);
     var bg = getRandomColor(nickname);
-    
+
     return InkWell(
       onTap: () async {
         if (nickname.isNotEmpty) {
           try {
-            String code = await chatToInvite.addMember(nickname, Duration(days: 1));
-    
+            String code =
+                await chatToInvite.addMember(nickname, Duration(days: 1));
+
             String endpoint = chatToInvite.client.endpoint;
             String text = "sandnode://$endpoint/invite/$code";
             await chat.sendMessage(text, [], () {});
-    
+
             if (context.mounted) {
               Navigator.pop(context);
             }

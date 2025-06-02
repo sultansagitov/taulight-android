@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_member.dart';
 
 void main() {
   group('Status', () {

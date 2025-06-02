@@ -1,10 +1,13 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:taulight/chat_filters.dart';
+import 'package:taulight/classes/chat_member.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/client_service.dart';
@@ -415,7 +418,7 @@ class PlatformService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<List<Member>> getMembers(TauChat chat) async {
+  Future<List<ChatMember>> getMembers(TauChat chat) async {
     Result result = await chain(
       "MembersClientChain.getMembers",
       client: chat.client,
@@ -430,10 +433,19 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
-      if (obj is List) {
-        return obj.map((m) => Member.fromMap(m)).toList();
+      var map = Map<String, dynamic>.from(result.obj);
+      if (map["roles"] != null) {
+        for (var rMap in map["roles"]) {
+          if (chat.roles.contains(rMap["id"])) {
+            chat.roles.add(RoleDTO.fromMap(rMap));
+          }
+        }
       }
+
+      var members = result.obj["members"];
+      return members
+          .map<ChatMember>((m) => ChatMember.fromMap(chat.roles, m))
+          .toList();
     }
 
     throw IncorrectFormatChannelException();

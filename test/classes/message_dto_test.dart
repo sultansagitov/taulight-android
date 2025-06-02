@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:taulight/classes/records.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/user.dart';
 

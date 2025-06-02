@@ -197,9 +197,11 @@ class HomeScreenState extends State<HomeScreen> {
         _updateHome(animation: true);
       },
       onChatTap: (TauChat chat) async {
-        await moveTo(context, ChatScreen(chat, key: chatKey, updateHome: () {
-          _updateHome(animation: true);
-        }));
+        await moveTo(
+            context,
+            ChatScreen(chat, key: chatKey, updateHome: () {
+              _updateHome(animation: true);
+            }));
         await _updateHome(animation: true);
       },
       onLoginTap: (Client client) async {
