@@ -75,7 +75,12 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 },
               ),
             ),
-            TauButton.text("Connect", onPressed: _connectPressed),
+            TauButton.text(
+              "Connect",
+              loading: _loading == -1,
+              disable: _loading != null,
+              onPressed: _connectPressed,
+            ),
             const SizedBox(height: 20),
             const Text(
               "Recommended hubs",
@@ -86,14 +91,13 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 itemCount: Config.recommended.length,
                 itemBuilder: (_, index) {
                   ServerRecord recommended = Config.recommended[index];
-                  var endpoint = recommended.endpoint;
                   return TauButton.text(
-                    endpoint,
+                    "${recommended.name} : ${recommended.endpoint}",
                     loading: _loading == index,
                     disable: _loading != null,
                     onPressed: () async {
-                      setState(() => _loading = index);
                       try {
+                        setState(() => _loading ??= index);
                         await _recommended(recommended.link);
                       } finally {
                         setState(() => _loading = null);
@@ -139,17 +143,34 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   }
 
   void _connect(BuildContext context, String link) async {
-    var client = await PlatformService.ins.connect(
-      link,
-      connectUpdate: widget.connectUpdate,
-    );
-    await StorageService.ins.saveClient(client);
+    try {
+      setState(() => _loading ??= -1);
+      var client = await PlatformService.ins.connect(
+        link,
+        connectUpdate: widget.connectUpdate,
+      );
+      await StorageService.ins.saveClient(client);
 
-    if (context.mounted) {
-      var result = await moveTo(context, LoginScreen(client: client));
-      if (result is String && result.contains("success")) {
-        Navigator.pop(context, result);
+      if (context.mounted) {
+        var result = await moveTo(context, LoginScreen(client: client));
+        if (result is String && result.contains("success")) {
+          Navigator.pop(context, result);
+        }
       }
+    } on ConnectionException catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      if (mounted) {
+        snackBarError(context, "Cannot connect to ${e.client.endpoint}");
+      }
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      if (mounted) {
+        snackBarError(context, "Unknown error");
+      }
+    } finally {
+      setState(() => _loading = null);
     }
   }
 }
