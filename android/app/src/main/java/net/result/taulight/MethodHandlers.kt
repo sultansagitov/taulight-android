@@ -11,7 +11,6 @@ import net.result.sandnode.chain.IChain
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.exception.error.SandnodeErrorException
 import net.result.sandnode.hubagent.Agent
-import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.Links
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.dto.ChatMessageInputDTO
@@ -52,7 +51,6 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "login" to ::login,
             "group-send" to ::groupSend,
             "dialog-send" to ::dialogSend,
-            "group" to ::groupAdd,
             "get-chats" to ::getChats,
             "load-messages" to ::loadMessages,
             "load-clients" to ::loadClients,
@@ -164,17 +162,6 @@ fun dialogSend(call: MethodCall): String {
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
 
     return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages).toString()
-}
-
-fun groupAdd(call: MethodCall): String {
-    val uuid: String = call.argument<String>("uuid")!!
-    val group: String = call.argument<String>("group")!!
-
-    val client: SandnodeClient = taulight!!.getClient(uuid).client
-
-    ClientProtocol.addToGroups(client, setOf(group))
-
-    return "sent"
 }
 
 fun getChats(call: MethodCall): List<Map<String, Any>> {
