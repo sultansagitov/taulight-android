@@ -36,6 +36,7 @@ class _LoginListState extends State<LoginList> {
         }
 
         final logins = snapshot.data!;
+        logins.sort((a, b) => a.time.compareTo(b.time));
 
         return Column(
           children: logins.map((login) {
