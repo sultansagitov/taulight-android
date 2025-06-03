@@ -8,7 +8,8 @@ class ChatMember {
   const ChatMember(this.nickname, this.status, this.roles);
 
   factory ChatMember.fromMap(List<RoleDTO> roles, map) {
-    var rolesIds = map["roles"] as List<String>?;
+    var rolesIds =
+        map["roles"] != null ? List<String>.from(map["roles"]) : null;
     var result = rolesIds != null
         ? roles.where((r) => rolesIds.contains(r.id)).toList()
         : <RoleDTO>[];

@@ -436,7 +436,7 @@ class PlatformService {
       var map = Map<String, dynamic>.from(result.obj);
       if (map["roles"] != null) {
         for (var rMap in map["roles"]) {
-          if (chat.roles.contains(rMap["id"])) {
+          if (!chat.roles.any((r) => r.id == rMap["id"])) {
             chat.roles.add(RoleDTO.fromMap(rMap));
           }
         }
