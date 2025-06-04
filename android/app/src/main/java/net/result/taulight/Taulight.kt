@@ -67,7 +67,7 @@ class Taulight(val methodChannel: MethodChannel) {
 
 
     fun addClient(uuid: UUID, link: SandnodeLinkRecord) {
-        val agentConfig = AndroidAgentConfig(this, uuid)
+        val agentConfig = AndroidAgentConfig(this)
         val agent = AndroidAgent(this, uuid, agentConfig)
 
         val clientConfig = AndroidClientConfig()

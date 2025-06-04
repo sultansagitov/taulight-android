@@ -17,7 +17,7 @@ import net.result.taulight.Taulight
 import java.util.UUID
 import kotlin.collections.set
 
-class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
+class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     private val publicKeyCache = mutableMapOf<Endpoint, AsymmetricKeyStorage>()
     private val personalKeyCache = mutableMapOf<UUID, KeyStorage>()
     private val encryptorCache = mutableMapOf<String, KeyEntry>()
@@ -26,7 +26,6 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
 
     override fun saveKey(endpoint: Endpoint, keyStorage: AsymmetricKeyStorage) {
         taulight.sendToFlutter("save-key", mapOf(
-            "uuid" to uuid.toString(),
             "endpoint" to endpoint.toString(),
             "encryption" to keyStorage.encryption().name(),
             "public-key" to keyStorage.encodedPublicKey(),
@@ -39,10 +38,7 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
         publicKeyCache[endpoint]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("get-public-key", mapOf(
-                "uuid" to uuid.toString(),
-                "endpoint" to endpoint.toString()
-            ))
+            taulight.callFromFlutter("get-public-key", mapOf("endpoint" to endpoint.toString()))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(endpoint.toString())
         }
@@ -59,7 +55,6 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
 
     override fun savePersonalKey(keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
-            "uuid" to uuid.toString(),
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
         )
@@ -79,7 +74,6 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
 
     override fun saveEncryptor(nickname: String, keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
-            "uuid" to uuid.toString(),
             "nickname" to nickname,
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
@@ -99,7 +93,6 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
 
     override fun saveDEK(nickname: String, keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
-            "uuid" to uuid.toString(),
             "nickname" to nickname,
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
@@ -124,10 +117,7 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
         personalKeyCache[keyID]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-personal-key", mapOf(
-                "uuid" to uuid.toString(),
-                "key-id" to keyID.toString()
-            ))
+            taulight.callFromFlutter("load-personal-key", mapOf("key-id" to keyID.toString()))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(keyID)
         }
@@ -153,10 +143,7 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
         encryptorCache[nickname]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-encryptor", mapOf(
-                "uuid" to uuid.toString(),
-                "nickname" to nickname
-            ))
+            taulight.callFromFlutter("load-encryptor", mapOf("nickname" to nickname))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(nickname)
         }
@@ -182,10 +169,7 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
         dekByNicknameCache[nickname]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-dek", mapOf(
-                "uuid" to uuid.toString(),
-                "nickname" to nickname
-            ))
+            taulight.callFromFlutter("load-dek", mapOf("nickname" to nickname))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(nickname)
         }
@@ -214,10 +198,7 @@ class AndroidAgentConfig(val taulight: Taulight, val uuid: UUID) : AgentConfig {
         dekByIdCache[keyID]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-dek-by-id", mapOf(
-                "uuid" to uuid.toString(),
-                "key-id" to keyID.toString()
-            ))
+            taulight.callFromFlutter("load-dek-by-id", mapOf("key-id" to keyID.toString()))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(keyID)
         }
