@@ -4,14 +4,14 @@ import 'package:taulight/auth_state.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class CreateChannelScreen extends StatefulWidget {
-  const CreateChannelScreen({super.key});
+class CreateGroupScreen extends StatefulWidget {
+  const CreateGroupScreen({super.key});
 
   @override
-  State<CreateChannelScreen> createState() => _CreateChannelScreenState();
+  State<CreateGroupScreen> createState() => _CreateGroupScreenState();
 }
 
-class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
+class _CreateGroupScreenState extends AuthState<CreateGroupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _controller = ClientDropdownController();
@@ -26,7 +26,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
     super.dispose();
   }
 
-  void _createChannel() async {
+  void _createGroup() async {
     if (_formKey.currentState!.validate()) {
       try {
         final title = _titleController.text.trim();
@@ -50,7 +50,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
         }
 
         final chatID =
-            await client.createChannel(title).timeout(Duration(seconds: 10));
+            await client.createGroup(title).timeout(Duration(seconds: 10));
         await client.loadChat(chatID).timeout(Duration(seconds: 10));
 
         if (mounted) {
@@ -59,7 +59,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
       } catch (e, stackTrace) {
         print(e);
         print(stackTrace);
-        setState(() => _error = "Failed to create channel");
+        setState(() => _error = "Failed to create group");
       } finally {
         if (mounted) {
           setState(() {
@@ -74,7 +74,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
   @override
   Widget authorizedBuild(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Channel")),
+      appBar: AppBar(title: const Text("Create Group")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -86,7 +86,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
               TextFormField(
                 controller: _titleController,
                 enabled: _titleFieldEnabled,
-                decoration: const InputDecoration(labelText: "Channel title"),
+                decoration: const InputDecoration(labelText: "Group title"),
                 validator: (value) => value == null || value.isEmpty
                     ? "Title field cannot be empty"
                     : null,
@@ -102,7 +102,7 @@ class _CreateChannelScreenState extends AuthState<CreateChannelScreen> {
               TauButton.text(
                 "Create",
                 loading: _isLoading,
-                onPressed: _createChannel,
+                onPressed: _createGroup,
               ),
             ],
           ),

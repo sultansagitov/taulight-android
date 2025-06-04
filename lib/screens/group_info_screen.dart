@@ -10,17 +10,17 @@ import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
-class ChannelInfoScreen extends StatefulWidget {
+class GroupInfoScreen extends StatefulWidget {
   final TauChat chat;
   final VoidCallback? updateHome;
 
-  const ChannelInfoScreen(this.chat, {super.key, this.updateHome});
+  const GroupInfoScreen(this.chat, {super.key, this.updateHome});
 
   @override
-  State<ChannelInfoScreen> createState() => _ChannelInfoScreenState();
+  State<GroupInfoScreen> createState() => _GroupInfoScreenState();
 }
 
-class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
+class _GroupInfoScreenState extends State<GroupInfoScreen> {
   List<ChatMember> _members = [];
   bool _loadingError = false;
   bool _isLoading = true;
@@ -64,13 +64,13 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     }
   }
 
-  Future<void> _pickAndSetChannelAvatar(
+  Future<void> _pickAndSetGroupAvatar(
       BuildContext context, TauChat chat) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
-    await AvatarService.ins.setChannelAvatar(chat, pickedFile.path);
+    await AvatarService.ins.setGroupAvatar(chat, pickedFile.path);
     if (mounted) setState(() {});
     widget.updateHome?.call();
   }
@@ -83,7 +83,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final record = widget.chat.record as ChannelDTO;
+    final record = widget.chat.record as GroupDTO;
 
     return Scaffold(
       appBar: AppBar(
@@ -101,7 +101,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
           const SizedBox(height: 16),
           Center(
             child: GestureDetector(
-              onTap: () => _pickAndSetChannelAvatar(context, widget.chat),
+              onTap: () => _pickAndSetGroupAvatar(context, widget.chat),
               child: ChatAvatar(widget.chat, d: 80),
             ),
           ),
@@ -158,7 +158,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     );
   }
 
-  Widget _buildTabContent(ChannelDTO record) {
+  Widget _buildTabContent(GroupDTO record) {
     switch (_selectedTab) {
       case 0:
         return _buildMembersTab(record);
@@ -173,7 +173,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     }
   }
 
-  Widget _buildMembersTab(ChannelDTO record) {
+  Widget _buildMembersTab(GroupDTO record) {
     final currentUser = widget.chat.client.user?.nickname;
 
     if (_loadingError) {
@@ -225,7 +225,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     );
   }
 
-  Widget _buildMember(ChatMember member, ChannelDTO record) {
+  Widget _buildMember(ChatMember member, GroupDTO record) {
     final isOwner = member.nickname == record.owner;
 
     final List<Widget> roleChips = [];
@@ -283,7 +283,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     );
   }
 
-  Widget _buildRolesTab(ChannelDTO record) {
+  Widget _buildRolesTab(GroupDTO record) {
     if (_loadingError) {
       return const Center(
         child: Text(
@@ -329,7 +329,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
           return ListTile(
             leading: Icon(Icons.star, color: Colors.blueAccent),
             title: const Text('Owner'),
-            subtitle: const Text('Channel Owner'),
+            subtitle: const Text('Group Owner'),
           );
         }
 
@@ -349,12 +349,12 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     );
   }
 
-  Widget _buildInfoTab(ChannelDTO record) {
+  Widget _buildInfoTab(GroupDTO record) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          'Channel ID: ${record.id}',
+          'Group ID: ${record.id}',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 16),
         ),
@@ -362,7 +362,7 @@ class _ChannelInfoScreenState extends State<ChannelInfoScreen> {
     );
   }
 
-  Widget _buildSettingsTab(ChannelDTO record) {
+  Widget _buildSettingsTab(GroupDTO record) {
     return Center(
       child: Text(
         'Settings Tab - Coming Soon',

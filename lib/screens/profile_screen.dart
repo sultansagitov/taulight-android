@@ -4,6 +4,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/widgets/login_list.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tip.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Client client;
@@ -80,6 +81,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               alignment: Alignment.centerLeft,
               child: Text("Login History", style: theme.textTheme.titleMedium),
             ),
+            const SizedBox(height: 8),
+            Tip("The IP address and device name, "
+                "except for the timestamp, are encrypted on the "
+                "server to ensure data security."),
             const SizedBox(height: 8),
             LoginList(widget.client),
           ],

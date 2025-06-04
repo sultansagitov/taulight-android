@@ -55,10 +55,11 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "load-messages" to ::loadMessages,
             "load-clients" to ::loadClients,
             "load-chat" to ::loadChat,
-            "get-channel-avatar" to ::getChannelAvatar,
+            "get-group-avatar" to ::getGroupAvatar,
             "get-dialog-avatar" to ::getDialogAvatar,
             "get-avatar" to ::getAvatar,
             "set-avatar" to ::setAvatar,
+            "login-history" to ::loginHistory,
             "chain" to ::chain,
         )
     }
@@ -237,7 +238,7 @@ fun loadChat(call: MethodCall): Map<String, Any> {
     return loadChat(client, chatID)
 }
 
-fun getChannelAvatar(call: MethodCall): Map<String, String> {
+fun getGroupAvatar(call: MethodCall): Map<String, String> {
     val uuid: String = call.argument<String>("uuid")!!
     val chatIDString: String = call.argument<String>("chat-id")!!
 
@@ -245,7 +246,7 @@ fun getChannelAvatar(call: MethodCall): Map<String, String> {
 
     val client: SandnodeClient = taulight!!.getClient(uuid).client
 
-    val file = getChannelAvatar(client, chatID)
+    val file = getGroupAvatar(client, chatID)
     if (file == null) return mapOf()
 
     val contentType = file.contentType()
@@ -279,6 +280,41 @@ fun getDialogAvatar(call: MethodCall): Map<String, String> {
         "contentType" to contentType,
         "avatarBase64" to base64Avatar
     )
+}
+
+fun getAvatar(call: MethodCall): Map<String, String> {
+    val uuid: String = call.argument<String>("uuid")!!
+    val client = taulight!!.getClient(uuid).client
+
+    try {
+        val avatar = getAvatar(client)
+
+        if (avatar != null) {
+            val mimeType = avatar.contentType()
+            val base64 = Base64.encodeToString(avatar.body(), Base64.NO_WRAP)
+            return mapOf("contentType" to mimeType, "avatarBase64" to base64)
+        }
+    } catch (e: Exception) {
+        println("Exception: ${e.javaClass.simpleName}")
+    }
+    return mapOf()
+}
+
+fun setAvatar(call: MethodCall) {
+    val uuid: String = call.argument<String>("uuid")!!
+    val path: String = call.argument<String>("path")!!
+
+    val client = taulight!!.getClient(uuid).client
+
+    setAvatar(client, path)
+}
+
+fun loginHistory(call: MethodCall): List<Map<String, Any>> {
+    val uuid: String = call.argument<String>("uuid")!!
+
+    val client = taulight!!.getClient(uuid).client
+
+    return loginHistory(client)
 }
 
 fun chain(call: MethodCall): Any? {
@@ -327,43 +363,4 @@ fun chain(call: MethodCall): Any? {
     } finally {
         client.io.chainManager.removeChain(chain)
     }
-}
-
-fun getAvatar(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-        val client = taulight!!.getClient(uuid).client
-
-    try {
-        val avatar = getAvatar(client)
-
-        if (avatar != null) {
-            val mimeType = avatar.contentType()
-            val base64 = Base64.encodeToString(avatar.body(), Base64.NO_WRAP)
-            return mapOf("contentType" to mimeType, "avatarBase64" to base64)
-        }
-    } catch (e: Exception) {
-        println("Exception: ${e.javaClass.simpleName}")
-    }
-    return mapOf()
-}
-
-fun setAvatar(call: MethodCall): Boolean {
-    val uuid: String = call.argument<String>("uuid")!!
-    val path: String? = call.argument<String>("path")
-
-    if (path.isNullOrEmpty()) {
-        println("Usage: setAvatar <path>")
-        return false
-    }
-
-    val client = taulight!!.getClient(uuid).client
-
-    try {
-        setAvatar(client, path)
-        return true
-    } catch (e: Exception) {
-        println("Exception: ${e.javaClass.simpleName}")
-    }
-
-    return false
 }

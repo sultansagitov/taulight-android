@@ -1,5 +1,6 @@
 package net.result.taulight
 
+import android.util.Base64
 import net.result.sandnode.chain.sender.LoginClientChain
 import net.result.sandnode.chain.sender.RegistrationClientChain
 import net.result.sandnode.dto.RegistrationResponseDTO
@@ -26,4 +27,23 @@ fun login(client: SandnodeClient, token: String): String {
     val response = chain.login(token)
     client.io.chainManager.removeChain(chain)
     return response.nickname
+}
+
+fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
+    val chain = LoginClientChain(client)
+    client.io.chainManager.linkChain(chain)
+    val response = chain.history
+    client.io.chainManager.removeChain(chain)
+
+    val agent = client.node as Agent
+
+    return response.map {
+        val personalKey = agent.config.loadPersonalKey(it.encryptorID)
+
+        mapOf(
+            "time" to it.time.toString(),
+            "ip" to personalKey.encryption().decrypt(Base64.decode(it.ip, Base64.NO_WRAP), personalKey),
+            "device" to personalKey.encryption().decrypt(Base64.decode(it.device, Base64.NO_WRAP), personalKey)
+        )
+    }.toList()
 }

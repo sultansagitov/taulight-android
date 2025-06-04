@@ -185,7 +185,7 @@ class PlatformService {
       var list = result.obj;
       if (list is List) {
         return list
-            .where((obj) => ["cn", "dl"].contains(obj["chat"]["type"]!))
+            .where((obj) => ["gr", "dl"].contains(obj["chat"]["type"]!))
             .map((v) => ChatDTO.fromMap(client, v))
             .toList();
       }
@@ -287,9 +287,9 @@ class PlatformService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> createChannel(Client client, String title) async {
+  Future<String> createGroup(Client client, String title) async {
     Result result = await chain(
-      "ChannelClientChain.sendNewChannelRequest",
+      "GroupClientChain.sendNewGroupRequest",
       client: client,
       params: [title],
     );
@@ -394,7 +394,7 @@ class PlatformService {
       "content": message.text,
       "repliedToMessages": message.repliedToMessages,
     };
-    Result result = isChannel(chat)
+    Result result = isGroup(chat)
         ? await method("group-send", args)
         : await method("dialog-send", {
             ...args,
@@ -494,7 +494,7 @@ class PlatformService {
       TauChat chat, String nickname, Duration expirationTime) async {
     var client = chat.client;
     Result result = await chain(
-      "ChannelClientChain.createInviteCode",
+      "GroupClientChain.createInviteCode",
       client: client,
       params: [chat.record.id, nickname, expirationTime.inSeconds.toString()],
     );
@@ -605,7 +605,7 @@ class PlatformService {
 
   Future<void> leaveChat(Client client, TauChat chat) async {
     Result result = await chain(
-      "ChannelClientChain.sendLeaveRequest",
+      "GroupClientChain.sendLeaveRequest",
       client: client,
       params: [chat.record.id],
     );
@@ -621,12 +621,12 @@ class PlatformService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getChannelCodes(
+  Future<List<Map<String, dynamic>>> getGroupCodes(
     Client client,
     TauChat chat,
   ) async {
     Result result = await chain(
-      "ChannelClientChain.getChannelCodes",
+      "GroupClientChain.getGroupCodes",
       client: client,
       params: [chat.record.id],
     );
@@ -704,9 +704,9 @@ class PlatformService {
     }
   }
 
-  Future<void> setChannelAvatar(TauChat chat, String imagePath) async {
+  Future<void> setGroupAvatar(TauChat chat, String imagePath) async {
     var result = await chain(
-      "ChannelClientChain.setAvatar",
+      "GroupClientChain.setAvatar",
       client: chat.client,
       params: [chat.record.id, imagePath],
     );
@@ -725,8 +725,8 @@ class PlatformService {
     }
   }
 
-  Future<Map<String, String>> getChannelAvatar(TauChat chat) async {
-    Result result = await method("get-channel-avatar", {
+  Future<Map<String, String>> getGroupAvatar(TauChat chat) async {
+    Result result = await method("get-group-avatar", {
       "uuid": chat.client.uuid,
       "chat-id": chat.record.id,
     });
@@ -778,7 +778,7 @@ class PlatformService {
   }
 
   Future<List<LoginHistoryDTO>> loginHistory(Client client) async {
-    var result = await chain("LoginClientChain.getHistory", client: client);
+    var result = await method("login-history", {"uuid": client.uuid});
 
     if (result is ExceptionResult) {
       if (result.name == "NotFoundException") {

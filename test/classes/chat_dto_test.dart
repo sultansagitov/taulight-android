@@ -6,13 +6,13 @@ import 'message_dto_test.dart';
 
 void main() {
   group('ChatDTO', () {
-    test('ChannelDTO is parsed correctly', () {
+    test('GroupDTO is parsed correctly', () {
       final map = {
         'chat': {
           'type': 'cn',
           'id': '1',
-          'channel-title': 'General',
-          'channel-owner': 'admin',
+          'group-title': 'General',
+          'group-owner': 'admin',
           'has-avatar': false,
           'last-message': {
             'id': 'msg-1',
@@ -32,7 +32,7 @@ void main() {
       };
 
       final dto = ChatDTO.fromMap(FakeClient(), map);
-      expect(dto, isA<ChannelDTO>());
+      expect(dto, isA<GroupDTO>());
       expect(dto.getTitle(), equals('General'));
     });
 

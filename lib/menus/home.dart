@@ -5,7 +5,7 @@ import 'package:taulight/screens/hubs_screen.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/create_channel_screen.dart';
+import 'package:taulight/screens/create_group_screen.dart';
 
 enum MenuOption {
   connect(
@@ -18,9 +18,9 @@ enum MenuOption {
     action: _hubsAction,
     icon: Icons.device_hub,
   ),
-  newChannel(
-    text: "Create channel",
-    action: _newChannelAction,
+  newGroup(
+    text: "Create group",
+    action: _newGroupAction,
     icon: Icons.add_box,
   ),
   newDialog(
@@ -73,11 +73,11 @@ enum MenuOption {
     callback();
   }
 
-  static Future<void> _newChannelAction(
+  static Future<void> _newGroupAction(
     BuildContext context,
     VoidCallback callback,
   ) async {
-    var result = await moveTo(context, CreateChannelScreen());
+    var result = await moveTo(context, CreateGroupScreen());
     if (result == "success") callback();
   }
 

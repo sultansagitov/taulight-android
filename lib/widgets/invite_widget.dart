@@ -51,7 +51,7 @@ class _InviteWidgetState extends State<InviteWidget> {
             const SizedBox(height: 8),
             Row(
               children: [
-                ChannelInitials(
+                GroupInitials(
                   initials: initials,
                   bgColor: bg,
                   d: 40,

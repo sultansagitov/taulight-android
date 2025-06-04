@@ -33,7 +33,7 @@ class _ChatListState extends State<ChatList> {
   void initState() {
     super.initState();
     filters = [
-      RadioFilter(manager, () => 'Channels', isChannel),
+      RadioFilter(manager, () => 'Groups', isGroup),
       RadioFilter(manager, () => 'Dialogs', isDialog),
     ];
   }

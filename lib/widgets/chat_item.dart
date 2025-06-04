@@ -73,7 +73,7 @@ class ChatItem extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          if (isChannel(chat)) ...[
+                          if (isGroup(chat)) ...[
                             TextSpan(
                               text: view.nickname,
                               style: TextStyle(

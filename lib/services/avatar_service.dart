@@ -13,8 +13,8 @@ class AvatarService {
   static AvatarService get ins => _instance;
   AvatarService._internal();
 
-  Future<MemoryImage?> loadOrFetchChannelAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, PlatformService.ins.getChannelAvatar);
+  Future<MemoryImage?> loadOrFetchGroupAvatar(TauChat chat) async {
+    return _loadOrFetchAvatar(chat, PlatformService.ins.getGroupAvatar);
   }
 
   Future<MemoryImage?> loadOrFetchDialogAvatar(TauChat chat) async {
@@ -95,8 +95,8 @@ class AvatarService {
     }
   }
 
-  Future<void> setChannelAvatar(TauChat chat, String path) async {
-    await PlatformService.ins.setChannelAvatar(chat, path);
+  Future<void> setGroupAvatar(TauChat chat, String path) async {
+    await PlatformService.ins.setGroupAvatar(chat, path);
     final bytes = await File(path).readAsBytes();
     await _updateAvatar(chat.client, chat.record.id, bytes);
   }

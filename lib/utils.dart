@@ -114,15 +114,15 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
   var act = split[1];
 
   switch (type) {
-    case 'channel':
-      var channel = chat.record as ChannelDTO;
+    case 'group':
+      var group = chat.record as GroupDTO;
       switch (act) {
         case 'new':
-          return 'Channel "${channel.title}" created by $nickname';
+          return 'Group "${group.title}" created by $nickname';
         case 'add':
-          return '$nickname added to channel "${channel.title}"';
+          return '$nickname added to group "${group.title}"';
         case 'leave':
-          return '$nickname left channel "${channel.title}"';
+          return '$nickname left group "${group.title}"';
       }
     case 'dialog':
       switch (act) {

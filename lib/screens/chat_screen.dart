@@ -4,7 +4,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/channel_info_screen.dart';
+import 'package:taulight/screens/group_info_screen.dart';
 import 'package:taulight/screens/dialog_info_screen.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/message_widget.dart';
@@ -99,7 +99,7 @@ class ChatScreenState extends State<ChatScreen> {
             onPressed: () async {
               Widget screen = isDialog(widget.chat)
                   ? DialogInfoScreen(widget.chat)
-                  : ChannelInfoScreen(
+                  : GroupInfoScreen(
                       widget.chat,
                       updateHome: () {
                         setState(() {});

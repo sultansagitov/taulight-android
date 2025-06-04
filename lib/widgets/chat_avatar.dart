@@ -26,8 +26,8 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
   Future<void> _loadAvatar() async {
     MemoryImage? image;
-    if (isChannel(widget.chat)) {
-      image = await AvatarService.ins.loadOrFetchChannelAvatar(widget.chat);
+    if (isGroup(widget.chat)) {
+      image = await AvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
     } else if (isDialog(widget.chat)) {
       image = await AvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
     }
@@ -46,12 +46,12 @@ class _ChatAvatarState extends State<ChatAvatar> {
     final initials = getInitials(title);
     final bgColor = getRandomColor(title);
 
-    if (isChannel(widget.chat)) {
+    if (isGroup(widget.chat)) {
       if (isLoading || avatarImage == null) {
-        return ChannelInitials(
+        return GroupInitials(
             initials: initials, bgColor: bgColor, d: widget.d);
       }
-      return ChannelAvatar(avatarImage: avatarImage!, d: widget.d);
+      return GroupAvatar(avatarImage: avatarImage!, d: widget.d);
     } else if (isDialog(widget.chat)) {
       if (isLoading || avatarImage == null) {
         return DialogInitials(
@@ -64,11 +64,11 @@ class _ChatAvatarState extends State<ChatAvatar> {
   }
 }
 
-class ChannelInitials extends StatelessWidget {
+class GroupInitials extends StatelessWidget {
   final String initials;
   final Color bgColor;
   final int d;
-  const ChannelInitials(
+  const GroupInitials(
       {required this.initials,
       required this.bgColor,
       required this.d,
@@ -94,10 +94,10 @@ class ChannelInitials extends StatelessWidget {
   }
 }
 
-class ChannelAvatar extends StatelessWidget {
+class GroupAvatar extends StatelessWidget {
   final MemoryImage avatarImage;
   final int d;
-  const ChannelAvatar({required this.avatarImage, required this.d, super.key});
+  const GroupAvatar({required this.avatarImage, required this.d, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -114,12 +114,12 @@ class Client {
   ///
   Future<TauChat> loadChat(String id) => PlatformService.ins.loadChat(this, id);
 
-  /// Creates a channel with the given title.
+  /// Creates a group with the given title.
   ///
-  /// Returns the created channel.
+  /// Returns the created group.
   ///
-  Future<String> createChannel(String title) async {
-    return await PlatformService.ins.createChannel(this, title);
+  Future<String> createGroup(String title) async {
+    return await PlatformService.ins.createGroup(this, title);
   }
 
   /// Authenticates the client using the provided token.
