@@ -21,14 +21,6 @@ fun register(client: SandnodeClient, nickname: String, password: String, device:
     return response
 }
 
-fun login(client: SandnodeClient, token: String): String {
-    val chain = LoginClientChain(client)
-    client.io.chainManager.linkChain(chain)
-    val response = chain.login(token)
-    client.io.chainManager.removeChain(chain)
-    return response.nickname
-}
-
 fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
     val chain = LoginClientChain(client)
     client.io.chainManager.linkChain(chain)

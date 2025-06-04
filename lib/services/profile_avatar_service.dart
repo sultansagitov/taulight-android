@@ -23,13 +23,13 @@ class ProfileAvatarService {
 
     try {
       final map = await PlatformAvatarService.ins.getAvatar(client);
-      final base64Str = map["imageBase64"];
 
-      if (base64Str == null) {
+      if (map == null) {
         await noAvatarFile.writeAsString('no avatar');
         return null;
       }
 
+      final base64Str = map["imageBase64"]!;
       final bytes = base64Decode(base64Str);
       await avatarFile.writeAsBytes(bytes, flush: true);
       return MemoryImage(bytes);

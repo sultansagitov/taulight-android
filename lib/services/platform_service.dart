@@ -453,10 +453,11 @@ class PlatformService {
 
   Future<String> authByToken(Client client, String token) async {
     client.user?.expiredToken = false;
-    Result result = await method("login", {
-      "uuid": client.uuid,
-      "token": token,
-    });
+    Result result = await chain(
+      "LoginClientChain.login",
+      client: client,
+      params: [token],
+    );
 
     if (result is ExceptionResult) {
       if (disconnectExceptions.contains(result.name)) {
@@ -478,13 +479,11 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
-      if (obj is String) {
-        String nickname = obj.trim();
-        StorageService.ins.saveWithToken(client, UserRecord(nickname, token));
-        client.user = User(client, nickname, token);
-        return obj;
-      }
+      var obj = Map<String, String>.from(result.obj);
+      String nickname = obj["nickname"]!.trim();
+      StorageService.ins.saveWithToken(client, UserRecord(nickname, token));
+      client.user = User(client, nickname, token);
+      return nickname;
     }
 
     throw IncorrectFormatChannelException();
@@ -702,79 +701,6 @@ class PlatformService {
       }
       throw result;
     }
-  }
-
-  Future<void> setGroupAvatar(TauChat chat, String imagePath) async {
-    var result = await chain(
-      "GroupClientChain.setAvatar",
-      client: chat.client,
-      params: [chat.record.id, imagePath],
-    );
-
-    if (result is ExceptionResult) {
-      if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(chat.client);
-      }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
-    }
-  }
-
-  Future<Map<String, String>> getGroupAvatar(TauChat chat) async {
-    Result result = await method("get-group-avatar", {
-      "uuid": chat.client.uuid,
-      "chat-id": chat.record.id,
-    });
-
-    if (result is ExceptionResult) {
-      if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(chat.client);
-      }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
-    }
-
-    if (result is SuccessResult) {
-      return Map<String, String>.from(result.obj as Map);
-    }
-
-    throw IncorrectFormatChannelException();
-  }
-
-  Future<Map<String, String>> getDialogAvatar(TauChat chat) async {
-    Result result = await method("get-dialog-avatar", {
-      "uuid": chat.client.uuid,
-      "chat-id": chat.record.id,
-    });
-
-    if (result is ExceptionResult) {
-      if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(chat.client);
-      }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
-    }
-
-    if (result is SuccessResult) {
-      return Map<String, String>.from(result.obj as Map);
-    }
-
-    throw IncorrectFormatChannelException();
   }
 
   Future<List<LoginHistoryDTO>> loginHistory(Client client) async {

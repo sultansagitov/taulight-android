@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_avatar_service.dart';
 
 class AvatarService {
   static final AvatarService _instance = AvatarService._internal();
@@ -14,16 +14,16 @@ class AvatarService {
   AvatarService._internal();
 
   Future<MemoryImage?> loadOrFetchGroupAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, PlatformService.ins.getGroupAvatar);
+    return _loadOrFetchAvatar(chat, PlatformAvatarService.ins.getGroupAvatar);
   }
 
   Future<MemoryImage?> loadOrFetchDialogAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, PlatformService.ins.getDialogAvatar);
+    return _loadOrFetchAvatar(chat, PlatformAvatarService.ins.getDialogAvatar);
   }
 
   Future<MemoryImage?> _loadOrFetchAvatar(
     TauChat chat,
-    Future<Map<String, dynamic>> Function(TauChat) fetchAvatar,
+    Future<Map<String, String>?> Function(TauChat) fetchAvatar,
   ) async {
     final dir = await getApplicationDocumentsDirectory();
 
@@ -43,13 +43,13 @@ class AvatarService {
 
     try {
       final map = await fetchAvatar(chat);
-      final base64Str = map["imageBase64"];
 
-      if (base64Str == null) {
+      if (map == null) {
         await setNoAvatar(client, id);
         return null;
       }
 
+      final base64Str = map["imageBase64"]!;
       final bytes = base64Decode(base64Str);
       print("Saving avatar for $client:$id in $avatarFile");
       await avatarFile.writeAsBytes(bytes, flush: true);
@@ -96,7 +96,7 @@ class AvatarService {
   }
 
   Future<void> setGroupAvatar(TauChat chat, String path) async {
-    await PlatformService.ins.setGroupAvatar(chat, path);
+    await PlatformAvatarService.ins.setGroupAvatar(chat, path);
     final bytes = await File(path).readAsBytes();
     await _updateAvatar(chat.client, chat.record.id, bytes);
   }

@@ -8,6 +8,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.IChain
+import net.result.sandnode.dto.FileDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.exception.error.SandnodeErrorException
 import net.result.sandnode.hubagent.Agent
@@ -48,17 +49,12 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "connect" to ::connect,
             "disconnect" to ::disconnect,
             "register" to ::register,
-            "login" to ::login,
             "group-send" to ::groupSend,
             "dialog-send" to ::dialogSend,
             "get-chats" to ::getChats,
             "load-messages" to ::loadMessages,
             "load-clients" to ::loadClients,
             "load-chat" to ::loadChat,
-            "get-group-avatar" to ::getGroupAvatar,
-            "get-dialog-avatar" to ::getDialogAvatar,
-            "get-avatar" to ::getAvatar,
-            "set-avatar" to ::setAvatar,
             "login-history" to ::loginHistory,
             "chain" to ::chain,
         )
@@ -116,7 +112,7 @@ fun disconnect(call: MethodCall): String {
     return "disconnected"
 }
 
-fun register(call: MethodCall): Map<String, String?> {
+fun register(call: MethodCall): Map<String, String> {
     val uuid: String = call.argument<String>("uuid")!!
     val nickname: String = call.argument<String>("nickname")!!
     val password: String = call.argument<String>("password")!!
@@ -129,15 +125,6 @@ fun register(call: MethodCall): Map<String, String?> {
         "token" to response.token,
         "key-id" to response.keyID.toString()
     )
-}
-
-fun login(call: MethodCall): String {
-    val uuid: String = call.argument<String>("uuid")!!
-    val token: String = call.argument<String>("token")!!
-
-    val client = taulight!!.getClient(uuid).client
-
-    return login(client, token)
 }
 
 fun groupSend(call: MethodCall): String {
@@ -238,77 +225,6 @@ fun loadChat(call: MethodCall): Map<String, Any> {
     return loadChat(client, chatID)
 }
 
-fun getGroupAvatar(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val chatIDString: String = call.argument<String>("chat-id")!!
-
-    val chatID: UUID = UUID.fromString(chatIDString)
-
-    val client: SandnodeClient = taulight!!.getClient(uuid).client
-
-    val file = getGroupAvatar(client, chatID)
-    if (file == null) return mapOf()
-
-    val contentType = file.contentType()
-    val body = file.body()
-
-    val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
-
-    return mapOf(
-        "contentType" to contentType,
-        "avatarBase64" to base64Avatar
-    )
-}
-
-fun getDialogAvatar(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val chatIDString: String = call.argument<String>("chat-id")!!
-
-    val chatID: UUID = UUID.fromString(chatIDString)
-
-    val client: SandnodeClient = taulight!!.getClient(uuid).client
-
-    val file = getDialogAvatar(client, chatID)
-    if (file == null) return mapOf()
-
-    val contentType = file.contentType()
-    val body = file.body()
-
-    val base64Avatar = Base64.encodeToString(body, Base64.NO_WRAP)
-
-    return mapOf(
-        "contentType" to contentType,
-        "avatarBase64" to base64Avatar
-    )
-}
-
-fun getAvatar(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val client = taulight!!.getClient(uuid).client
-
-    try {
-        val avatar = getAvatar(client)
-
-        if (avatar != null) {
-            val mimeType = avatar.contentType()
-            val base64 = Base64.encodeToString(avatar.body(), Base64.NO_WRAP)
-            return mapOf("contentType" to mimeType, "avatarBase64" to base64)
-        }
-    } catch (e: Exception) {
-        println("Exception: ${e.javaClass.simpleName}")
-    }
-    return mapOf()
-}
-
-fun setAvatar(call: MethodCall) {
-    val uuid: String = call.argument<String>("uuid")!!
-    val path: String = call.argument<String>("path")!!
-
-    val client = taulight!!.getClient(uuid).client
-
-    setAvatar(client, path)
-}
-
 fun loginHistory(call: MethodCall): List<Map<String, Any>> {
     val uuid: String = call.argument<String>("uuid")!!
 
@@ -344,19 +260,22 @@ fun chain(call: MethodCall): Any? {
 
     client.io.chainManager.linkChain(chain)
     try {
-        val processedParams = params.map { param ->
-            if (param is String && uuidRegex.matches(param)) {
-                UUID.fromString(param)
+        val processedParams = params.map {
+            if (it is String && uuidRegex.matches(it)) {
+                UUID.fromString(it)
             } else {
-                param
+                it
             }
         }
 
         val result = method.invoke(chain, *processedParams.toTypedArray())
-        return if (result == Unit) {
-            null
-        } else {
-            taulight!!.objectMapper.convertValue(result, Any::class.java)
+        return when (result) {
+            Unit -> null
+            is FileDTO -> mapOf(
+                "contentType" to result.contentType(),
+                "avatarBase64" to Base64.encodeToString(result.body(), Base64.NO_WRAP)
+            )
+            else -> taulight!!.objectMapper.convertValue(result, Any::class.java)
         }
     } catch (e: InvocationTargetException) {
         throw e.cause ?: e
