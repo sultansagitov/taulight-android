@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/screens/profile_screen.dart';
+import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubInfoScreen extends StatelessWidget {
@@ -34,10 +37,15 @@ class HubInfoScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(client.name),
         actions: [
           TauButton.icon(Icons.qr_code, onPressed: () {
             showQR(context, size.width * 0.6);
+          }),
+          TauButton.icon(Icons.share, onPressed: () {
+            SharePlus.instance.share(ShareParams(
+              text: client.link,
+              subject: 'Check out this Hub',
+            ));
           }),
         ],
       ),
@@ -69,14 +77,10 @@ class HubInfoScreen extends StatelessWidget {
                 if (client.realName != null)
                   _info(context, "Hub name", client.name),
                 _info(context, "Link", client.link),
+                if (client.user != null) _buildMember(context, client),
               ],
             ),
           ),
-          if (client.user != null) ...[
-            TauButton.text(client.user!.nickname, onPressed: () {
-              moveTo(context, ProfileScreen(client));
-            }),
-          ],
         ],
       ),
     );
@@ -113,6 +117,36 @@ Widget _info(BuildContext context, String key, String value) {
               fontStyle: FontStyle.italic,
             ),
           ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildMember(BuildContext context, Client client) {
+  return GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: () => moveTo(context, ProfileScreen(client)),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          DialogInitials(
+            initials: getInitials(client.user!.nickname),
+            bgColor: getRandomColor(client.user!.nickname),
+            d: 52,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            client.user!.nickname,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          )
         ],
       ),
     ),
