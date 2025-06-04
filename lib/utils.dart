@@ -125,9 +125,17 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
           return '$nickname left group "${group.title}"';
       }
     case 'dialog':
-      switch (act) {
-        case 'new':
-          return 'New dialog started by $nickname';
+      var dialog = chat.record as DialogDTO;
+      if (!dialog.isMonolog) {
+        switch (act) {
+          case 'new':
+            return 'New dialog started by $nickname';
+        }
+      } else {
+        switch (act) {
+          case 'new':
+            return 'Monolog started';
+        }
       }
   }
 

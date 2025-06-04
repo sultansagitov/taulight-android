@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/utils.dart';
@@ -47,17 +48,33 @@ class _ChatAvatarState extends State<ChatAvatar> {
     final bgColor = getRandomColor(title);
 
     if (isGroup(widget.chat)) {
-      if (isLoading || avatarImage == null) {
-        return GroupInitials(
-            initials: initials, bgColor: bgColor, d: widget.d);
-      }
-      return GroupAvatar(avatarImage: avatarImage!, d: widget.d);
+      return isLoading || avatarImage == null
+          ? GroupInitials(
+              initials: initials,
+              bgColor: bgColor,
+              d: widget.d,
+            )
+          : GroupAvatar(
+              avatarImage: avatarImage!,
+              d: widget.d,
+            );
     } else if (isDialog(widget.chat)) {
-      if (isLoading || avatarImage == null) {
-        return DialogInitials(
-            initials: initials, bgColor: bgColor, d: widget.d);
-      }
-      return DialogAvatar(avatarImage: avatarImage!, d: widget.d);
+      var dialog = widget.chat.record as DialogDTO;
+      return !dialog.isMonolog
+          ? isLoading || avatarImage == null
+              ? DialogInitials(
+                  initials: initials,
+                  bgColor: bgColor,
+                  d: widget.d,
+                )
+              : DialogAvatar(
+                  avatarImage: avatarImage!,
+                  d: widget.d,
+                )
+          : MonologAvatar(
+              d: widget.d,
+              bgColor: bgColor,
+            );
     }
 
     return SizedBox(width: widget.d.toDouble(), height: widget.d.toDouble());
@@ -68,11 +85,12 @@ class GroupInitials extends StatelessWidget {
   final String initials;
   final Color bgColor;
   final int d;
-  const GroupInitials(
-      {required this.initials,
-      required this.bgColor,
-      required this.d,
-      super.key});
+  const GroupInitials({
+    required this.initials,
+    required this.bgColor,
+    required this.d,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +105,10 @@ class GroupInitials extends StatelessWidget {
         child: Text(
           initials,
           style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
       ),
     );
@@ -113,11 +134,12 @@ class DialogInitials extends StatelessWidget {
   final String initials;
   final Color bgColor;
   final int d;
-  const DialogInitials(
-      {required this.initials,
-      required this.bgColor,
-      required this.d,
-      super.key});
+  const DialogInitials({
+    required this.initials,
+    required this.bgColor,
+    required this.d,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +155,10 @@ class DialogInitials extends StatelessWidget {
           child: Text(
             initials,
             style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
           ),
         ),
       ),
@@ -144,7 +169,11 @@ class DialogInitials extends StatelessWidget {
 class DialogAvatar extends StatelessWidget {
   final MemoryImage avatarImage;
   final int d;
-  const DialogAvatar({required this.avatarImage, required this.d, super.key});
+  const DialogAvatar({
+    required this.avatarImage,
+    required this.d,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +188,40 @@ class DialogAvatar extends StatelessWidget {
           fit: BoxFit.cover,
           alignment: Alignment.center,
         ),
+      ),
+    );
+  }
+}
+
+class MonologAvatar extends StatelessWidget {
+  final int d;
+  final Color bgColor;
+
+  const MonologAvatar({
+    super.key,
+    required this.d,
+    required this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: d.toDouble(),
+        height: d.toDouble(),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [
+            bgColor,
+            bgColor.withAlpha(200),
+          ]),
+        ),
+        child: Center(
+            child: Icon(
+          Icons.lock,
+          color: Colors.white,
+          size: 24,
+        )),
       ),
     );
   }

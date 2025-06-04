@@ -24,14 +24,11 @@ abstract class ChatDTO {
     }
 
     var type = map["chat"]["type"];
-    switch (type) {
-      case "gr":
-        return GroupDTO.fromMap(client, map);
-      case "dl":
-        return DialogDTO.fromMap(client, map);
-      default:
-        throw ErrorDescription('Unexpected type "$type", - "gr", "dl"');
-    }
+    return switch (type) {
+      "gr" => GroupDTO.fromMap(client, map),
+      "dl" => DialogDTO.fromMap(client, map),
+      _ => throw ErrorDescription('Unexpected type "$type", - "gr", "dl"')
+    };
   }
 
   ChatDTO({required this.id, required this.lastMessage});
@@ -75,27 +72,31 @@ class GroupDTO extends ChatDTO {
 
 class DialogDTO extends ChatDTO {
   final String otherNickname;
+  final bool isMonolog;
 
   DialogDTO({
     required super.id,
     required super.lastMessage,
     required this.otherNickname,
+    required this.isMonolog,
   });
 
   factory DialogDTO.fromMap(Client client, Map<String, dynamic> obj) {
+    var otherNickname = obj["chat"]["dialog-other"]!;
     return DialogDTO(
       id: obj["chat"]["id"]!,
       lastMessage: ChatMessageWrapperDTO(
         ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
         obj["decrypted-last-message"],
       ),
-      otherNickname: obj["chat"]["dialog-other"]!,
+      otherNickname: otherNickname,
+      isMonolog: client.user!.nickname == otherNickname,
     );
   }
 
   @override
   String getTitle() {
-    return otherNickname;
+    return isMonolog ? "Monolog" : otherNickname;
   }
 
   @override

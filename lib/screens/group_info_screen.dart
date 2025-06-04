@@ -108,9 +108,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           const SizedBox(height: 16),
           _buildTabs(),
           const SizedBox(height: 12),
-          Expanded(
-            child: _buildTabContent(record),
-          ),
+          Expanded(child: _buildTabContent(record)),
         ],
       ),
     );
@@ -119,20 +117,17 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   Widget _buildTabs() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_tabs.length, (index) {
-        return _buildTabButton(_tabs[index], index);
-      }),
+      children: List.generate(
+        _tabs.length,
+        (index) => _buildTabButton(_tabs[index], index),
+      ),
     );
   }
 
   Widget _buildTabButton(String label, int index) {
     final isSelected = _selectedTab == index;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = index;
-        });
-      },
+      onTap: () => setState(() => _selectedTab = index),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -159,18 +154,13 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Widget _buildTabContent(GroupDTO record) {
-    switch (_selectedTab) {
-      case 0:
-        return _buildMembersTab(record);
-      case 1:
-        return _buildRolesTab(record);
-      case 2:
-        return _buildInfoTab(record);
-      case 3:
-        return _buildSettingsTab(record);
-      default:
-        return Center(child: Text('Tab not implemented'));
-    }
+    return switch (_selectedTab) {
+      0 => _buildMembersTab(record),
+      1 => _buildRolesTab(record),
+      2 => _buildInfoTab(record),
+      3 => _buildSettingsTab(record),
+      _ => Center(child: Text('Tab not implemented'))
+    };
   }
 
   Widget _buildMembersTab(GroupDTO record) {
