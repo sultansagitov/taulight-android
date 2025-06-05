@@ -30,7 +30,9 @@ class _LoginListState extends State<LoginList> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          print(snapshot.error);
+          print(snapshot.stackTrace);
+          return Center(child: Text('Error while loading history'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No login history found.'));
         }

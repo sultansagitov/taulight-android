@@ -32,7 +32,8 @@ class _InviteWidgetState extends State<InviteWidget> {
           .timeout(Duration(seconds: 5)),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print("Error when loading invite ${snapshot.error}");
+          print(snapshot.error);
+          print(snapshot.stackTrace);
         }
 
         var code = snapshot.data;

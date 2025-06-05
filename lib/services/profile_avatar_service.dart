@@ -17,9 +17,18 @@ class ProfileAvatarService {
 
     final uuid = client.uuid;
     final avatarFile =
-        File('${dir.path}/avatar_${uuid}_${client.user!.nickname}');
+        File('${dir.path}/avatar_$uuid');
     final noAvatarFile =
-        File('${dir.path}/no_avatar_${uuid}_${client.user!.nickname}');
+        File('${dir.path}/no_avatar_$uuid');
+
+    if (await noAvatarFile.exists()) {
+      return null;
+    }
+
+    if (await avatarFile.exists()) {
+      var bytes = await avatarFile.readAsBytes();
+      return MemoryImage(bytes);
+    }
 
     try {
       final map = await PlatformAvatarService.ins.getAvatar(client);
@@ -29,7 +38,9 @@ class ProfileAvatarService {
         return null;
       }
 
-      final base64Str = map["imageBase64"]!;
+      print(map);
+
+      final base64Str = map["avatarBase64"]!;
       final bytes = base64Decode(base64Str);
       await avatarFile.writeAsBytes(bytes, flush: true);
       return MemoryImage(bytes);
@@ -38,5 +49,9 @@ class ProfileAvatarService {
       print(stackTrace);
       return null;
     }
+  }
+
+  Future<void> setAvatar(Client client, String path) async {
+    await PlatformAvatarService.ins.setAvatar(client, path);
   }
 }

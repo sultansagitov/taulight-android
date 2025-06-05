@@ -4,7 +4,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/screens/profile_screen.dart';
-import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -134,11 +133,7 @@ Widget _buildMember(BuildContext context, Client client) {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: [
-          DialogInitials(
-            initials: getInitials(client.user!.nickname),
-            bgColor: getRandomColor(client.user!.nickname),
-            d: 52,
-          ),
+          MyAvatar(client: client, d: 52),
           const SizedBox(width: 12),
           Text(
             client.user!.nickname,

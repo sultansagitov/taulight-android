@@ -115,4 +115,25 @@ class PlatformAvatarService {
 
     throw IncorrectFormatChannelException();
   }
+
+  Future<void> setAvatar(Client client, String path) async {
+    var result = await PlatformService.ins.chain(
+      "WhoAmIClientChain.setAvatar",
+      client: client,
+      params: [path],
+    );
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+  }
 }

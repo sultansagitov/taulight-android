@@ -49,7 +49,7 @@ class AvatarService {
         return null;
       }
 
-      final base64Str = map["imageBase64"]!;
+      final base64Str = map["avatarBase64"]!;
       final bytes = base64Decode(base64Str);
       print("Saving avatar for $client:$id in $avatarFile");
       await avatarFile.writeAsBytes(bytes, flush: true);

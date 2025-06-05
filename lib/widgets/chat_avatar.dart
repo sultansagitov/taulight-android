@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/avatar_service.dart';
+import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/utils.dart';
 
 class ChatAvatar extends StatefulWidget {
@@ -104,10 +106,10 @@ class GroupInitials extends StatelessWidget {
       child: Center(
         child: Text(
           initials,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: d.toDouble() * 0.4,
           ),
         ),
       ),
@@ -144,7 +146,7 @@ class DialogInitials extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(d.toDouble() * 0.2),
       child: Container(
         width: d.toDouble(),
         height: d.toDouble(),
@@ -154,10 +156,10 @@ class DialogInitials extends StatelessWidget {
         child: Center(
           child: Text(
             initials,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: d.toDouble() * 0.4,
             ),
           ),
         ),
@@ -223,6 +225,48 @@ class MonologAvatar extends StatelessWidget {
           size: 24,
         )),
       ),
+    );
+  }
+}
+
+class MyAvatar extends StatelessWidget {
+  final Client client;
+  final int d;
+
+  const MyAvatar({
+    super.key,
+    required this.client,
+    required this.d,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: ProfileAvatarService.ins.getAvatar(client),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print(snapshot.error);
+          print(snapshot.stackTrace);
+        }
+
+        var avatarBytes = snapshot.data?.bytes;
+
+        if (avatarBytes == null) {
+          var initials = getInitials(client.user!.nickname);
+          var bg = getRandomColor(client.user!.nickname);
+          return DialogInitials(initials: initials, bgColor: bg, d: d);
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(d.toDouble() * 0.2),
+          child: Image.memory(
+            avatarBytes,
+            width: d.toDouble(),
+            height: d.toDouble(),
+            fit: BoxFit.cover,
+          ),
+        );
+      },
     );
   }
 }

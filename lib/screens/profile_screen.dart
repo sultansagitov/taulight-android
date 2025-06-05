@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/profile_avatar_service.dart';
+import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/login_list.dart';
 import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/tip.dart';
@@ -16,8 +19,68 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final String nickname = "FlutterFan";
+  final picker = ImagePicker();
+
   final String bio = "Just a dev exploring the widget tree";
+
+  void _pickImage() async {
+    final file = await picker.pickImage(source: ImageSource.gallery);
+    if (file == null) return;
+
+    await ProfileAvatarService.ins.setAvatar(widget.client, file.path);
+  }
+
+  Future showQR(BuildContext context, double size) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: size,
+            height: size,
+            child: QrImageView(
+              data: widget.client.user!.nickname,
+              version: QrVersions.auto,
+              backgroundColor: Colors.white,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showImagePreview(BuildContext context, Client client) async {
+    var size = MediaQuery.of(context).size;
+
+    var memoryImage = await ProfileAvatarService.ins.getAvatar(client);
+
+    if (memoryImage == null) {
+      return;
+    }
+
+    var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
+
+    var stack = Stack(children: [
+      InteractiveViewer(
+        child: Container(
+          width: size.width,
+          height: size.height,
+          color: Colors.black,
+          child: Center(child: image),
+        ),
+      ),
+      SafeArea(
+        child: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    ]);
+
+    await moveTo(context, stack);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,44 +101,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            FutureBuilder(
-                future: ProfileAvatarService.ins.getAvatar(widget.client),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error);
-                    print(snapshot.stackTrace);
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-
-                  if (snapshot.data == null) {
-                    return CircleAvatar(
-                      radius: 100,
-                      backgroundColor: Colors.deepOrange,
-                    );
-                  }
-
-                  return CircleAvatar(
-                    radius: 100,
-                    child: Image.memory(
-                      snapshot.data!.bytes,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                GestureDetector(
+                  onTap: () => _showImagePreview(context, widget.client),
+                  child: MyAvatar(client: widget.client, d: 200),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black54,
+                    child: IconButton(
+                      icon: Icon(Icons.edit, color: Colors.white, size: 20),
+                      onPressed: _pickImage,
                     ),
-                  );
-                }),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Text(
               widget.client.user!.nickname,
               style: theme.textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
-            Text(bio,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontStyle: FontStyle.italic),
-                textAlign: TextAlign.center),
+            Text(
+              bio,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(fontStyle: FontStyle.italic),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 24),
             Align(
               alignment: Alignment.centerLeft,
@@ -90,25 +147,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Future showQR(BuildContext context, double size) async {
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: size,
-            height: size,
-            child: QrImageView(
-              data: widget.client.user!.nickname,
-              version: QrVersions.auto,
-              backgroundColor: Colors.white,
-            ),
-          ),
-        );
-      },
     );
   }
 }
