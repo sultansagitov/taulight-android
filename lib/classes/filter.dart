@@ -4,7 +4,7 @@ class FilterManager {
   final List<Filter> filters = [];
 }
 
-class Filter {
+abstract class Filter {
   final FilterManager manager;
   final String Function() label;
   final bool Function(TauChat) condition;
@@ -39,5 +39,13 @@ class RadioFilter extends Filter {
 class AnyFilter extends Filter {
   AnyFilter(super.manager, super.label, super.condition);
 
-  // TODO
+  @override
+  bool check(TauChat chat) {
+    for (var filter in manager.filters) {
+      if (filter.isEnabled() && filter.condition(chat)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

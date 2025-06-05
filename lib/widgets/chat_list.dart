@@ -28,6 +28,8 @@ class ChatList extends StatefulWidget {
 class _ChatListState extends State<ChatList> {
   final manager = FilterManager();
   late final List<Filter> filters;
+  List<Filter> resultFilters = [];
+
 
   @override
   void initState() {
@@ -54,7 +56,7 @@ class _ChatListState extends State<ChatList> {
     // Collect all chats from clients that have a valid user
     List<TauChat> chats =
         clients.expand((client) => client.chats.values).where((chat) {
-      for (Filter filter in filters) {
+      for (Filter filter in resultFilters) {
         if (filter.isEnabled() && !filter.check(chat)) {
           return false;
         }
@@ -91,8 +93,9 @@ class _ChatListState extends State<ChatList> {
 
     var c = clients.where((c) => c.authorized);
     Iterable<Filter> clientFilter = c.length != 1 ? c.map((c) => c.filter) : [];
+    resultFilters = [...filters, ...clientFilter];
     list.add(ChatsFilter(
-      filters: [...filters, ...clientFilter],
+      filters: resultFilters,
       onChange: () => setState(() {}),
     ));
 
