@@ -40,7 +40,10 @@ class HubsScreenState extends State<HubsScreen> {
             ),
             TauButton.icon(Icons.add, onPressed: () async {
               var screen = ConnectionScreen(connectUpdate: _connectUpdate);
-              await moveTo(context, screen);
+              var result = await moveTo(context, screen);
+              if (result != null) {
+                setState(() {});
+              }
             }),
           ],
         ),

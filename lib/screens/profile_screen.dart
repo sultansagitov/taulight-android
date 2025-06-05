@@ -80,6 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ]);
 
     await moveTo(context, stack);
+    setState(() {});
   }
 
   @override

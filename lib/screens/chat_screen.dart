@@ -108,6 +108,7 @@ class ChatScreenState extends State<ChatScreen> {
                     );
 
               await moveTo(context, screen);
+              setState(() {});
             },
           ),
         ],

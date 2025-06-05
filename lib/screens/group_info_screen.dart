@@ -79,6 +79,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     var dialogs = widget.chat.client.chats.values.where(isDialog).toList();
     var screen = MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat);
     await moveTo(context, screen);
+    setState(() {});
   }
 
   @override
