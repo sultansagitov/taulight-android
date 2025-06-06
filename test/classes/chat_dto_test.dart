@@ -13,7 +13,7 @@ void main() {
           'id': '1',
           'group-title': 'General',
           'group-owner': 'admin',
-          'has-avatar': false,
+          'avatar': "0",
           'last-message': {
             'id': 'msg-1',
             'creation-date': '2024-04-01T12:00:00Z',
@@ -42,7 +42,7 @@ void main() {
           'type': 'dl',
           'id': '2',
           'dialog-other': 'user123',
-          'has-avatar': false,
+          'avatar': "0",
           'last-message': {
             'id': 'msg-1',
             'creation-date': '2024-04-01T12:00:00Z',

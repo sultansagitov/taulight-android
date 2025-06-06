@@ -19,6 +19,7 @@ class TauChat {
   final ChatDTO record;
   final List<ChatMessageWrapperDTO> messages;
   final List<RoleDTO> roles = [];
+  String? avatarID;
 
   int? totalCount;
   List<ChatMessageWrapperDTO> get realMsg {

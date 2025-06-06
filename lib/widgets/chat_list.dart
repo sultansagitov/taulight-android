@@ -30,7 +30,6 @@ class _ChatListState extends State<ChatList> {
   late final List<Filter> filters;
   List<Filter> resultFilters = [];
 
-
   @override
   void initState() {
     super.initState();

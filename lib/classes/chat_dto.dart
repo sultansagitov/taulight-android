@@ -2,26 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/avatar_service.dart';
 
 abstract class ChatDTO {
   final String id;
   final ChatMessageWrapperDTO lastMessage;
+  final String? avatarID;
 
   static ChatDTO fromMap(client, obj) {
     final map = Map<String, dynamic>.from(obj);
-
-    bool? hasAvatar = map["chat"]['has-avatar'];
-    if (hasAvatar != null) {
-      final id = obj["chat"]["id"]!;
-      if (hasAvatar) {
-        print("remove no avatar $id");
-        AvatarService.ins.removeNoAvatar(client, id);
-      } else {
-        print("set no avatar $id");
-        AvatarService.ins.setNoAvatar(client, id);
-      }
-    }
 
     var type = map["chat"]["type"];
     return switch (type) {
@@ -31,7 +19,11 @@ abstract class ChatDTO {
     };
   }
 
-  ChatDTO({required this.id, required this.lastMessage});
+  ChatDTO({
+    required this.id,
+    required this.lastMessage,
+    required this.avatarID,
+  });
 
   String getTitle();
 }
@@ -43,6 +35,7 @@ class GroupDTO extends ChatDTO {
   GroupDTO({
     required super.id,
     required super.lastMessage,
+    required super.avatarID,
     required this.title,
     required this.owner,
   });
@@ -54,6 +47,7 @@ class GroupDTO extends ChatDTO {
         ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
         obj["decrypted-last-message"],
       ),
+      avatarID: obj["chat"]["avatar"],
       title: obj["chat"]["group-title"]!,
       owner: obj["chat"]["group-owner"]!,
     );
@@ -77,6 +71,7 @@ class DialogDTO extends ChatDTO {
   DialogDTO({
     required super.id,
     required super.lastMessage,
+    required super.avatarID,
     required this.otherNickname,
     required this.isMonolog,
   });
@@ -89,6 +84,7 @@ class DialogDTO extends ChatDTO {
         ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
         obj["decrypted-last-message"],
       ),
+      avatarID: obj["chat"]["avatar"],
       otherNickname: otherNickname,
       isMonolog: client.user!.nickname == otherNickname,
     );

@@ -272,6 +272,7 @@ fun chain(call: MethodCall): Any? {
         return when (result) {
             Unit -> null
             is FileDTO -> mapOf(
+                "id" to result.id().toString(),
                 "contentType" to result.contentType(),
                 "avatarBase64" to Base64.encodeToString(result.body(), Base64.NO_WRAP)
             )

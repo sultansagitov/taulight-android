@@ -97,6 +97,7 @@ class Client {
   Future<void> loadChats() async {
     for (var dto in await PlatformService.ins.loadChats(this)) {
       chats[dto.id] ??= TauChat(this, dto);
+      chats[dto.id]!.avatarID = dto.avatarID;
     }
   }
 

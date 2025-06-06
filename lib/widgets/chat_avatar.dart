@@ -11,7 +11,8 @@ class ChatAvatar extends StatefulWidget {
   final TauChat chat;
   final int d;
 
-  const ChatAvatar(this.chat, {required this.d, super.key});
+  ChatAvatar(this.chat, {required this.d})
+      : super(key: ValueKey(chat.avatarID));
 
   @override
   State<ChatAvatar> createState() => _ChatAvatarState();

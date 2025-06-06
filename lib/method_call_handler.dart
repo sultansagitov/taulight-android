@@ -159,8 +159,7 @@ class MethodCallHandler {
     await _secureStorage.write(
         key: "dek-encryption:$nickname", value: encryption);
 
-    await _secureStorage.write(
-        key: "dek-encryption:$keyID", value: encryption);
+    await _secureStorage.write(key: "dek-encryption:$keyID", value: encryption);
 
     if (call.arguments.containsKey("sym-key")) {
       String symKey = call.arguments["sym-key"];
@@ -213,8 +212,7 @@ class MethodCallHandler {
 
     final result = <String, String?>{"encryption": encryption};
 
-    if (await _secureStorage.containsKey(
-        key: "personal-sym-key:$keyID")) {
+    if (await _secureStorage.containsKey(key: "personal-sym-key:$keyID")) {
       result["sym-key"] = await _secureStorage.read(
         key: "personal-sym-key:$keyID",
       );
@@ -233,8 +231,7 @@ class MethodCallHandler {
   static Future<Map<String, String?>> _loadEncryptor(MethodCall call) async {
     String nickname = call.arguments["nickname"];
 
-    final keyID =
-        await _secureStorage.read(key: "encryptor-id:$nickname");
+    final keyID = await _secureStorage.read(key: "encryptor-id:$nickname");
     final encryption =
         await _secureStorage.read(key: "encryptor-encryption:$nickname");
     if (keyID == null || encryption == null) {
@@ -246,8 +243,7 @@ class MethodCallHandler {
 
     final result = <String, String?>{"key-id": keyID, "encryption": encryption};
 
-    if (await _secureStorage.containsKey(
-        key: "encryptor-sym-key:$nickname")) {
+    if (await _secureStorage.containsKey(key: "encryptor-sym-key:$nickname")) {
       result["sym-key"] =
           await _secureStorage.read(key: "encryptor-sym-key:$nickname");
     } else {
@@ -281,8 +277,7 @@ class MethodCallHandler {
   static Future<Map<String, String?>> _loadDEKByID(MethodCall call) async {
     String keyID = call.arguments["key-id"];
 
-    final encryption =
-        await _secureStorage.read(key: "dek-encryption:$keyID");
+    final encryption = await _secureStorage.read(key: "dek-encryption:$keyID");
     if (encryption == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -296,8 +291,7 @@ class MethodCallHandler {
     };
 
     if (await _secureStorage.containsKey(key: "dek-sym-key:$keyID")) {
-      result["sym-key"] =
-          await _secureStorage.read(key: "dek-sym-key:$keyID");
+      result["sym-key"] = await _secureStorage.read(key: "dek-sym-key:$keyID");
     } else {
       result["public-key"] =
           await _secureStorage.read(key: "dek-public-key:$keyID");
