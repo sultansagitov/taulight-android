@@ -43,7 +43,27 @@ class _LoginListState extends State<LoginList> {
         return Column(
           children: logins.map((login) {
             return ListTile(
-              title: Text(formatTime(login.time)),
+              title: Row(
+                children: [
+                  Text(formatTime(login.time)),
+                  if (login.online) ...[
+                    const SizedBox(width: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        color: Colors.green.withAlpha(64),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          child: Text("Active"),
+                        ),
+                      ),
+                    )
+                  ]
+                ],
+              ),
               subtitle: Text('IP: ${login.ip} | Device: ${login.device}'),
               leading: const Icon(Icons.login),
             );
