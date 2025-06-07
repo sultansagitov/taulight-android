@@ -116,7 +116,7 @@ class PlatformAvatarService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<void> setAvatar(Client client, String path) async {
+  Future<String> setAvatar(Client client, String path) async {
     var result = await PlatformService.ins.chain(
       "WhoAmIClientChain.setAvatar",
       client: client,
@@ -135,5 +135,14 @@ class PlatformAvatarService {
       }
       throw result;
     }
+
+    if (result is SuccessResult) {
+      var id = result.obj;
+      if (id is String) {
+        return id;
+      }
+    }
+
+    throw IncorrectFormatChannelException();
   }
 }

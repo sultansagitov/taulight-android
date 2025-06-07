@@ -1,11 +1,16 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/platform_avatar_service.dart';
+
+class ImageDTO {
+  final String? id;
+  final MemoryImage image;
+
+  ImageDTO(this.id, this.image);
+}
 
 class AvatarService {
   static final AvatarService _instance = AvatarService._internal();
@@ -13,39 +18,42 @@ class AvatarService {
   AvatarService._internal();
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final int _cacheSize = 20;
 
-  Future<MemoryImage?> loadOrFetchGroupAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, PlatformAvatarService.ins.getGroupAvatar);
-  }
-
-  Future<MemoryImage?> loadOrFetchDialogAvatar(TauChat chat) async {
-    return _loadOrFetchAvatar(chat, PlatformAvatarService.ins.getDialogAvatar);
-  }
+  final LinkedHashMap<String, ImageDTO> _memoryCache = LinkedHashMap();
 
   String _avatarKey(String avatarID) => 'avatar_$avatarID';
 
-  Future<MemoryImage?> _loadOrFetchAvatar(
-    TauChat chat,
-    Future<Map<String, String>?> Function(TauChat) fetchAvatar,
-  ) async {
-    final avatarID = chat.avatarID;
-    if (avatarID == null) return null;
+  Future<ImageDTO?> loadOrFetchAvatar(
+      String? avatarID,
+      Future<Map<String, String>?> Function() fetchAvatar,
+      ) async {
+    if (avatarID != null) {
+      if (_memoryCache.containsKey(avatarID)) {
+        return _memoryCache[avatarID];
+      }
 
-    final avatarData = await _secureStorage.read(key: _avatarKey(avatarID));
-    if (avatarData != null) {
-      final bytes = base64Decode(avatarData);
-      return MemoryImage(bytes);
+      final avatarData = await _secureStorage.read(key: _avatarKey(avatarID));
+      if (avatarData != null) {
+        final bytes = base64Decode(avatarData);
+        final dto = ImageDTO(avatarID, MemoryImage(bytes));
+        _addToCache(avatarID, dto);
+        return dto;
+      }
     }
 
     try {
-      final map = await fetchAvatar(chat);
-      if (map == null) return null;
+      final map = await fetchAvatar();
+      if (map == null || map.isEmpty) return null;
 
+      final id = map["id"]!;
       final base64Str = map["avatarBase64"]!;
-      await _secureStorage.write(key: _avatarKey(avatarID), value: base64Str);
+      await _secureStorage.write(key: _avatarKey(id), value: base64Str);
 
       final bytes = base64Decode(base64Str);
-      return MemoryImage(bytes);
+      final dto = ImageDTO(id, MemoryImage(bytes));
+      _addToCache(id, dto);
+      return dto;
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);
@@ -53,25 +61,30 @@ class AvatarService {
     }
   }
 
-  Future<bool> hasAvatarInStorage(TauChat chat) async {
-    final avatarID = chat.avatarID;
-    if (avatarID == null) return false;
+  Future<void> remove(String oldAvatarID) async {
+    await _secureStorage.delete(key: _avatarKey(oldAvatarID));
+    _memoryCache.remove(oldAvatarID);
+  }
 
+  Future<bool> hasAvatarInStorage(String avatarID) async {
+    if (_memoryCache.containsKey(avatarID)) return true;
     final avatarData = await _secureStorage.read(key: _avatarKey(avatarID));
     return avatarData != null;
   }
 
-  Future<void> setGroupAvatar(TauChat chat, String path) async {
-    final avatarID = chat.avatarID;
-    if (avatarID == null) return;
-
-    await PlatformAvatarService.ins.setGroupAvatar(chat, path);
-    final bytes = await File(path).readAsBytes();
-    await _updateAvatar(avatarID, bytes);
-  }
-
-  Future<void> _updateAvatar(String avatarID, Uint8List newImageBytes) async {
+  Future<void> updateAvatar(String avatarID, Uint8List newImageBytes) async {
     final base64Str = base64Encode(newImageBytes);
     await _secureStorage.write(key: _avatarKey(avatarID), value: base64Str);
+    final dto = ImageDTO(avatarID, MemoryImage(newImageBytes));
+    _addToCache(avatarID, dto);
+  }
+
+  void _addToCache(String key, ImageDTO dto) {
+    _memoryCache.remove(key);
+    _memoryCache[key] = dto;
+
+    if (_memoryCache.length > _cacheSize) {
+      _memoryCache.remove(_memoryCache.keys.first);
+    }
   }
 }

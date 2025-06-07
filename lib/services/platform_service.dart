@@ -48,7 +48,8 @@ class PlatformService {
   Future<Result> method(String methodName, Map<String, dynamic> args) async {
     print("Called on platform --- \"$methodName\"");
     Map result = (await platform.invokeMethod<Map>(methodName, args))!;
-    print("Result of \"$methodName\" - $result");
+    var chainMethodName = methodName == "chain" ? args["method"] : "";
+    print("Result of \"$methodName\" - $chainMethodName - $result");
 
     var error = result["error"];
     if (error != null) {

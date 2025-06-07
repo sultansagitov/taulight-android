@@ -28,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (file == null) return;
 
     await ProfileAvatarService.ins.setAvatar(widget.client, file.path);
+    setState(() {});
   }
 
   Future showQR(BuildContext context, double size) async {

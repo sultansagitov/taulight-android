@@ -3,7 +3,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/avatar_service.dart';
+import 'package:taulight/services/chat_avatar_service.dart';
 import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/utils.dart';
 
@@ -31,9 +31,9 @@ class _ChatAvatarState extends State<ChatAvatar> {
   Future<void> _loadAvatar() async {
     MemoryImage? image;
     if (isGroup(widget.chat)) {
-      image = await AvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
+      image = await ChatAvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
     } else if (isDialog(widget.chat)) {
-      image = await AvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
+      image = await ChatAvatarService.ins.loadOrFetchDialogAvatar(widget.chat);
     }
 
     if (mounted) {
@@ -234,11 +234,13 @@ class MyAvatar extends StatelessWidget {
   final Client client;
   final int d;
 
-  const MyAvatar({
-    super.key,
+  MyAvatar({
     required this.client,
     required this.d,
-  });
+  }) : super(
+            key: client.user?.avatarID != null
+                ? ValueKey(client.user!.avatarID!)
+                : null);
 
   @override
   Widget build(BuildContext context) {

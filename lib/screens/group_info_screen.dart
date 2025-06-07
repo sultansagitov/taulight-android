@@ -5,7 +5,7 @@ import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
-import 'package:taulight/services/avatar_service.dart';
+import 'package:taulight/services/chat_avatar_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -70,7 +70,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
-    await AvatarService.ins.setGroupAvatar(chat, pickedFile.path);
+    await ChatAvatarService.ins.setGroupAvatar(chat, pickedFile.path);
     if (mounted) setState(() {});
     widget.updateHome?.call();
   }

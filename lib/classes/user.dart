@@ -2,6 +2,7 @@ import 'package:taulight/classes/client.dart';
 
 class User {
   Client client;
+  String? avatarID;
   String nickname;
   String token;
   bool authorized = true;
@@ -9,9 +10,8 @@ class User {
 
   User(this.client, this.nickname, this.token);
 
-  factory User.unauthorized(Client client, String nickname, String token) {
-    return User(client, nickname, token)..authorized = false;
-  }
+  factory User.unauthorized(Client client, String nickname, String token) =>
+      User(client, nickname, token)..authorized = false;
 
   Future<void> reloadIfUnauthorized() async {
     if (!authorized) {
