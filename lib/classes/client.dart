@@ -64,7 +64,10 @@ class Client {
   ///
   /// Returns the sent message.
   ///
-  Future<String> sendMessage(TauChat chat, ChatMessageViewDTO message) async {
+  Future<Map<String, String>> sendMessage(
+    TauChat chat,
+    ChatMessageViewDTO message,
+  ) async {
     return await PlatformService.ins.sendMessage(this, chat, message);
   }
 

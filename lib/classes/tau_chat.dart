@@ -61,6 +61,7 @@ class TauChat {
     var message = ChatMessageViewDTO(
       id: tempUuid,
       chatID: record.id,
+      keyID: null,
       nickname: client.user!.nickname,
       text: text,
       isMe: true,
@@ -75,8 +76,9 @@ class TauChat {
     addMessage(wrapper);
     callback();
 
-    var messageUuid = await client.sendMessage(this, message);
-    message.id = messageUuid;
+    Map<String, String> map = await client.sendMessage(this, message);
+    message.id = map["message"]!;
+    message.keyID = map["key"];
     callback();
   }
 

@@ -2,6 +2,7 @@ import 'package:taulight/classes/client.dart';
 
 class ChatMessageViewDTO {
   String id;
+  String? keyID;
   final String chatID;
   final String nickname;
   final String text;
@@ -14,6 +15,7 @@ class ChatMessageViewDTO {
   ChatMessageViewDTO({
     required this.id,
     required this.chatID,
+    required this.keyID,
     required this.nickname,
     required this.text,
     required this.isMe,
@@ -39,6 +41,7 @@ class ChatMessageViewDTO {
     var message = map["message"]!;
 
     String chatID = message["chat-id"]!;
+    String? keyId = message["keyID"];
     String nickname = message["nickname"]!;
     String content = message["content"]!;
     bool sys = message["sys"];
@@ -49,6 +52,7 @@ class ChatMessageViewDTO {
     return ChatMessageViewDTO(
       id: messageID,
       chatID: chatID,
+      keyID: keyId,
       nickname: nickname,
       isMe: client.user?.nickname == nickname,
       text: content,

@@ -19,7 +19,7 @@ object MessageRunner {
     val LOGGER = LogManager.getLogger("MessageRunner")!!
 }
 
-fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMessages: Set<UUID>): UUID {
+fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMessages: Set<UUID>): Map<String, String> {
     val chain = ForwardRequestClientChain(client)
 
     client.io.chainManager.linkChain(chain)
@@ -34,7 +34,7 @@ fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMe
 
     client.io.chainManager.removeChain(chain)
 
-    return id
+    return mutableMapOf("message" to id.toString())
 }
 
 fun dialogSend(
@@ -43,7 +43,7 @@ fun dialogSend(
     chatID: UUID,
     content: String,
     repliedToMessages: Set<UUID>
-): UUID {
+): Map<String, String> {
     val chain = ForwardRequestClientChain(client)
 
     client.io.chainManager.linkChain(chain)
@@ -54,10 +54,11 @@ fun dialogSend(
         .setSentDatetimeNow()
 
     var dekChain: DEKClientChain? = null
+    var dek: KeyEntry? = null
     try {
         val agent = client.node as Agent
 
-        val dek = try {
+        dek = try {
             agent.config.loadDEK(nickname)
         } catch (_: KeyStorageNotFoundException) {
             dekChain = DEKClientChain(client)
@@ -80,7 +81,7 @@ fun dialogSend(
             dekChain?.also { client.io.chainManager.removeChain(it) }
         }
 
-        message.setEncryptedContent(dek.id, dek.keyStorage, content)
+        message.setEncryptedContent(dek!!.id, dek.keyStorage, content)
     } catch (e: Exception) {
         MessageRunner.LOGGER.error("Sending unencrypted", e)
         message.setContent(content)
@@ -90,7 +91,7 @@ fun dialogSend(
 
     client.io.chainManager.removeChain(chain)
 
-    return id
+    return mutableMapOf("message" to id.toString()).apply { dek?.id?.let { put("key", it.toString()) } }
 }
 
 fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): PaginatedDTO<ChatMessageViewDTO> {

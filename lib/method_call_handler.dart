@@ -37,10 +37,12 @@ class MethodCallHandler {
     Client? client = ClientService.ins.get(clientUUID);
     if (client == null) throw ClientNotFoundException(clientUUID);
 
-    final view = ChatMessageViewDTO.fromMap(client, messageMap);
-    final wrapper = ChatMessageWrapperDTO(view, decrypted);
-    final chat = await client.getOrSaveChatByID(view.chatID);
-    if (!yourSession) chat.addMessage(wrapper);
+    if (!yourSession) {
+      final view = ChatMessageViewDTO.fromMap(client, messageMap);
+      final wrapper = ChatMessageWrapperDTO(view, decrypted);
+      final chat = await client.getOrSaveChatByID(view.chatID);
+      chat.addMessage(wrapper);
+    }
   }
 
   static Future<void> _disconnect(MethodCall call) async {

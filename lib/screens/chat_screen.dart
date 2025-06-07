@@ -180,10 +180,10 @@ class ChatScreenState extends State<ChatScreen> {
               chat: widget.chat,
               replies: replies,
               enabled: enabled,
-              sendMessage: (text) {
+              sendMessage: (text) async {
                 var repliesUuid = replies.map((r) => r.view.id).toList();
                 replies.clear();
-                widget.chat.sendMessage(text, repliesUuid, update);
+                await widget.chat.sendMessage(text, repliesUuid, update);
               },
             ),
           ],

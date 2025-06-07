@@ -33,10 +33,7 @@ class ChatAvatarService {
   }
 
   Future<void> setGroupAvatar(TauChat chat, String path) async {
-    final avatarID = chat.avatarID;
-    if (avatarID == null) return;
-
-    await PlatformAvatarService.ins.setGroupAvatar(chat, path);
+    var avatarID = await PlatformAvatarService.ins.setGroupAvatar(chat, path);
     final bytes = await File(path).readAsBytes();
     await AvatarService.ins.updateAvatar(avatarID, bytes);
   }

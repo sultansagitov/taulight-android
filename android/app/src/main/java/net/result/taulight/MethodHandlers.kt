@@ -127,7 +127,7 @@ fun register(call: MethodCall): Map<String, String> {
     )
 }
 
-fun groupSend(call: MethodCall): String {
+fun groupSend(call: MethodCall): Map<String, String> {
     val uuid: String = call.argument<String>("uuid")!!
     val chatID: String = call.argument<String>("chat-id")!!
     val content: String = call.argument<String>("content")!!
@@ -136,10 +136,10 @@ fun groupSend(call: MethodCall): String {
     val mc: MemberClient = taulight!!.getClient(uuid)
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
 
-    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages).toString()
+    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages)
 }
 
-fun dialogSend(call: MethodCall): String {
+fun dialogSend(call: MethodCall): Map<String, String> {
     val uuid: String = call.argument<String>("uuid")!!
     val chatID: String = call.argument<String>("chat-id")!!
     val nickname: String = call.argument<String>("nickname")!!
@@ -149,7 +149,7 @@ fun dialogSend(call: MethodCall): String {
     val mc: MemberClient = taulight!!.getClient(uuid)
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
 
-    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages).toString()
+    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages)
 }
 
 fun getChats(call: MethodCall): List<Map<String, Any>> {

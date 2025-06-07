@@ -37,7 +37,7 @@ class PlatformAvatarService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<void> setGroupAvatar(TauChat chat, String imagePath) async {
+  Future<String> setGroupAvatar(TauChat chat, String imagePath) async {
     var result = await PlatformService.ins.chain(
       "GroupClientChain.setAvatar",
       client: chat.client,
@@ -56,6 +56,15 @@ class PlatformAvatarService {
       }
       throw result;
     }
+
+    if (result is SuccessResult) {
+      var avatarID = result.obj;
+      if (avatarID is String) {
+        return avatarID;
+      }
+    }
+
+    throw IncorrectFormatChannelException();
   }
 
   Future<Map<String, String>?> getGroupAvatar(TauChat chat) async {

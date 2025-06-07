@@ -384,7 +384,7 @@ class PlatformService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> sendMessage(
+  Future<Map<String, String>> sendMessage(
     Client client,
     TauChat chat,
     ChatMessageViewDTO message,
@@ -410,10 +410,7 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
-      if (obj is String) {
-        return obj;
-      }
+      return Map<String, String>.from(result.obj);
     }
 
     throw IncorrectFormatChannelException();
