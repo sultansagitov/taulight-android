@@ -35,7 +35,8 @@ fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
         mapOf(
             "time" to it.time.toString(),
             "ip" to personalKey.encryption().decrypt(Base64.decode(it.ip, Base64.NO_WRAP), personalKey),
-            "device" to personalKey.encryption().decrypt(Base64.decode(it.device, Base64.NO_WRAP), personalKey)
+            "device" to personalKey.encryption().decrypt(Base64.decode(it.device, Base64.NO_WRAP), personalKey),
+            "online" to it.isOnline
         )
     }.toList()
 }
