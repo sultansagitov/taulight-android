@@ -52,7 +52,10 @@ class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => moveTo(context, HubInfoScreen(widget.client)),
+              onTap: () async {
+                await moveTo(context, HubInfoScreen(widget.client));
+                widget.updateHome?.call();
+              },
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [

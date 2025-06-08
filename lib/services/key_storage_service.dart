@@ -30,7 +30,7 @@ class KeyStorageService {
         message: "Key not found for address $address",
       );
     }
-    return jsonDecode(keyData);
+    return Map<String, String>.from(jsonDecode(keyData));
   }
 
   Future<void> savePersonalKey(
@@ -60,7 +60,7 @@ class KeyStorageService {
         message: "Key not found for ID $keyID",
       );
     }
-    return jsonDecode(data);
+    return Map<String, String>.from(jsonDecode(data));
   }
 
   Future<void> saveEncryptor(
@@ -93,7 +93,7 @@ class KeyStorageService {
         message: "Encryptor not found",
       );
     }
-    return jsonDecode(data);
+    return Map<String, String>.from(jsonDecode(data));
   }
 
   Future<void> saveDEK(
@@ -126,7 +126,7 @@ class KeyStorageService {
         message: "DEK not found for nickname $nickname",
       );
     }
-    return jsonDecode(data);
+    return Map<String, String>.from(jsonDecode(data));
   }
 
   Future<Map<String, String>> loadDEKByID(String keyID) async {
@@ -137,6 +137,6 @@ class KeyStorageService {
         message: "DEK not found for ID $keyID",
       );
     }
-    return jsonDecode(data);
+    return Map<String, String>.from(jsonDecode(data));
   }
 }

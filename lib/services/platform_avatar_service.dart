@@ -9,34 +9,6 @@ class PlatformAvatarService {
   static PlatformAvatarService get ins => _instance;
   PlatformAvatarService._internal();
 
-  Future<Map<String, String>?> getAvatar(Client client) async {
-    var result = await PlatformService.ins.chain(
-      "WhoAmIClientChain.getAvatar",
-      client: client,
-    );
-
-    if (result is ExceptionResult) {
-      if (result.name == "NotFoundException") {
-        throw ChatNotFoundException(client);
-      }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
-      }
-      throw result;
-    }
-
-    if (result is SuccessResult) {
-      return result.obj != null
-          ? Map<String, String>.from(result.obj as Map)
-          : null;
-    }
-
-    throw IncorrectFormatChannelException();
-  }
-
   Future<String> setGroupAvatar(TauChat chat, String imagePath) async {
     var result = await PlatformService.ins.chain(
       "GroupClientChain.setAvatar",
@@ -62,6 +34,34 @@ class PlatformAvatarService {
       if (avatarID is String) {
         return avatarID;
       }
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<Map<String, String>?> getAvatar(Client client) async {
+    var result = await PlatformService.ins.chain(
+      "AvatarClientChain.getMy",
+      client: client,
+    );
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      return result.obj != null
+          ? Map<String, String>.from(result.obj as Map)
+          : null;
     }
 
     throw IncorrectFormatChannelException();
@@ -127,7 +127,7 @@ class PlatformAvatarService {
 
   Future<String> setAvatar(Client client, String path) async {
     var result = await PlatformService.ins.chain(
-      "WhoAmIClientChain.setAvatar",
+      "AvatarClientChain.set",
       client: client,
       params: [path],
     );

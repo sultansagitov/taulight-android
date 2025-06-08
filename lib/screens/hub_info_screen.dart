@@ -8,10 +8,15 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class HubInfoScreen extends StatelessWidget {
+class HubInfoScreen extends StatefulWidget {
   final Client client;
   const HubInfoScreen(this.client, {super.key});
 
+  @override
+  State<HubInfoScreen> createState() => _HubInfoScreenState();
+}
+
+class _HubInfoScreenState extends State<HubInfoScreen> {
   Future<void> showQR(BuildContext context, double size) async {
     await showDialog(
       context: context,
@@ -20,7 +25,7 @@ class HubInfoScreen extends StatelessWidget {
           width: size,
           height: size,
           child: QrImageView(
-            data: client.link,
+            data: widget.client.link,
             version: QrVersions.auto,
             backgroundColor: Colors.white,
           ),
@@ -32,7 +37,7 @@ class HubInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    var status = client.status;
+    var status = widget.client.status;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,7 +47,7 @@ class HubInfoScreen extends StatelessWidget {
           }),
           TauButton.icon(Icons.share, onPressed: () {
             SharePlus.instance.share(ShareParams(
-              text: client.link,
+              text: widget.client.link,
               subject: 'Check out this Hub',
             ));
           }),
@@ -53,7 +58,7 @@ class HubInfoScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
           Text(
-            client.name,
+            widget.client.name,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -73,14 +78,44 @@ class HubInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (client.realName != null)
-                  _info(context, "Hub name", client.name),
-                _info(context, "Link", client.link),
-                if (client.user != null) _buildMember(context, client),
+                if (widget.client.realName != null)
+                  _info(context, "Hub name", widget.client.name),
+                _info(context, "Link", widget.client.link),
+                if (widget.client.user != null)
+                  _buildMember(context, widget.client),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMember(BuildContext context, Client client) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        await moveTo(context, ProfileScreen(client));
+        setState(() {});
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            MyAvatar(client: client, d: 52),
+            const SizedBox(width: 12),
+            Text(
+              client.user!.nickname,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -116,32 +151,6 @@ Widget _info(BuildContext context, String key, String value) {
               fontStyle: FontStyle.italic,
             ),
           ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildMember(BuildContext context, Client client) {
-  return GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: () => moveTo(context, ProfileScreen(client)),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          MyAvatar(client: client, d: 52),
-          const SizedBox(width: 12),
-          Text(
-            client.user!.nickname,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          )
         ],
       ),
     ),

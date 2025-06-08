@@ -70,7 +70,10 @@ class HubsScreenState extends State<HubsScreen> {
               Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => moveTo(context, HubInfoScreen(client)),
+                  onTap: () async {
+                    await moveTo(context, HubInfoScreen(client));
+                    connectUpdate();
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     child: Column(

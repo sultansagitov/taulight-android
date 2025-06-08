@@ -39,10 +39,16 @@ class HomeScreenState extends State<HomeScreen> {
     var methodCallHandler = MethodCallHandler();
 
     PlatformService.ins.setMethodCallHandler((call) async {
-      var result = await methodCallHandler.handle(call);
-      setState(() {});
-      chatKey.currentState?.update();
-      return result;
+      try {
+        var result = await methodCallHandler.handle(call);
+        setState(() {});
+        chatKey.currentState?.update();
+        return result;
+      } catch (e, stackTrace) {
+        print(e);
+        print(stackTrace);
+        rethrow;
+      }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
