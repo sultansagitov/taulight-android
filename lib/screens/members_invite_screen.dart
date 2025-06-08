@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
@@ -34,9 +33,6 @@ class MembersInviteScreen extends StatelessWidget {
   }
 
   Widget _buildMember(String nickname, TauChat chat, BuildContext context) {
-    var initials = getInitials(nickname);
-    var bg = getRandomColor(nickname);
-
     return InkWell(
       onTap: () async {
         if (nickname.isNotEmpty) {
@@ -65,7 +61,7 @@ class MembersInviteScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            DialogInitials(initials: initials, bgColor: bg, d: 52),
+            MemberAvatar(client: chat.client, nickname: nickname, d: 52),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

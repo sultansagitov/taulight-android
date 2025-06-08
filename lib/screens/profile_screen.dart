@@ -27,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file == null) return;
 
-    await ProfileAvatarService.ins.setAvatar(widget.client, file.path);
+    await ProfileAvatarService.ins.setMy(widget.client, file.path);
     setState(() {});
   }
 
@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _showImagePreview(BuildContext context, Client client) async {
     var size = MediaQuery.of(context).size;
 
-    var memoryImage = await ProfileAvatarService.ins.getAvatar(client);
+    var memoryImage = await ProfileAvatarService.ins.getMy(client);
 
     if (memoryImage == null) {
       return;

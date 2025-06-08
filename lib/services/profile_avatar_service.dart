@@ -14,26 +14,49 @@ class ProfileAvatarService {
 
   final _storage = const FlutterSecureStorage();
 
-  Future<MemoryImage?> getAvatar(Client client) async {
-    final uuid = client.uuid;
+  Future<MemoryImage?> getMy(Client client) async {
+    final address = client.address;
+    final nickname = client.user!.nickname;
 
-    final avatarID = await _storage.read(key: 'client_avatar_$uuid');
+    final avatarID =
+        await _storage.read(key: 'member_avatar_$address:$nickname');
     if (avatarID == 'no_avatar') return null;
 
     var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
-      return PlatformAvatarService.ins.getAvatar(client);
+      return PlatformAvatarService.ins.getMy(client);
     });
 
     if (dto != null) {
-      await _storage.write(key: 'client_avatar_$uuid', value: dto.id!);
+      await _storage.write(
+          key: 'member_avatar_$address:$nickname', value: dto.id!);
     }
 
     return dto?.image;
   }
 
-  Future<void> setAvatar(Client client, String path) async {
-    final avatarID = await PlatformAvatarService.ins.setAvatar(client, path);
-    final uuid = client.uuid;
+  Future<MemoryImage?> getOf(Client client, String nickname) async {
+    final address = client.address;
+
+    final avatarID =
+        await _storage.read(key: 'member_avatar_$address:$nickname');
+    if (avatarID == 'no_avatar') return null;
+
+    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
+      return PlatformAvatarService.ins.getOf(client, nickname);
+    });
+
+    if (dto != null) {
+      await _storage.write(
+          key: 'member_avatar_$address:$nickname', value: dto.id!);
+    }
+
+    return dto?.image;
+  }
+
+  Future<void> setMy(Client client, String path) async {
+    final avatarID = await PlatformAvatarService.ins.setMy(client, path);
+    final address = client.address;
+    final nickname = client.user!.nickname;
 
     final file = File(path);
     if (!await file.exists()) {
@@ -43,12 +66,14 @@ class ProfileAvatarService {
 
     final bytes = await file.readAsBytes();
 
-    final oldAvatarID = await _storage.read(key: 'client_avatar_$uuid');
+    final oldAvatarID =
+        await _storage.read(key: 'member_avatar_$address:$nickname');
     if (oldAvatarID != null && oldAvatarID != 'no_avatar') {
       await AvatarService.ins.remove(oldAvatarID);
     }
 
-    await _storage.write(key: 'client_avatar_$uuid', value: avatarID);
+    await _storage.write(
+        key: 'member_avatar_$address:$nickname', value: avatarID);
     await AvatarService.ins.updateAvatar(avatarID, bytes);
   }
 }

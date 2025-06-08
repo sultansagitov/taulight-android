@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/client_service.dart';
+import 'package:taulight/widgets/chat_avatar.dart';
 
 class ClientDropdown extends StatefulWidget {
   final ClientDropdownController controller;
@@ -38,17 +39,10 @@ class _ClientDropdownState extends State<ClientDropdown> {
             );
           }
 
+          var nickname = user.nickname;
           return ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              // TODO replace to avatar
-              child: Container(
-                color: Colors.black,
-                width: 44,
-                height: 44,
-              ),
-            ),
-            title: Text(user.nickname),
+            leading: MemberAvatar(client: client, nickname: nickname, d: 44),
+            title: Text(nickname),
             subtitle: Text(client.name),
             onTap: () => Navigator.pop(context, client),
           );

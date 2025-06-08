@@ -25,9 +25,9 @@ class AvatarService {
   String _avatarKey(String avatarID) => 'avatar_$avatarID';
 
   Future<ImageDTO?> loadOrFetchAvatar(
-      String? avatarID,
-      Future<Map<String, String>?> Function() fetchAvatar,
-      ) async {
+    String? avatarID,
+    Future<Map<String, String>?> Function() fetchAvatar,
+  ) async {
     if (avatarID != null) {
       if (_memoryCache.containsKey(avatarID)) {
         return _memoryCache[avatarID];

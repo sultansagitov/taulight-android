@@ -217,7 +217,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Widget _buildMember(ChatMember member, GroupDTO record) {
-    final isOwner = member.nickname == record.owner;
+    final client = widget.chat.client;
+    final nickname = member.nickname;
+
+    final isOwner = nickname == record.owner;
 
     final List<Widget> roleChips = [];
 
@@ -231,13 +234,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      leading: DialogInitials(
-        initials: getInitials(member.nickname),
-        bgColor: getRandomColor(member.nickname),
-        d: 40,
-      ),
+      leading: MemberAvatar(client: client, nickname: nickname, d: 40),
       title: Text(
-        member.nickname,
+        nickname,
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Column(

@@ -269,7 +269,7 @@ class _MessageWidgetState extends State<MessageWidget> {
                   children: [
                     Icon(currentIcon, size: 10, color: subTextColor),
                     const SizedBox(width: 4),
-                    if (message.keyID != null) ... [
+                    if (message.keyID != null) ...[
                       Icon(Icons.lock, size: 10, color: subTextColor),
                       const SizedBox(width: 4),
                     ],

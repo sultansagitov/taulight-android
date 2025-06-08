@@ -181,7 +181,7 @@ class DialogAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(d.toDouble() * 0.2),
       child: Container(
         width: d.toDouble(),
         height: d.toDouble(),
@@ -192,6 +192,65 @@ class DialogAvatar extends StatelessWidget {
           alignment: Alignment.center,
         ),
       ),
+    );
+  }
+}
+
+class MemberAvatar extends StatefulWidget {
+  final Client client;
+  final String nickname;
+  final int d;
+
+  const MemberAvatar({
+    super.key,
+    required this.client,
+    required this.nickname,
+    required this.d,
+  });
+
+  @override
+  State<MemberAvatar> createState() => _MemberAvatarState();
+}
+
+class _MemberAvatarState extends State<MemberAvatar> {
+  late Future<MemoryImage?> future;
+
+  @override
+  void initState() {
+    super.initState();
+    future = ProfileAvatarService.ins.getOf(
+      widget.client,
+      widget.nickname,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: future,
+      builder: (context, snapshot) {
+        var d = widget.d;
+
+        if (!snapshot.hasData || snapshot.data == null) {
+          var initials = getInitials(widget.nickname);
+          var bg = getRandomColor(widget.nickname);
+          return DialogInitials(initials: initials, bgColor: bg, d: d);
+        }
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(d.toDouble() * 0.2),
+          child: Container(
+            width: d.toDouble(),
+            height: d.toDouble(),
+            color: Colors.grey,
+            child: Image.memory(
+              snapshot.data!.bytes,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -209,7 +268,7 @@ class MonologAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(d.toDouble() * 0.2),
       child: Container(
         width: d.toDouble(),
         height: d.toDouble(),
@@ -245,7 +304,7 @@ class MyAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: ProfileAvatarService.ins.getAvatar(client),
+      future: ProfileAvatarService.ins.getMy(client),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
