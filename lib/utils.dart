@@ -142,11 +142,11 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
   return "$nickname: $text";
 }
 
-String link2endpoint(String link) {
+String link2address(String link) {
   var uri = Uri.parse(link);
-  var endpoint = uri.host;
+  var address = uri.host;
   if (uri.hasPort && uri.port == 52525) {
-    endpoint += ":${uri.port}";
+    address += ":${uri.port}";
   }
-  return endpoint;
+  return address;
 }

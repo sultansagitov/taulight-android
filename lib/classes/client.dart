@@ -21,11 +21,11 @@ enum ClientStatus {
 class Client {
   final String uuid;
   final String link;
-  final String endpoint;
+  final String address;
   final Map<String, TauChat> chats = {};
 
   String? realName;
-  String get name => realName ?? endpoint;
+  String get name => realName ?? address;
 
   bool hide = false;
 
@@ -47,7 +47,7 @@ class Client {
     }
   }
 
-  Client({required this.uuid, required this.endpoint, required this.link});
+  Client({required this.uuid, required this.address, required this.link});
 
   ClientStatus get status {
     if (!connected) return ClientStatus.disconnected;
@@ -181,6 +181,6 @@ class Client {
 
   @override
   String toString() {
-    return "Client{$uuid $endpoint ${status.name} chats=${chats.length} $user}";
+    return "Client{$uuid $address ${status.name} chats=${chats.length} $user}";
   }
 }

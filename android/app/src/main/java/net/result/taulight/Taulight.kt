@@ -73,7 +73,7 @@ class Taulight(val methodChannel: MethodChannel) {
         val clientConfig = AndroidClientConfig()
         val client = SandnodeClient.fromLink(link, agent, clientConfig);
 
-        LOGGER.info("Saving client of {} with uuid {}", client.endpoint, uuid)
+        LOGGER.info("Saving client of {} with uuid {}", client.address, uuid)
         val mc = MemberClient(uuid, client, link)
 
         client.start(AndroidClientChainManager(mc, this))

@@ -92,7 +92,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 itemBuilder: (_, index) {
                   ServerRecord recommended = Config.recommended[index];
                   return TauButton.text(
-                    "${recommended.name} : ${recommended.endpoint}",
+                    "${recommended.name} : ${recommended.address}",
                     loading: _loading == index,
                     disable: _loading != null,
                     onPressed: () async {
@@ -122,7 +122,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       );
     } on ConnectionException {
       if (mounted) {
-        snackBarError(context, "${link2endpoint(link)} connection failed");
+        snackBarError(context, "${link2address(link)} connection failed");
       }
       return;
     }
@@ -161,7 +161,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       print(e);
       print(stackTrace);
       if (mounted) {
-        snackBarError(context, "Cannot connect to ${e.client.endpoint}");
+        snackBarError(context, "Cannot connect to ${e.client.address}");
       }
     } catch (e, stackTrace) {
       print(e);

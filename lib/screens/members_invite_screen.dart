@@ -44,8 +44,8 @@ class MembersInviteScreen extends StatelessWidget {
             String code =
                 await chatToInvite.addMember(nickname, Duration(days: 1));
 
-            String endpoint = chatToInvite.client.endpoint;
-            String text = "sandnode://$endpoint/invite/$code";
+            String address = chatToInvite.client.address;
+            String text = "sandnode://$address/invite/$code";
             await chat.sendMessage(text, [], () {});
 
             if (context.mounted) {

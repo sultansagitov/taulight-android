@@ -89,9 +89,9 @@ class PlatformService {
     VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
-    String endpoint;
+    String address;
     try {
-      endpoint = link2endpoint(link);
+      address = link2address(link);
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);
@@ -100,7 +100,7 @@ class PlatformService {
 
     // TODO add connecting status
 
-    Client client = Client(uuid: uuid, endpoint: endpoint, link: link);
+    Client client = Client(uuid: uuid, address: address, link: link);
 
     if (keep) ClientService.ins.add(client);
     connectUpdate?.call();

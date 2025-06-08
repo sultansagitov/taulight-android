@@ -7,7 +7,7 @@ class FakeClient extends Client {
   FakeClient()
       : super(
           uuid: '1234',
-          endpoint: 'example.com',
+          address: 'example.com',
           link: '',
         );
 

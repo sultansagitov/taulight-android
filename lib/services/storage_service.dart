@@ -136,7 +136,7 @@ class ServerRecord {
   String link;
   UserRecord? user;
 
-  String get endpoint => link2endpoint(link);
+  String get address => link2address(link);
 
   ServerRecord({required this.name, required this.link, this.user});
 

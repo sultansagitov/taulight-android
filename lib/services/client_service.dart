@@ -35,7 +35,7 @@ class ClientService {
   Client fromMap(map) {
     var client = Client(
       uuid: map['uuid'],
-      endpoint: map['endpoint'],
+      address: map['address'],
       link: map['link'],
     );
 

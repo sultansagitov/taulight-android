@@ -4,43 +4,38 @@ import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import net.result.sandnode.config.AgentConfig
-import net.result.sandnode.config.ClientConfig
 import net.result.sandnode.config.KeyEntry
 import net.result.sandnode.encryption.EncryptionManager
-import net.result.sandnode.encryption.SymmetricEncryptions
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage
 import net.result.sandnode.encryption.interfaces.KeyStorage
-import net.result.sandnode.encryption.interfaces.SymmetricEncryption
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
-import net.result.sandnode.util.Endpoint
+import net.result.sandnode.util.Address
 import net.result.taulight.Taulight
-import java.util.UUID
-import kotlin.collections.set
+import java.util.*
 
 class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
-    private val publicKeyCache = mutableMapOf<Endpoint, AsymmetricKeyStorage>()
+    private val publicKeyCache = mutableMapOf<Address, AsymmetricKeyStorage>()
     private val personalKeyCache = mutableMapOf<UUID, KeyStorage>()
     private val encryptorCache = mutableMapOf<String, KeyEntry>()
     private val dekByNicknameCache = mutableMapOf<String, KeyEntry>()
     private val dekByIdCache = mutableMapOf<UUID, KeyStorage>()
 
-    override fun saveKey(endpoint: Endpoint, keyStorage: AsymmetricKeyStorage) {
+    override fun saveKey(address: Address, keyStorage: AsymmetricKeyStorage) {
         taulight.sendToFlutter("save-key", mapOf(
-            "endpoint" to endpoint.toString(),
+            "address" to address.toString(),
             "encryption" to keyStorage.encryption().name(),
             "public-key" to keyStorage.encodedPublicKey(),
         ))
-        publicKeyCache[endpoint] = keyStorage
+        publicKeyCache[address] = keyStorage
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    override fun getPublicKey(endpoint: Endpoint): AsymmetricKeyStorage {
-        publicKeyCache[endpoint]?.let { return it }
+    override fun getPublicKey(address: Address): AsymmetricKeyStorage {
+        publicKeyCache[address]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("get-public-key", mapOf("endpoint" to endpoint.toString()))
+            taulight.callFromFlutter("get-public-key", mapOf("address" to address.toString()))
         } catch (_: Exception) {
-            throw KeyStorageNotFoundException(endpoint.toString())
+            throw KeyStorageNotFoundException(address.toString())
         }
 
         val publicKey = result["public-key"]!!
@@ -49,7 +44,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         val encryption = EncryptionManager.find(encryptionString).asymmetric()
         val keyStorage = encryption.publicKeyConvertor().toKeyStorage(publicKey)
 
-        publicKeyCache[endpoint] = keyStorage
+        publicKeyCache[address] = keyStorage
         return keyStorage
     }
 

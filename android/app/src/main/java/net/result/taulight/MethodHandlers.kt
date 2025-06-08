@@ -101,9 +101,9 @@ fun connect(call: MethodCall): Map<String, String> {
     val linkString = call.argument<String>("link")!!
     val link = Links.parse(linkString)
 
-    val endpoint = connect(taulight!!, clientID, link)
+    val address = connect(taulight!!, clientID, link)
 
-    return mapOf("endpoint" to endpoint.toString(52525))
+    return mapOf("address" to address.toString(52525))
 }
 
 fun disconnect(call: MethodCall): String {
@@ -205,7 +205,7 @@ fun loadClients(ignoredCall: MethodCall): List<Map<String, String>> {
     return taulight!!.clients.entries.map { (clientID, mc) ->
         val map = mutableMapOf(
             "uuid" to clientID.toString(),
-            "endpoint" to mc.client.endpoint.toString(),
+            "address" to mc.client.address.toString(),
             "link" to mc.link.toString(),
         )
 
