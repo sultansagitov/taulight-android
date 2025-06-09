@@ -20,7 +20,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     private val dekByNicknameCache = mutableMapOf<String, KeyEntry>()
     private val dekByIdCache = mutableMapOf<UUID, KeyStorage>()
 
-    override fun saveKey(address: Address, keyStorage: AsymmetricKeyStorage) {
+    override fun saveServerKey(address: Address, keyStorage: AsymmetricKeyStorage) {
         taulight.sendToFlutter("save-key", mapOf(
             "address" to address.toString(),
             "encryption" to keyStorage.encryption().name(),
@@ -29,7 +29,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         publicKeyCache[address] = keyStorage
     }
 
-    override fun getPublicKey(address: Address): AsymmetricKeyStorage {
+    override fun loadServerKey(address: Address): AsymmetricKeyStorage {
         publicKeyCache[address]?.let { return it }
 
         val result = try {
