@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/auth_state.dart';
+import 'package:taulight/screens/qr_scanner_screen.dart';
+import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/key_storage_service.dart';
+import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -75,7 +80,69 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
   @override
   Widget authorizedBuild(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Start Dialog")),
+      appBar: AppBar(
+        title: const Text("Start Dialog"),
+        actions: [
+          TauButton.icon(
+            Icons.qr_code_scanner,
+            onPressed: () async {
+              var result = await moveTo(context, QrScannerScreen());
+              if (result is String) {
+                var uri = Uri.parse(result);
+
+                var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
+                var params = uri.queryParameters;
+                var nickname = params["nickname"]!;
+                var keyID = params["keyID"]!;
+                var encryption = params["encryption"]!;
+
+                await KeyStorageService.ins.saveEncryptor(
+                  address,
+                  nickname,
+                  keyID,
+                  encryption,
+                  symKey: params["sym"],
+                  publicKey: params["public"],
+                );
+
+                Client? client;
+
+                Iterable<Client> authorized =
+                    ClientService.ins.clientsList.where((c) => c.authorized);
+                var length = authorized.length;
+
+                if (length == 0) {
+                  return;
+                } else if (length == 1) {
+                  client = authorized.first;
+                } else if (length > 1) {
+                  var controller = ClientDropdownController();
+
+                  var screen = SafeArea(
+                    child: Center(
+                      child: ClientDropdown(controller: controller),
+                    ),
+                  );
+
+                  await moveTo(context, screen);
+
+                  client = controller.client;
+                }
+
+                if (client == null) {
+                  return;
+                }
+
+                await client
+                    .createDialog(nickname)
+                    .timeout(Duration(seconds: 10));
+
+                Navigator.pop(context, nickname);
+              }
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

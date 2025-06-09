@@ -178,7 +178,7 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
             val map: MutableMap<String, Any> = mutableMapOf(
                 "message" to taulight!!.objectMapper.convertValue(it, Map::class.java)
             )
-            
+
             try {
                 val decrypted: String
                 val input: ChatMessageInputDTO = it.message

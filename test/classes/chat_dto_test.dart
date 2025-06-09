@@ -9,7 +9,7 @@ void main() {
     test('GroupDTO is parsed correctly', () {
       final map = {
         'chat': {
-          'type': 'cn',
+          'type': 'gr',
           'id': '1',
           'group-title': 'General',
           'group-owner': 'admin',

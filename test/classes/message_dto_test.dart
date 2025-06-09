@@ -12,11 +12,11 @@ class FakeClient extends Client {
         );
 
   @override
-  get user => FakeUser(this, "", "");
+  get user => FakeUser(this);
 }
 
 class FakeUser extends User {
-  FakeUser(super.client, super.nickname, super.token);
+  FakeUser(Client client) : super(client, "", "", "");
 
   @override
   String get nickname => 'john';
@@ -34,7 +34,7 @@ void main() {
         'nickname': 'john',
         'content': 'Hello',
         'sys': false,
-        'repliedToMessages': ['msg-0']
+        'replied-to-messages': ['msg-0']
       },
       'reactions': {
         'taulight:fire': ['rizl'],

@@ -94,7 +94,7 @@ class LoginScreenState extends State<LoginScreen> {
     try {
       setState(() => _loading = true);
       String token = await PlatformService.ins.reg(client, nickname, passwd);
-      UserRecord userRecord = UserRecord(nickname, token);
+      UserRecord userRecord = UserRecord(nickname, token, client.user!.keyID);
       await StorageService.ins.saveWithToken(client, userRecord);
       setState(() => _loading = false);
       if (mounted) {

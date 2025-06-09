@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/screens/profile_qr_screen.dart';
 import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -19,6 +19,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Future<Map<String, String>>? f;
   final picker = ImagePicker();
 
   final String bio = "Just a dev exploring the widget tree";
@@ -31,23 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
-  Future showQR(BuildContext context, double size) async {
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: SizedBox(
-            width: size,
-            height: size,
-            child: QrImageView(
-              data: widget.client.user!.nickname,
-              version: QrVersions.auto,
-              backgroundColor: Colors.white,
-            ),
-          ),
-        );
-      },
-    );
+  Future<void> showQR(BuildContext context) async {
+    await moveTo(context, ProfileQRScreen(client: widget.client));
+    setState(() {});
   }
 
   Future<void> _showImagePreview(BuildContext context, Client client) async {
@@ -87,7 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TauButton.icon(
             Icons.qr_code,
-            onPressed: () => showQR(context, size.width * 0.6),
+            onPressed: () => showQR(context),
           ),
         ],
       ),

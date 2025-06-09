@@ -41,13 +41,13 @@ class KeyStorageService {
     String? publicKey,
     String? privateKey,
   }) async {
-    final data = {
+    final Map<String, String> data = {
       "encryption": encryption,
       if (symKey != null) ...{
         "sym": symKey,
       } else ...{
-        "public": publicKey,
-        "private": privateKey,
+        "public": publicKey!,
+        "private": privateKey!,
       }
     };
     await _secureStorage.write(
@@ -78,13 +78,13 @@ class KeyStorageService {
     String? symKey,
     String? publicKey,
   }) async {
-    final data = {
+    final Map<String, String> data = {
       "key-id": keyID,
       "encryption": encryption,
       if (symKey != null) ...{
         "sym": symKey,
       } else ...{
-        "public": publicKey,
+        "public": publicKey!,
       }
     };
     await _secureStorage.write(
@@ -97,7 +97,7 @@ class KeyStorageService {
     String address,
     String nickname,
   ) async {
-    final data = await _secureStorage.read(key: "encryptor:$address:$nickname");
+    final String? data = await _secureStorage.read(key: "encryptor:$address:$nickname");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -116,14 +116,14 @@ class KeyStorageService {
     String? publicKey,
     String? privateKey,
   }) async {
-    final data = {
+    final Map<String, String> data = {
       "key-id": keyID,
       "encryption": encryption,
       if (symKey != null) ...{
         "sym": symKey,
       } else ...{
-        "public": publicKey,
-        "private": privateKey,
+        "public": publicKey!,
+        "private": privateKey!,
       }
     };
     await _secureStorage.write(
@@ -140,7 +140,7 @@ class KeyStorageService {
     String address,
     String nickname,
   ) async {
-    final data = await _secureStorage.read(key: "dek:$address:$nickname");
+    final String? data = await _secureStorage.read(key: "dek:$address:$nickname");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -154,7 +154,7 @@ class KeyStorageService {
     String address,
     String keyID,
   ) async {
-    final data = await _secureStorage.read(key: "dek:$address:$keyID");
+    final String? data = await _secureStorage.read(key: "dek:$address:$keyID");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",

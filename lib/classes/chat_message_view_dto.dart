@@ -41,12 +41,12 @@ class ChatMessageViewDTO {
     var message = map["message"]!;
 
     String chatID = message["chat-id"]!;
-    String? keyId = message["keyID"];
+    String? keyId = message["key-id"];
     String nickname = message["nickname"]!;
     String content = message["content"]!;
     bool sys = message["sys"];
-    var repliedToMessages = message["repliedToMessages"] != null
-        ? List<String>.from(message["repliedToMessages"])
+    var repliedToMessages = message["replied-to-messages"] != null
+        ? List<String>.from(message["replied-to-messages"])
         : <String>[];
 
     return ChatMessageViewDTO(

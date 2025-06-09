@@ -4,7 +4,7 @@ import 'package:taulight/services/storage_service.dart';
 void main() {
   group('UserRecord', () {
     test('creation and conversion to Map', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord('testUser', 'testToken', 'test-KeyID');
 
       expect(user.nickname, equals('testUser'));
       expect(user.token, equals('testToken'));
@@ -13,6 +13,7 @@ void main() {
       expect(map, {
         'nickname': 'testUser',
         'token': 'testToken',
+        'key-id': 'test-KeyID',
       });
     });
 
@@ -20,6 +21,7 @@ void main() {
       final json = {
         'nickname': 'testUser',
         'token': 'testToken',
+        'key-id': 'test-KeyID',
       };
 
       final user = UserRecord.fromJSON(json);
@@ -42,7 +44,7 @@ void main() {
     });
 
     test('creation with user', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord('testUser', 'testToken', 'test-KeyID');
       final server = ServerRecord(
         name: 'TestServer',
         link: 'sandnode://test.com',
@@ -70,7 +72,7 @@ void main() {
     });
 
     test('conversion to Map with user', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord('testUser', 'testToken', 'test-KeyID');
       final server = ServerRecord(
         name: 'TestServer',
         link: 'sandnode://test.com',
@@ -84,6 +86,7 @@ void main() {
         'user': {
           'nickname': 'testUser',
           'token': 'testToken',
+          'key-id': 'test-KeyID',
         },
       });
     });
@@ -108,6 +111,7 @@ void main() {
         'user': {
           'nickname': 'testUser',
           'token': 'testToken',
+          'key-id': 'test-KeyID',
         },
       };
 
