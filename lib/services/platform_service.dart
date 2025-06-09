@@ -738,7 +738,7 @@ class ExceptionResult extends Result implements Exception {
   ExceptionResult(this.name, [this.msg]);
 
   @override
-  String toString() => "Java - $name: $msg";
+  String toString() => "Platform - $name: $msg";
 }
 
 class SuccessResult extends Result {

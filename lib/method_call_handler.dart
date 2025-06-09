@@ -22,7 +22,7 @@ class MethodCallHandler {
   };
 
   Future handle(MethodCall call) async {
-    print("Handling ${call.method} from Java channel");
+    print("Handling ${call.method} from Platform channel");
     return await handlers[call.method]?.call(call);
   }
 }
@@ -67,6 +67,7 @@ Future<void> _saveKey(MethodCall call) async {
 
 Future<void> _savePersonalKey(MethodCall call) async {
   await KeyStorageService.ins.savePersonalKey(
+    call.arguments["address"],
     call.arguments["key-id"],
     call.arguments["encryption"],
     symKey: call.arguments["sym-key"],
@@ -77,6 +78,7 @@ Future<void> _savePersonalKey(MethodCall call) async {
 
 Future<void> _saveEncryptor(MethodCall call) async {
   await KeyStorageService.ins.saveEncryptor(
+    call.arguments["address"],
     call.arguments["nickname"],
     call.arguments["key-id"],
     call.arguments["encryption"],
@@ -87,6 +89,7 @@ Future<void> _saveEncryptor(MethodCall call) async {
 
 Future<void> _saveDEK(MethodCall call) async {
   await KeyStorageService.ins.saveDEK(
+    call.arguments["address"],
     call.arguments["nickname"],
     call.arguments["key-id"],
     call.arguments["encryption"],
@@ -97,17 +100,29 @@ Future<void> _saveDEK(MethodCall call) async {
 }
 
 Future<Map<String, String?>> _loadPersonalKey(MethodCall call) async {
-  return await KeyStorageService.ins.loadPersonalKey(call.arguments["key-id"]);
+  return await KeyStorageService.ins.loadPersonalKey(
+    call.arguments["address"],
+    call.arguments["key-id"],
+  );
 }
 
 Future<Map<String, String?>> _loadEncryptor(MethodCall call) async {
-  return await KeyStorageService.ins.loadEncryptor(call.arguments["nickname"]);
+  return await KeyStorageService.ins.loadEncryptor(
+    call.arguments["address"],
+    call.arguments["nickname"],
+  );
 }
 
 Future<Map<String, String?>> _loadDEK(MethodCall call) async {
-  return await KeyStorageService.ins.loadDEK(call.arguments["nickname"]);
+  return await KeyStorageService.ins.loadDEK(
+    call.arguments["address"],
+    call.arguments["nickname"],
+  );
 }
 
 Future<Map<String, String?>> _loadDEKByID(MethodCall call) async {
-  return await KeyStorageService.ins.loadDEKByID(call.arguments["key-id"]);
+  return await KeyStorageService.ins.loadDEKByID(
+    call.arguments["address"],
+    call.arguments["key-id"],
+  );
 }

@@ -74,8 +74,8 @@ private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
 
         var decrypted = false
         for (dek in deks) {
-            val keyStorage = dek.decrypt(agent.config.loadPersonalKey(dek.encryptorID))
-            agent.config.saveDEK(dek.receiverNickname, dek.id, keyStorage)
+            val keyStorage = dek.decrypt(agent.config.loadPersonalKey(client.address, dek.encryptorID))
+            agent.config.saveDEK(client.address, dek.receiverNickname, dek.id, keyStorage)
 
             if (dek.id == chat.lastMessage!!.id) {
                 val bytes = Base64.decode(chat.lastMessage!!.message.content, Base64.NO_WRAP)

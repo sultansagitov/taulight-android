@@ -51,7 +51,7 @@ class _MessageFieldState extends State<MessageField> {
             swipeThreshold: 0.2,
             isElevated: false,
             onSwiped: (_) => setState(() => widget.replies.remove(r)),
-            backgroundBuilder: (_, __, ___) => Container(),
+            backgroundBuilder: (_, __, ___) => SizedBox.shrink(),
             key: UniqueKey(),
             direction: SwipeDirection.horizontal,
             child: ReplyPreviewWidget(chat: chat, reply: r),

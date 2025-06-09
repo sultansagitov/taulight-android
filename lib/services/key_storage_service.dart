@@ -34,6 +34,7 @@ class KeyStorageService {
   }
 
   Future<void> savePersonalKey(
+    String address,
     String keyID,
     String encryption, {
     String? symKey,
@@ -49,11 +50,17 @@ class KeyStorageService {
         "private": privateKey,
       }
     };
-    await _secureStorage.write(key: "personal:$keyID", value: jsonEncode(data));
+    await _secureStorage.write(
+      key: "personal:$address:$keyID",
+      value: jsonEncode(data),
+    );
   }
 
-  Future<Map<String, String>> loadPersonalKey(String keyID) async {
-    final data = await _secureStorage.read(key: "personal:$keyID");
+  Future<Map<String, String>> loadPersonalKey(
+    String address,
+    String keyID,
+  ) async {
+    final data = await _secureStorage.read(key: "personal:$address:$keyID");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -64,6 +71,7 @@ class KeyStorageService {
   }
 
   Future<void> saveEncryptor(
+    String address,
     String nickname,
     String keyID,
     String encryption, {
@@ -80,13 +88,16 @@ class KeyStorageService {
       }
     };
     await _secureStorage.write(
-      key: "encryptor:$nickname",
+      key: "encryptor:$address:$nickname",
       value: jsonEncode(data),
     );
   }
 
-  Future<Map<String, String>> loadEncryptor(String nickname) async {
-    final data = await _secureStorage.read(key: "encryptor:$nickname");
+  Future<Map<String, String>> loadEncryptor(
+    String address,
+    String nickname,
+  ) async {
+    final data = await _secureStorage.read(key: "encryptor:$address:$nickname");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -97,6 +108,7 @@ class KeyStorageService {
   }
 
   Future<void> saveDEK(
+    String address,
     String nickname,
     String keyID,
     String encryption, {
@@ -114,12 +126,21 @@ class KeyStorageService {
         "private": privateKey,
       }
     };
-    await _secureStorage.write(key: "dek:$nickname", value: jsonEncode(data));
-    await _secureStorage.write(key: "dek:$keyID", value: jsonEncode(data));
+    await _secureStorage.write(
+      key: "dek:$address:$nickname",
+      value: jsonEncode(data),
+    );
+    await _secureStorage.write(
+      key: "dek:$address:$keyID",
+      value: jsonEncode(data),
+    );
   }
 
-  Future<Map<String, String>> loadDEK(String nickname) async {
-    final data = await _secureStorage.read(key: "dek:$nickname");
+  Future<Map<String, String>> loadDEK(
+    String address,
+    String nickname,
+  ) async {
+    final data = await _secureStorage.read(key: "dek:$address:$nickname");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",
@@ -129,8 +150,11 @@ class KeyStorageService {
     return Map<String, String>.from(jsonDecode(data));
   }
 
-  Future<Map<String, String>> loadDEKByID(String keyID) async {
-    final data = await _secureStorage.read(key: "dek:$keyID");
+  Future<Map<String, String>> loadDEKByID(
+    String address,
+    String keyID,
+  ) async {
+    final data = await _secureStorage.read(key: "dek:$address:$keyID");
     if (data == null) {
       throw PlatformException(
         code: "key_not_found",

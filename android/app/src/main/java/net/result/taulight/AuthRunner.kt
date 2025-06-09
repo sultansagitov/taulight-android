@@ -17,7 +17,7 @@ fun register(client: SandnodeClient, nickname: String, password: String, device:
     val keyStorage = AsymmetricEncryptions.ECIES.generate()
     val response = chain.register(nickname, password, device, keyStorage)
     client.io.chainManager.removeChain(chain)
-    agent.config.savePersonalKey(response.keyID, keyStorage)
+    agent.config.savePersonalKey(client.address, response.keyID, keyStorage)
     return response
 }
 
@@ -30,7 +30,7 @@ fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
     val agent = client.node as Agent
 
     return response.map {
-        val personalKey = agent.config.loadPersonalKey(it.encryptorID)
+        val personalKey = agent.config.loadPersonalKey(client.address, it.encryptorID)
 
         mapOf(
             "time" to it.time.toString(),

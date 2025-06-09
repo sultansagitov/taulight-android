@@ -38,7 +38,7 @@ class _InviteWidgetState extends State<InviteWidget> {
 
         var code = snapshot.data;
         if (code == null) {
-          return Container();
+          return SizedBox.shrink();
         }
 
         final initials = getInitials(code.title);

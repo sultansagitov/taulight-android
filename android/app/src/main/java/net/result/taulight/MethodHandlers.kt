@@ -178,12 +178,13 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
             val map: MutableMap<String, Any> = mutableMapOf(
                 "message" to taulight!!.objectMapper.convertValue(it, Map::class.java)
             )
+            
             try {
                 val decrypted: String
                 val input: ChatMessageInputDTO = it.message
                 if (input.keyID != null) {
                     val agent = client.node as Agent
-                    val keyStorage = agent.config.loadDEK(input.keyID)
+                    val keyStorage = agent.config.loadDEK(client.address, input.keyID)
                     val decoded = Base64.decode(input.content, Base64.NO_WRAP)
                     decrypted = keyStorage.encryption().decrypt(decoded, keyStorage)
                 } else {

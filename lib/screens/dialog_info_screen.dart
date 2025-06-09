@@ -29,7 +29,7 @@ class DialogInfoScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: Container(),
+      body: SizedBox.shrink(),
     );
   }
 

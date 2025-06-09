@@ -48,8 +48,9 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         return keyStorage
     }
 
-    override fun savePersonalKey(keyID: UUID, keyStorage: KeyStorage) {
+    override fun savePersonalKey(address: Address, keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
+            "address" to address.toString(52525),
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
         )
@@ -67,8 +68,9 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         personalKeyCache[keyID] = keyStorage
     }
 
-    override fun saveEncryptor(nickname: String, keyID: UUID, keyStorage: KeyStorage) {
+    override fun saveEncryptor(address: Address, nickname: String, keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
+            "address" to address.toString(52525),
             "nickname" to nickname,
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
@@ -86,8 +88,9 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         encryptorCache[nickname] = KeyEntry(keyID, keyStorage)
     }
 
-    override fun saveDEK(nickname: String, keyID: UUID, keyStorage: KeyStorage) {
+    override fun saveDEK(address: Address, nickname: String, keyID: UUID, keyStorage: KeyStorage) {
         val data = mutableMapOf(
+            "address" to address.toString(52525),
             "nickname" to nickname,
             "key-id" to keyID.toString(),
             "encryption" to keyStorage.encryption().name()
@@ -108,11 +111,14 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    override fun loadPersonalKey(keyID: UUID): KeyStorage {
+    override fun loadPersonalKey(address: Address, keyID: UUID): KeyStorage {
         personalKeyCache[keyID]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-personal-key", mapOf("key-id" to keyID.toString()))
+            taulight.callFromFlutter("load-personal-key", mapOf(
+                "address" to address.toString(52525),
+                "key-id" to keyID.toString())
+            )
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(keyID)
         }
@@ -134,11 +140,14 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    override fun loadEncryptor(nickname: String): KeyEntry {
+    override fun loadEncryptor(address: Address, nickname: String): KeyEntry {
         encryptorCache[nickname]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-encryptor", mapOf("nickname" to nickname))
+            taulight.callFromFlutter("load-encryptor", mapOf(
+                "address" to address.toString(52525),
+                "nickname" to nickname),
+            )
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(nickname)
         }
@@ -160,11 +169,14 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    override fun loadDEK(nickname: String): KeyEntry {
+    override fun loadDEK(address: Address, nickname: String): KeyEntry {
         dekByNicknameCache[nickname]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-dek", mapOf("nickname" to nickname))
+            taulight.callFromFlutter("load-dek", mapOf(
+                "address" to address.toString(52525),
+                "nickname" to nickname),
+            )
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(nickname)
         }
@@ -189,11 +201,14 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    override fun loadDEK(keyID: UUID): KeyStorage {
+    override fun loadDEK(address: Address, keyID: UUID): KeyStorage {
         dekByIdCache[keyID]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("load-dek-by-id", mapOf("key-id" to keyID.toString()))
+            taulight.callFromFlutter("load-dek-by-id", mapOf(
+                "address" to address.toString(52525),
+                "key-id" to keyID.toString()),
+            )
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(keyID)
         }

@@ -59,13 +59,13 @@ fun dialogSend(
         val agent = client.node as Agent
 
         dek = try {
-            agent.config.loadDEK(nickname)
+            agent.config.loadDEK(client.address, nickname)
         } catch (_: KeyStorageNotFoundException) {
             dekChain = DEKClientChain(client)
             client.io.chainManager.linkChain(dekChain)
 
             val encryptor = try {
-                agent.config.loadEncryptor(nickname)
+                agent.config.loadEncryptor(client.address, nickname)
             } catch (_: KeyStorageNotFoundException) {
                 val dto = dekChain.getKeyOf(nickname)
                 KeyEntry(dto.keyID, dto.keyStorage)
@@ -74,7 +74,7 @@ fun dialogSend(
             val dek = SymmetricEncryptions.AES.generate()
             val dekID = dekChain.sendDEK(nickname, KeyDTO(encryptor.id, encryptor.keyStorage), dek)
 
-            agent.config.saveDEK(nickname, dekID, dek)
+            agent.config.saveDEK(client.address, nickname, dekID, dek)
 
             KeyEntry(dekID, dek)
         } finally {
