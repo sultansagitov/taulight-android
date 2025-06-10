@@ -27,7 +27,7 @@ class ProfileQRScreen extends StatelessWidget {
           if (snapshot.hasError) {
             print(snapshot.error);
             print(snapshot.stackTrace);
-            return const Center(child: Text("❌ Ошибка загрузки ключа"));
+            return const Center(child: Text("Key loading error"));
           }
 
           if (!snapshot.hasData || snapshot.data == null) {
@@ -39,7 +39,7 @@ class ProfileQRScreen extends StatelessWidget {
           data.remove("private");
 
           data["nickname"] = nickname;
-          data["keyID"] = keyID;
+          data['key-id'] = keyID;
 
           final uri = Uri(
             scheme: 'sandnode',

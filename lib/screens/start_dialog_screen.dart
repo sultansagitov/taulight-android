@@ -93,7 +93,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
                 var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
                 var params = uri.queryParameters;
                 var nickname = params["nickname"]!;
-                var keyID = params["keyID"]!;
+                var keyID = params['key-id']!;
                 var encryption = params["encryption"]!;
 
                 await KeyStorageService.ins.saveEncryptor(

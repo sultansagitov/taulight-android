@@ -22,7 +22,7 @@ void main() {
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
-              'repliedToMessages': ['msg-0']
+              'replied-to-messages': ['msg-0']
             },
             'reactions': {
               'taulight:fire': ['rizl'],
@@ -51,7 +51,7 @@ void main() {
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
-              'repliedToMessages': ['msg-0']
+              'replied-to-messages': ['msg-0']
             },
             'reactions': {
               'taulight:fire': ['rizl'],
