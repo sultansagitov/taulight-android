@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/profile_screen.dart';
+import 'package:taulight/screens/hubs_screen.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubInfoScreen extends StatefulWidget {
@@ -82,40 +81,15 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
                   _info(context, "Hub name", widget.client.name),
                 _info(context, "Link", widget.client.link),
                 if (widget.client.user != null)
-                  _buildMember(context, widget.client),
+                  HubsScreenState.buildMember(
+                    context,
+                    widget.client,
+                    update: () => setState(() {}),
+                  ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMember(BuildContext context, Client client) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () async {
-        await moveTo(context, ProfileScreen(client));
-        setState(() {});
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            MyAvatar(client: client, d: 52),
-            const SizedBox(width: 12),
-            Text(
-              client.user!.nickname,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            )
-          ],
-        ),
       ),
     );
   }

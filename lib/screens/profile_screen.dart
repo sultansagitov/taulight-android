@@ -6,6 +6,7 @@ import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/login_list.dart';
+import 'package:taulight/widgets/show_status_settings.dart';
 import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/tip.dart';
 
@@ -24,6 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final String bio = "Just a dev exploring the widget tree";
 
+  bool showStatus = true; // placeholder value for setting
+
   void _pickImage() async {
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file == null) return;
@@ -39,12 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showImagePreview(BuildContext context, Client client) async {
     var size = MediaQuery.of(context).size;
-
     var memoryImage = await ProfileAvatarService.ins.getMy(client);
-
-    if (memoryImage == null) {
-      return;
-    }
+    if (memoryImage == null) return;
 
     var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
@@ -117,17 +116,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
             Text(
               bio,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(fontStyle: FontStyle.italic),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+              ),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 24),
+            ShowStatusSettings(widget.client),
             const SizedBox(height: 24),
             Align(
               alignment: Alignment.centerLeft,
               child: Text("Login History", style: theme.textTheme.titleMedium),
             ),
             const SizedBox(height: 8),
-            Tip("The IP addressand device name, "
+            Tip("The IP address and device name, "
                 "except for the timestamp, are encrypted on the "
                 "server to ensure data security."),
             const SizedBox(height: 8),

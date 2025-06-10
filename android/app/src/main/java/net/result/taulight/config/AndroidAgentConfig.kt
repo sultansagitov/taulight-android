@@ -56,7 +56,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         )
 
         if (keyStorage.encryption().isSymmetric) {
-            data["sym-key"] = keyStorage.symmetric().encoded()
+            data["sym"] = keyStorage.symmetric().encoded()
         }
 
         if (keyStorage.encryption().isAsymmetric) {
@@ -77,7 +77,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         )
 
         if (keyStorage.encryption().isSymmetric) {
-            data["sym-key"] = keyStorage.symmetric().encoded()
+            data["sym"] = keyStorage.symmetric().encoded()
         }
 
         if (keyStorage.encryption().isAsymmetric) {
@@ -97,7 +97,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         )
 
         if (keyStorage.encryption().isSymmetric) {
-            data["sym-key"] = keyStorage.symmetric().encoded()
+            data["sym"] = keyStorage.symmetric().encoded()
         }
 
         if (keyStorage.encryption().isAsymmetric) {
@@ -132,7 +132,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
             val pri = encryption.asymmetric().privateKeyConvertor().toKeyStorage(result["private"]!!)
             encryption.asymmetric().merge(pub, pri)
         } else {
-            encryption.symmetric().toKeyStorage(Base64.decode(result["sym-key"]!!, Base64.NO_WRAP))
+            encryption.symmetric().toKeyStorage(Base64.decode(result["sym"]!!, Base64.NO_WRAP))
         }
 
         personalKeyCache[keyID] = keyStorage
@@ -160,7 +160,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         val keyStorage = if (encryption.isAsymmetric) {
             encryption.asymmetric().publicKeyConvertor().toKeyStorage(result["public"]!!)
         } else {
-            encryption.symmetric().toKeyStorage(Base64.decode(result["sym-key"]!!, Base64.NO_WRAP))
+            encryption.symmetric().toKeyStorage(Base64.decode(result["sym"]!!, Base64.NO_WRAP))
         }
 
         val keyEntry = KeyEntry(UUID.fromString(keyID), keyStorage)
@@ -191,7 +191,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
             val pri = encryption.asymmetric().privateKeyConvertor().toKeyStorage(result["private"]!!)
             encryption.asymmetric().merge(pub, pri)
         } else {
-            encryption.symmetric().toKeyStorage(Base64.decode(result["sym-key"]!!, Base64.NO_WRAP))
+            encryption.symmetric().toKeyStorage(Base64.decode(result["sym"]!!, Base64.NO_WRAP))
         }
 
         val keyEntry = KeyEntry(UUID.fromString(keyID), keyStorage)
@@ -222,7 +222,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
             val pri = encryption.asymmetric().privateKeyConvertor().toKeyStorage(result["private"]!!)
             encryption.asymmetric().merge(pub, pri)
         } else {
-            encryption.symmetric().toKeyStorage(Base64.decode(result["sym-key"]!!, Base64.NO_WRAP))
+            encryption.symmetric().toKeyStorage(Base64.decode(result["sym"]!!, Base64.NO_WRAP))
         }
 
         dekByIdCache[keyID] = keyStorage

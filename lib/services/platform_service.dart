@@ -62,7 +62,7 @@ class PlatformService {
   Future<Result> chain(
     String methodName, {
     required Client client,
-    List<String>? params,
+    List<dynamic>? params,
   }) {
     Map<String, dynamic> args = {"uuid": client.uuid, "method": methodName};
     if (params != null) args["params"] = params;
@@ -276,7 +276,8 @@ class PlatformService {
 
           if (map["nickname"] != null) {
             var record = await StorageService.ins.getClient(uuid);
-            client.user = User(client, map["nickname"], record!.user!.token, record.user!.keyID);
+            client.user = User(client, map["nickname"], record!.user!.token,
+                record.user!.keyID);
           }
 
           await client.resetName();

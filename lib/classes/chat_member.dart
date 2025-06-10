@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:taulight/classes/role_dto.dart';
 
 class ChatMember {
@@ -22,9 +23,13 @@ class ChatMember {
 }
 
 enum Status {
-  online,
-  offline,
-  hidden;
+  online(Colors.green),
+  offline(Colors.grey),
+  hidden(Colors.blueGrey);
+
+  final Color color;
+
+  const Status(this.color);
 
   factory Status.fromString(String s) {
     for (Status status in Status.values) {
@@ -32,7 +37,6 @@ enum Status {
         return status;
       }
     }
-
     return Status.hidden;
   }
 }

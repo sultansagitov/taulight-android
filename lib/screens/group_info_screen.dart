@@ -158,8 +158,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     return switch (_selectedTab) {
       0 => _buildMembersTab(record),
       1 => _buildRolesTab(record),
-      2 => _buildInfoTab(record),
-      3 => _buildSettingsTab(record),
       _ => Center(child: Text('Tab not implemented'))
     };
   }
@@ -242,7 +240,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(member.status.name),
+          Text(
+            member.status.name,
+            style: TextStyle(color: member.status.color),
+          ),
           const SizedBox(height: 4),
           if (roleChips.isNotEmpty)
             Wrap(
@@ -336,28 +337,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           title: Text(roleName),
         );
       },
-    );
-  }
-
-  Widget _buildInfoTab(GroupDTO record) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Group ID: ${record.id}',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsTab(GroupDTO record) {
-    return Center(
-      child: Text(
-        'Settings Tab - Coming Soon',
-        style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
-      ),
     );
   }
 }

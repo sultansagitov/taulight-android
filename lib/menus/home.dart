@@ -14,9 +14,9 @@ enum MenuOption {
     icon: Icons.link,
   ),
   connected(
-    text: "Show hubs",
+    text: "Show hubs and profile",
     action: _hubsAction,
-    icon: Icons.device_hub,
+    icon: Icons.person,
   ),
   newGroup(
     text: "Create group",
@@ -115,7 +115,11 @@ Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {
     items: MenuOption.values.map((o) {
       return PopupMenuItem<MenuOption>(
         value: o,
-        child: Row(children: [Icon(o.icon), SizedBox(width: 8), Text(o.text)]),
+        child: Row(children: [
+          Icon(o.icon, color: Colors.grey),
+          SizedBox(width: 8),
+          Text(o.text),
+        ]),
       );
     }).toList(),
   );
