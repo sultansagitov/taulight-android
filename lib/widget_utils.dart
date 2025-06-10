@@ -41,3 +41,30 @@ void snackBarError(BuildContext context, String message) {
     duration: Duration(seconds: 1, milliseconds: 500),
   ));
 }
+
+Future<void> previewImage({
+  required Size size,
+  required Image image,
+  required BuildContext context,
+}) async {
+  var stack = Stack(children: [
+    InteractiveViewer(
+      child: Container(
+        width: size.width,
+        height: size.height,
+        color: Colors.black,
+        child: Center(child: image),
+      ),
+    ),
+    SafeArea(
+      child: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    ),
+  ]);
+
+  await moveTo(context, stack);
+}

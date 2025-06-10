@@ -4,7 +4,9 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/screens/member_info_screen.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
+import 'package:taulight/screens/profile_screen.dart';
 import 'package:taulight/services/chat_avatar_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
@@ -64,18 +66,28 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     }
   }
 
-  Future<void> _pickAndSetGroupAvatar(
-      BuildContext context, TauChat chat) async {
+  Future<void> _showImagePreview(BuildContext context) async {
+    var size = MediaQuery.of(context).size;
+    var memoryImage =
+        await ChatAvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
+    if (memoryImage == null) return;
+
+    var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
+
+    await previewImage(context: context, image: image, size: size);
+  }
+
+  Future<void> _pickAndSetGroupAvatar(BuildContext context) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
-    await ChatAvatarService.ins.setGroupAvatar(chat, pickedFile.path);
+    await ChatAvatarService.ins.setGroupAvatar(widget.chat, pickedFile.path);
     if (mounted) setState(() {});
     widget.updateHome?.call();
   }
 
-  Future<void> _showAddMemberDialog(BuildContext context) async {
+  Future<void> _addMember(BuildContext context) async {
     var dialogs = widget.chat.client.chats.values.where(isDialog).toList();
     var screen = MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat);
     await moveTo(context, screen);
@@ -87,24 +99,40 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     final record = widget.chat.record as GroupDTO;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          record.title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
+      appBar: AppBar(),
       body: Column(
         children: [
-          const SizedBox(height: 16),
           Center(
-            child: GestureDetector(
-              onTap: () => _pickAndSetGroupAvatar(context, widget.chat),
-              child: ChatAvatar(widget.chat, d: 80),
+            child: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                GestureDetector(
+                  onTap: () => _showImagePreview(context),
+                  child: ChatAvatar(widget.chat, d: 200),
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black54,
+                    child: IconButton(
+                      onPressed: () => _pickAndSetGroupAvatar(context),
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            record.title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
           _buildTabs(),
@@ -197,7 +225,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextButton.icon(
-              onPressed: () => _showAddMemberDialog(context),
+              onPressed: () => _addMember(context),
               icon: const Icon(Icons.person_add_outlined),
               label: const Text('Add member'),
               style: TextButton.styleFrom(
@@ -233,6 +261,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       leading: MemberAvatar(client: client, nickname: nickname, d: 40),
+      onTap: () {
+        var screen = client.user?.nickname == nickname
+            ? ProfileScreen(client)
+            : MemberInfoScreen(client, nickname);
+        moveTo(context, screen);
+      },
       title: Text(
         nickname,
         style: const TextStyle(fontWeight: FontWeight.w600),

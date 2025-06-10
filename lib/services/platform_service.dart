@@ -580,7 +580,7 @@ class PlatformService {
     }
   }
 
-  Future<TauChat?> createDialog(Client client, String nickname) async {
+  Future<TauChat> createDialog(Client client, String nickname) async {
     Result result = await chain(
       "DialogClientChain.getDialogID",
       client: client,

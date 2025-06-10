@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:taulight/chat_filters.dart';
+import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/group_info_screen.dart';
-import 'package:taulight/screens/dialog_info_screen.dart';
+import 'package:taulight/screens/member_info_screen.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/message_widget.dart';
 import 'package:taulight/widgets/message_field.dart';
@@ -98,7 +99,10 @@ class ChatScreenState extends State<ChatScreen> {
             Icons.more_vert,
             onPressed: () async {
               Widget screen = isDialog(widget.chat)
-                  ? DialogInfoScreen(widget.chat)
+                  ? MemberInfoScreen(
+                      widget.chat.client,
+                      (widget.chat.record as DialogDTO).otherNickname,
+                    )
                   : GroupInfoScreen(
                       widget.chat,
                       updateHome: () {

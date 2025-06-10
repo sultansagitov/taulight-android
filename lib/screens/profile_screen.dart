@@ -40,34 +40,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
-  Future<void> _showImagePreview(BuildContext context, Client client) async {
+  Future<void> _showImagePreview(BuildContext context) async {
     var size = MediaQuery.of(context).size;
-    var memoryImage = await ProfileAvatarService.ins.getMy(client);
+    var memoryImage = await ProfileAvatarService.ins.getMy(widget.client);
     if (memoryImage == null) return;
 
     var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
-    var stack = Stack(children: [
-      InteractiveViewer(
-        child: Container(
-          width: size.width,
-          height: size.height,
-          color: Colors.black,
-          child: Center(child: image),
-        ),
-      ),
-      SafeArea(
-        child: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    ]);
-
-    await moveTo(context, stack);
-    setState(() {});
+    await previewImage(
+      context: context,
+      image: image,
+      size: size,
+    );
   }
 
   @override
@@ -92,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               alignment: Alignment.bottomRight,
               children: [
                 GestureDetector(
-                  onTap: () => _showImagePreview(context, widget.client),
+                  onTap: () => _showImagePreview(context),
                   child: MyAvatar(client: widget.client, d: 200),
                 ),
                 Positioned(

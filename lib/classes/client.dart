@@ -158,7 +158,7 @@ class Client {
   ///
   /// Returns the created dialog.
   ///
-  Future<TauChat?> createDialog(String nickname) async {
+  Future<TauChat> createDialog(String nickname) async {
     return await PlatformService.ins.createDialog(this, nickname);
   }
 
