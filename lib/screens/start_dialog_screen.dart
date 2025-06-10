@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/keys.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/auth_state.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
@@ -99,10 +100,12 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
                 await KeyStorageService.ins.saveEncryptor(
                   address,
                   nickname,
-                  keyID,
-                  encryption,
-                  symKey: params["sym"],
-                  publicKey: params["public"],
+                  EncryptorKey(
+                    keyId: keyID,
+                    encryption: encryption,
+                    symKey: params["sym"],
+                    publicKey: params["public"],
+                  ),
                 );
 
                 Client? client;

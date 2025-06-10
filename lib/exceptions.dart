@@ -1,19 +1,17 @@
 import 'package:taulight/classes/client.dart';
 
-class ExceptionMessage implements Exception {
-  String? message;
-  ExceptionMessage([this.message]);
+abstract class ExceptionMessage implements Exception {
+  final String? message;
+  const ExceptionMessage([this.message]);
 
   @override
-  String toString() {
-    return "${runtimeType.toString()}: $message";
-  }
+  String toString() => "${runtimeType.toString()}: $message";
 }
 
-class ClientException implements Exception {
+abstract class ClientException implements Exception {
   final Client client;
 
-  ClientException(this.client);
+  const ClientException(this.client);
 
   @override
   String toString() {
@@ -21,9 +19,18 @@ class ClientException implements Exception {
   }
 }
 
-class IncorrectFormatChannelException implements Exception {}
+class AddressedMemberNotFoundException extends ClientException {
+  final String nickname;
+  const AddressedMemberNotFoundException(super.client, this.nickname);
+}
 
-class IncorrectUserDataException implements Exception {}
+class IncorrectFormatChannelException extends ExceptionMessage {
+  IncorrectFormatChannelException([super.message]);
+}
+
+class IncorrectUserDataException extends ExceptionMessage {
+  IncorrectUserDataException([super.message]);
+}
 
 class ClientNotFoundException extends ExceptionMessage {
   ClientNotFoundException([super.message]);
@@ -31,6 +38,10 @@ class ClientNotFoundException extends ExceptionMessage {
 
 class InvalidSandnodeLinkException extends ExceptionMessage {
   InvalidSandnodeLinkException([super.message]);
+}
+
+class KeyStorageNotFoundException extends ExceptionMessage {
+  KeyStorageNotFoundException([super.message]);
 }
 
 class DisconnectException extends ClientException {
@@ -65,11 +76,6 @@ class NotFoundException extends ClientException {
   NotFoundException(super.client, this.object);
 }
 
-class AddressedMemberNotFoundException extends ClientException {
-  String nickname;
-  AddressedMemberNotFoundException(super.client, this.nickname);
-}
-
 class InvalidArgumentException extends ClientException {
   InvalidArgumentException(super.client) {
     client.user?.authorized = false;
@@ -84,7 +90,7 @@ class ExpiredTokenException extends InvalidArgumentException {
 
 class NoEffectException implements Exception {
   final dynamic object;
-  NoEffectException([this.object]);
+  const NoEffectException([this.object]);
 
   @override
   String toString() {

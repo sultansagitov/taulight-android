@@ -66,5 +66,7 @@ Future<void> previewImage({
     ),
   ]);
 
-  await moveTo(context, stack);
+  if (context.mounted) {
+    await moveTo(context, stack);
+  }
 }

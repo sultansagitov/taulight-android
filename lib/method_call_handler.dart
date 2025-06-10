@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/keys.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/key_storage_service.dart';
@@ -54,9 +55,11 @@ Future<void> _disconnect(MethodCall call) async {
 
 Future<void> _saveServerKey(MethodCall call) async {
   await KeyStorageService.ins.saveServerKey(
-    address: call.arguments["address"],
-    publicKey: call.arguments["public"],
-    encryption: call.arguments["encryption"],
+    ServerKey(
+      address: call.arguments["address"],
+      encryption: call.arguments["encryption"],
+      publicKey: call.arguments["public"],
+    ),
   );
 }
 
@@ -64,10 +67,12 @@ Future<void> _savePersonalKey(MethodCall call) async {
   await KeyStorageService.ins.savePersonalKey(
     call.arguments["address"],
     call.arguments["key-id"],
-    call.arguments["encryption"],
-    symKey: call.arguments["sym-key"],
-    publicKey: call.arguments["public"],
-    privateKey: call.arguments["private"],
+    PersonalKey(
+      encryption: call.arguments["encryption"],
+      symKey: call.arguments["sym-key"],
+      publicKey: call.arguments["public"],
+      privateKey: call.arguments["private"],
+    ),
   );
 }
 
@@ -75,10 +80,12 @@ Future<void> _saveEncryptor(MethodCall call) async {
   await KeyStorageService.ins.saveEncryptor(
     call.arguments["address"],
     call.arguments["nickname"],
-    call.arguments["key-id"],
-    call.arguments["encryption"],
-    symKey: call.arguments["sym-key"],
-    publicKey: call.arguments["public"],
+    EncryptorKey(
+      keyId: call.arguments["key-id"],
+      encryption: call.arguments["encryption"],
+      symKey: call.arguments["sym-key"],
+      publicKey: call.arguments["public"],
+    ),
   );
 }
 
@@ -86,43 +93,50 @@ Future<void> _saveDEK(MethodCall call) async {
   await KeyStorageService.ins.saveDEK(
     call.arguments["address"],
     call.arguments["nickname"],
-    call.arguments["key-id"],
-    call.arguments["encryption"],
-    symKey: call.arguments["sym-key"],
-    publicKey: call.arguments["public"],
-    privateKey: call.arguments["private"],
+    DEK(
+      keyId: call.arguments["key-id"],
+      encryption: call.arguments["encryption"],
+      symKey: call.arguments["sym-key"],
+      publicKey: call.arguments["public"],
+      privateKey: call.arguments["private"],
+    ),
   );
 }
 
 Future<Map<String, String>> _loadServerKey(MethodCall call) async {
   String address = call.arguments["address"];
-  return await KeyStorageService.ins.loadServerKey(address);
+  final serverKey = await KeyStorageService.ins.loadServerKey(address);
+  return serverKey.toMap();
 }
 
 Future<Map<String, String>> _loadPersonalKey(MethodCall call) async {
-  return await KeyStorageService.ins.loadPersonalKey(
+  final personalKey = await KeyStorageService.ins.loadPersonalKey(
     call.arguments["address"],
     call.arguments["key-id"],
   );
+  return personalKey.toMap();
 }
 
 Future<Map<String, String>> _loadEncryptor(MethodCall call) async {
-  return await KeyStorageService.ins.loadEncryptor(
+  final encryptor = await KeyStorageService.ins.loadEncryptor(
     call.arguments["address"],
     call.arguments["nickname"],
   );
+  return encryptor.toMap();
 }
 
 Future<Map<String, String>> _loadDEK(MethodCall call) async {
-  return await KeyStorageService.ins.loadDEK(
+  final dek = await KeyStorageService.ins.loadDEK(
     call.arguments["address"],
     call.arguments["nickname"],
   );
+  return dek.toMap();
 }
 
 Future<Map<String, String>> _loadDEKByID(MethodCall call) async {
-  return await KeyStorageService.ins.loadDEKByID(
+  final dek = await KeyStorageService.ins.loadDEKByID(
     call.arguments["address"],
     call.arguments["key-id"],
   );
+  return dek.toMap();
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/keys.dart';
 import 'package:taulight/services/key_storage_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -21,7 +22,7 @@ class ProfileQRScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(),
-      body: FutureBuilder<Map<String, String>?>(
+      body: FutureBuilder<PersonalKey>(
         future: KeyStorageService.ins.loadPersonalKey(address, keyID),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -30,16 +31,18 @@ class ProfileQRScreen extends StatelessWidget {
             return const Center(child: Text("Key loading error"));
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final Map<String, String> data = Map.from(snapshot.data!);
-
-          data.remove("private");
-
-          data["nickname"] = nickname;
-          data['key-id'] = keyID;
+          PersonalKey personalKey = snapshot.data!;
+          final Map<String, String> data = {
+            'nickname': nickname,
+            'key-id': keyID,
+            'encryption': personalKey.encryption,
+            if (personalKey.symKey != null) 'sym': personalKey.symKey!,
+            if (personalKey.publicKey != null) 'public': personalKey.publicKey!,
+          };
 
           final uri = Uri(
             scheme: 'sandnode',
