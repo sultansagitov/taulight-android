@@ -10,11 +10,13 @@ class MethodCallHandler {
   final Map<String, Future Function(MethodCall)> handlers = {
     "onmessage": _onMessage,
     "disconnect": _disconnect,
-    "get-public-key": _getPublicKey,
-    "save-key": _saveKey,
+
+    "save-server-key": _saveServerKey,
     "save-personal-key": _savePersonalKey,
     "save-encryptor": _saveEncryptor,
     "save-dek": _saveDEK,
+
+    "load-server-key": _loadServerKey,
     "load-personal-key": _loadPersonalKey,
     "load-encryptor": _loadEncryptor,
     "load-dek": _loadDEK,
@@ -52,13 +54,8 @@ Future<void> _disconnect(MethodCall call) async {
   client.connected = false;
 }
 
-Future<Map<String, String>> _getPublicKey(MethodCall call) async {
-  String address = call.arguments["address"];
-  return await KeyStorageService.ins.getPublicKey(address);
-}
-
-Future<void> _saveKey(MethodCall call) async {
-  await KeyStorageService.ins.saveKey(
+Future<void> _saveServerKey(MethodCall call) async {
+  await KeyStorageService.ins.saveServerKey(
     address: call.arguments["address"],
     publicKey: call.arguments["public"],
     encryption: call.arguments["encryption"],
@@ -97,6 +94,11 @@ Future<void> _saveDEK(MethodCall call) async {
     publicKey: call.arguments["public"],
     privateKey: call.arguments["private"],
   );
+}
+
+Future<Map<String, String>> _loadServerKey(MethodCall call) async {
+  String address = call.arguments["address"];
+  return await KeyStorageService.ins.loadServerKey(address);
 }
 
 Future<Map<String, String>> _loadPersonalKey(MethodCall call) async {

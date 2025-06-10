@@ -21,7 +21,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
     private val dekByIdCache = mutableMapOf<UUID, KeyStorage>()
 
     override fun saveServerKey(address: Address, keyStorage: AsymmetricKeyStorage) {
-        taulight.sendToFlutter("save-key", mapOf(
+        taulight.sendToFlutter("save-server-key", mapOf(
             "address" to address.toString(),
             "encryption" to keyStorage.encryption().name(),
             "public" to keyStorage.encodedPublicKey(),
@@ -33,7 +33,7 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         publicKeyCache[address]?.let { return it }
 
         val result = try {
-            taulight.callFromFlutter("get-public", mapOf("address" to address.toString()))
+            taulight.callFromFlutter("load-server-key", mapOf("address" to address.toString()))
         } catch (_: Exception) {
             throw KeyStorageNotFoundException(address.toString())
         }
