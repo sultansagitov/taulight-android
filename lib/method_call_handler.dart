@@ -10,12 +10,10 @@ class MethodCallHandler {
   final Map<String, Future Function(MethodCall)> handlers = {
     "onmessage": _onMessage,
     "disconnect": _disconnect,
-
     "save-server-key": _saveServerKey,
     "save-personal-key": _savePersonalKey,
     "save-encryptor": _saveEncryptor,
     "save-dek": _saveDEK,
-
     "load-server-key": _loadServerKey,
     "load-personal-key": _loadPersonalKey,
     "load-encryptor": _loadEncryptor,

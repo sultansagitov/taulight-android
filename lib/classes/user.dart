@@ -11,7 +11,8 @@ class User {
 
   User(this.client, this.nickname, this.keyID, this.token);
 
-  factory User.unauthorized(Client client, String nickname, String keyID, String token) =>
+  factory User.unauthorized(
+          Client client, String nickname, String keyID, String token) =>
       User(client, nickname, keyID, token)..authorized = false;
 
   Future<void> reloadIfUnauthorized() async {

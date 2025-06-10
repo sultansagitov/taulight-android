@@ -52,7 +52,7 @@ class _ShowStatusSettingsState extends State<ShowStatusSettings> {
 
     message += !loading
         ? "Currently, your status is "
-          "${showStatus! ? "visible" : "hidden"} to others."
+            "${showStatus! ? "visible" : "hidden"} to others."
         : "Loading current state...";
 
     return Column(
