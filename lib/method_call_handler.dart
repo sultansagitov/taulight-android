@@ -3,6 +3,7 @@ import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/sources.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/key_storage_service.dart';
@@ -54,44 +55,51 @@ Future<void> _disconnect(MethodCall call) async {
 }
 
 Future<void> _saveServerKey(MethodCall call) async {
+  String address = call.arguments["address"];
   await KeyStorageService.ins.saveServerKey(
     ServerKey(
-      address: call.arguments["address"],
+      address: address,
       encryption: call.arguments["encryption"],
       publicKey: call.arguments["public"],
+      source: HubSource(address: address),
     ),
   );
 }
 
 Future<void> _savePersonalKey(MethodCall call) async {
+  String address = call.arguments["address"];
   await KeyStorageService.ins.savePersonalKey(
-    call.arguments["address"],
+    address,
     call.arguments["key-id"],
     PersonalKey(
       encryption: call.arguments["encryption"],
       symKey: call.arguments["sym-key"],
       publicKey: call.arguments["public"],
       privateKey: call.arguments["private"],
+      source: HubSource(address: address)
     ),
   );
 }
 
 Future<void> _saveEncryptor(MethodCall call) async {
+  String address = call.arguments["address"];
   await KeyStorageService.ins.saveEncryptor(
-    call.arguments["address"],
+    address,
     call.arguments["nickname"],
     EncryptorKey(
       keyId: call.arguments["key-id"],
       encryption: call.arguments["encryption"],
       symKey: call.arguments["sym-key"],
       publicKey: call.arguments["public"],
+      source: HubSource(address: address)
     ),
   );
 }
 
 Future<void> _saveDEK(MethodCall call) async {
+  String address = call.arguments["address"];
   await KeyStorageService.ins.saveDEK(
-    call.arguments["address"],
+    address,
     call.arguments["nickname"],
     DEK(
       keyId: call.arguments["key-id"],
@@ -99,17 +107,18 @@ Future<void> _saveDEK(MethodCall call) async {
       symKey: call.arguments["sym-key"],
       publicKey: call.arguments["public"],
       privateKey: call.arguments["private"],
+      source: HubSource(address: address)
     ),
   );
 }
 
-Future<Map<String, String>> _loadServerKey(MethodCall call) async {
+Future<Map<String, dynamic>> _loadServerKey(MethodCall call) async {
   String address = call.arguments["address"];
   final serverKey = await KeyStorageService.ins.loadServerKey(address);
   return serverKey.toMap();
 }
 
-Future<Map<String, String>> _loadPersonalKey(MethodCall call) async {
+Future<Map<String, dynamic>> _loadPersonalKey(MethodCall call) async {
   final personalKey = await KeyStorageService.ins.loadPersonalKey(
     call.arguments["address"],
     call.arguments["key-id"],
@@ -117,7 +126,7 @@ Future<Map<String, String>> _loadPersonalKey(MethodCall call) async {
   return personalKey.toMap();
 }
 
-Future<Map<String, String>> _loadEncryptor(MethodCall call) async {
+Future<Map<String, dynamic>> _loadEncryptor(MethodCall call) async {
   final encryptor = await KeyStorageService.ins.loadEncryptor(
     call.arguments["address"],
     call.arguments["nickname"],
@@ -125,7 +134,7 @@ Future<Map<String, String>> _loadEncryptor(MethodCall call) async {
   return encryptor.toMap();
 }
 
-Future<Map<String, String>> _loadDEK(MethodCall call) async {
+Future<Map<String, dynamic>> _loadDEK(MethodCall call) async {
   final dek = await KeyStorageService.ins.loadDEK(
     call.arguments["address"],
     call.arguments["nickname"],
@@ -133,7 +142,7 @@ Future<Map<String, String>> _loadDEK(MethodCall call) async {
   return dek.toMap();
 }
 
-Future<Map<String, String>> _loadDEKByID(MethodCall call) async {
+Future<Map<String, dynamic>> _loadDEKByID(MethodCall call) async {
   final dek = await KeyStorageService.ins.loadDEKByID(
     call.arguments["address"],
     call.arguments["key-id"],

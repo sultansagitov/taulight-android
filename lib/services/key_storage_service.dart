@@ -13,7 +13,7 @@ class KeyStorageService {
 
   Future<void> saveServerKey(ServerKey key) async {
     await _secureStorage.write(
-      key: "key:${key.address}",
+      key: "server:${key.address}",
       value: jsonEncode(key.toMap()),
     );
   }
@@ -50,12 +50,28 @@ class KeyStorageService {
     await _secureStorage.write(key: "dek:$address:${dek.keyId}", value: json);
   }
 
+  Future<List<ServerKey>> loadAllServerKeys() async {
+    final all = await _secureStorage.readAll();
+    return all.entries
+        .where((e) => e.key.startsWith('server:'))
+        .map((e) => ServerKey.fromMap(jsonDecode(e.value)))
+        .toList();
+  }
+
   Future<ServerKey> loadServerKey(String address) async {
-    final data = await _secureStorage.read(key: "key:$address");
+    final data = await _secureStorage.read(key: "server:$address");
     if (data == null) {
       throw KeyStorageNotFoundException("Address $address");
     }
     return ServerKey.fromMap(jsonDecode(data));
+  }
+
+  Future<List<PersonalKey>> loadAllPersonalKeys() async {
+    final all = await _secureStorage.readAll();
+    return all.entries
+        .where((e) => e.key.startsWith('personal:'))
+        .map((e) => PersonalKey.fromMap(jsonDecode(e.value)))
+        .toList();
   }
 
   Future<PersonalKey> loadPersonalKey(String address, String keyID) async {
@@ -66,12 +82,38 @@ class KeyStorageService {
     return PersonalKey.fromMap(jsonDecode(data));
   }
 
+  Future<List<EncryptorKey>> loadAllEncryptors() async {
+    final all = await _secureStorage.readAll();
+    return all.entries
+        .where((e) => e.key.startsWith('encryptor:'))
+        .map((e) => EncryptorKey.fromMap(jsonDecode(e.value)))
+        .toList();
+  }
+
   Future<EncryptorKey> loadEncryptor(String address, String nickname) async {
     final data = await _secureStorage.read(key: "encryptor:$address:$nickname");
     if (data == null) {
       throw KeyStorageNotFoundException("Address $address nickname $nickname");
     }
     return EncryptorKey.fromMap(jsonDecode(data));
+  }
+
+  Future<List<DEK>> loadAllDEKs() async {
+    final all = await _secureStorage.readAll();
+    final seen = <String>{};
+    final deks = <DEK>[];
+
+    for (final entry in all.entries) {
+      if (entry.key.startsWith('dek:')) {
+        final json = jsonDecode(entry.value);
+        final dek = DEK.fromMap(json);
+        if (seen.add(dek.keyId)) {
+          deks.add(dek);
+        }
+      }
+    }
+
+    return deks;
   }
 
   Future<DEK> loadDEK(String address, String nickname) async {

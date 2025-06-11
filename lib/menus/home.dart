@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/screens/key_management_screen.dart';
 import 'package:taulight/screens/start_dialog_screen.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/screens/hubs_screen.dart';
@@ -11,37 +12,42 @@ enum MenuOption {
   connect(
     text: "Connect",
     action: _connectAction,
-    icon: Icons.link,
+    icon: Icons.link_outlined,
   ),
   connected(
     text: "Show hubs and profile",
     action: _hubsAction,
-    icon: Icons.person,
+    icon: Icons.person_outlined,
   ),
   newGroup(
     text: "Create group",
     action: _newGroupAction,
-    icon: Icons.add_box,
+    icon: Icons.add_box_outlined,
   ),
   newDialog(
     text: "Start dialog",
     action: _newDialogAction,
-    icon: Icons.chat,
+    icon: Icons.chat_outlined,
+  ),
+  keys(
+    text: "Keys",
+    action: _keysAction,
+    icon: Icons.key_outlined,
   ),
   clearStorage(
     text: "CLEAR STORAGE",
     action: _clearStorageAction,
-    icon: Icons.bug_report,
+    icon: Icons.bug_report_outlined,
   ),
   clearMessages(
     text: "CLEAR ALL MESSAGES",
     action: _clearMessagesAction,
-    icon: Icons.bug_report,
+    icon: Icons.bug_report_outlined,
   ),
   printClients(
     text: "PRINT CLIENTS",
     action: _printClientsAction,
-    icon: Icons.bug_report,
+    icon: Icons.bug_report_outlined,
   );
 
   final String text;
@@ -91,6 +97,16 @@ enum MenuOption {
     }
   }
 
+  static Future<void> _keysAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
+    var result = await moveTo(context, KeyManagementScreen());
+    if (result is String) {
+      callback();
+    }
+  }
+
   static Future<void> _clearStorageAction(_, __) async {
     return StorageService.ins.clear();
   }
@@ -109,6 +125,7 @@ enum MenuOption {
 }
 
 Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {
+  final color = Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(192);
   var value = await showMenu<MenuOption>(
     context: context,
     position: const RelativeRect.fromLTRB(100, 0, 0, 0),
@@ -116,7 +133,7 @@ Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {
       return PopupMenuItem<MenuOption>(
         value: o,
         child: Row(children: [
-          Icon(o.icon, color: Colors.grey),
+          Icon(o.icon, color: color),
           SizedBox(width: 8),
           Text(o.text),
         ]),
