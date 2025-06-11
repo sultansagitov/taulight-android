@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.flutter.plugin.common.MethodChannel
+import net.result.sandnode.hubagent.AgentProtocol
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
@@ -71,14 +72,15 @@ class Taulight(val methodChannel: MethodChannel) {
         val agent = AndroidAgent(this, uuid, agentConfig)
 
         val clientConfig = AndroidClientConfig()
-        val client = SandnodeClient.fromLink(link, agent, clientConfig);
+        val client = SandnodeClient.fromLink(link, agent, clientConfig)
 
         LOGGER.info("Saving client of {} with uuid {}", client.address, uuid)
         val mc = MemberClient(uuid, client, link)
 
         client.start(AndroidClientChainManager(mc, this))
 
-        client.io.setServerKey(link.keyStorage())
+        val serverKey = AgentProtocol.loadOrFetchServerKey(client, link)
+        client.io.setServerKey(serverKey)
         ClientProtocol.sendSYM(client)
 
         clients[uuid] = mc
