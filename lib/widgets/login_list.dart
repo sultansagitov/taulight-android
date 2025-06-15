@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_agent_service.dart';
 import 'package:taulight/utils.dart';
 
 class LoginList extends StatefulWidget {
@@ -19,7 +19,7 @@ class _LoginListState extends State<LoginList> {
   @override
   void initState() {
     super.initState();
-    _loginHistory = PlatformService.ins.loginHistory(widget.client);
+    _loginHistory = PlatformAgentService.ins.loginHistory(widget.client);
   }
 
   @override

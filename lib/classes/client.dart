@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/chat_message_view_dto.dart';
-import 'package:taulight/classes/code_dto.dart';
 import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_chats_service.dart';
+import 'package:taulight/services/platform_client_service.dart';
 
 enum ClientStatus {
   connected("Connected", Colors.green),
@@ -60,17 +59,6 @@ class Client {
 
   Future<TauChat> save(String id) async => chats[id] = await loadChat(id);
 
-  /// Sends a message to the given chat.
-  ///
-  /// Returns the sent message.
-  ///
-  Future<Map<String, String>> sendMessage(
-    TauChat chat,
-    ChatMessageViewDTO message,
-  ) async {
-    return await PlatformService.ins.sendMessage(this, chat, message);
-  }
-
   /// Gets a chat with the given ID.
   ///
   /// Returns the chat.
@@ -98,7 +86,7 @@ class Client {
   /// Returns the loaded chats.
   ///
   Future<void> loadChats() async {
-    for (var dto in await PlatformService.ins.loadChats(this)) {
+    for (var dto in await PlatformChatsService.ins.loadChats(this)) {
       chats[dto.id] ??= TauChat(this, dto);
       chats[dto.id]!.avatarID = dto.avatarID;
     }
@@ -106,35 +94,18 @@ class Client {
 
   /// Disconnects the client.
   ///
-  Future<void> disconnect() => PlatformService.ins.disconnect(this);
+  Future<void> disconnect() => PlatformClientService.ins.disconnect(this);
 
   Future<void> resetName() async {
-    realName = await PlatformService.ins.name(this);
+    realName = await PlatformClientService.ins.name(this);
   }
 
   /// Loads a chat with the given ID.
   ///
   /// Returns the loaded chat.
   ///
-  Future<TauChat> loadChat(String id) => PlatformService.ins.loadChat(this, id);
-
-  /// Creates a group with the given title.
-  ///
-  /// Returns the created group.
-  ///
-  Future<String> createGroup(String title) async {
-    return await PlatformService.ins.createGroup(this, title);
-  }
-
-  /// Authenticates the client using the provided token.
-  /// Stores the authenticated client and token if `store: true`,
-  /// initializes `client.user` with a new `User` instance,
-  ///
-  /// Returns the nickname of the user.
-  ///
-  Future<String> authByToken(String token, {bool store = true}) async {
-    return await PlatformService.ins.authByToken(this, token);
-  }
+  Future<TauChat> loadChat(String id) =>
+      PlatformChatsService.ins.loadChat(this, id);
 
   /// Reloads the client.
   ///
@@ -142,41 +113,10 @@ class Client {
   ///
   Future<void> reload() async {
     await disconnect();
-    await PlatformService.ins.reconnect(this);
+    await PlatformClientService.ins.reconnect(this);
     await user?.reloadIfUnauthorized();
     if (!authorized) return;
     await loadChats();
-  }
-
-  /// Uses the given code.
-  ///
-  Future<void> useCode(String code) async {
-    return await PlatformService.ins.useCode(this, code);
-  }
-
-  /// Creates a dialog with the given nickname.
-  ///
-  /// Returns the created dialog.
-  ///
-  Future<TauChat> createDialog(String nickname) async {
-    return await PlatformService.ins.createDialog(this, nickname);
-  }
-
-  /// Checks the code.
-  ///
-  /// Returns the code information.
-  ///
-  Future<CodeDTO> checkCode(String code) async {
-    var map = await PlatformService.ins.checkCode(this, code);
-    return CodeDTO.fromMap(map);
-  }
-
-  Future<void> react(ChatMessageViewDTO message, String reactionType) async {
-    await PlatformService.ins.react(this, message, reactionType);
-  }
-
-  Future<void> unreact(ChatMessageViewDTO message, String reactionType) async {
-    await PlatformService.ins.unreact(this, message, reactionType);
   }
 
   @override

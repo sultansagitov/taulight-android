@@ -1,4 +1,5 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/services/platform_agent_service.dart';
 
 class User {
   Client client;
@@ -17,7 +18,7 @@ class User {
 
   Future<void> reloadIfUnauthorized() async {
     if (!authorized) {
-      String n = await client.authByToken(token);
+      String n = await PlatformAgentService.ins.authByToken(client, token);
       authorized = true;
       if (nickname != n) {
         throw Exception("Nickname mismatch: expected $nickname, got $n");

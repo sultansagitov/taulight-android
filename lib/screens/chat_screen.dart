@@ -10,7 +10,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_messages_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/group_info_screen.dart';
 import 'package:taulight/screens/member_info_screen.dart';
@@ -97,7 +97,8 @@ class ChatScreenState extends State<ChatScreen> {
 
       setState(() => files.add(wrapper));
 
-      var id = await PlatformService.ins.uploadFile(chat, path, filename);
+      var id =
+          await PlatformMessagesService.ins.uploadFile(chat, path, filename);
 
       setState(() {
         wrapper.loaded = true;

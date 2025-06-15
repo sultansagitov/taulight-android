@@ -1,14 +1,14 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart' show ListExtensions;
-import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_agent_service.dart';
+import 'package:taulight/services/platform_messages_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,7 +47,11 @@ class TauChat {
     bool hasMoreMessages = totalCount == null || real.length < totalCount!;
 
     if (needsMoreMessages && hasMoreMessages) {
-      totalCount = await PlatformService.ins.loadMessages(this, offset, limit);
+      totalCount = await PlatformMessagesService.ins.loadMessages(
+        this,
+        offset,
+        limit,
+      );
     }
   }
 
@@ -60,34 +64,27 @@ class TauChat {
     var tempUuid = "temp_${Uuid().v4()}";
 
     var message = ChatMessageViewDTO(
-      id: tempUuid,
-      chatID: record.id,
-      keyID: null,
-      nickname: client.user!.nickname,
-      text: text,
-      isMe: true,
-      dateTime: DateTime.now(),
-      sys: false,
-      repliedToMessages: repliedToMessages,
-      reactions: {},
-      files: files
-    );
+        id: tempUuid,
+        chatID: record.id,
+        keyID: null,
+        nickname: client.user!.nickname,
+        text: text,
+        isMe: true,
+        dateTime: DateTime.now(),
+        sys: false,
+        repliedToMessages: repliedToMessages,
+        reactions: {},
+        files: files);
 
     var wrapper = ChatMessageWrapperDTO(message, text);
 
     addMessage(wrapper);
     callback();
 
-    Map<String, String> map = await client.sendMessage(this, message);
+    var map = await PlatformMessagesService.ins.sendMessage(this, message);
     message.id = map["message"]!;
     message.keyID = map["key"];
     callback();
-  }
-
-  Future<List<ChatMember>> getMembers() => PlatformService.ins.getMembers(this);
-
-  Future<String> addMember(String nickname, Duration expirationTime) async {
-    return await PlatformService.ins.addMember(this, nickname, expirationTime);
   }
 
   static Future<void> loadAll({
@@ -116,7 +113,7 @@ class TauChat {
             continue;
           }
 
-          await client.authByToken(record.token);
+          await PlatformAgentService.ins.authByToken(client, record.token);
           callback?.call();
         }
 

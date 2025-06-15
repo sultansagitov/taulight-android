@@ -19,13 +19,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(chat.client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
+      throw result.getCause(chat.client);
     }
 
     if (result is SuccessResult) {
@@ -49,13 +43,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(chat.client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
+      throw result.getCause(chat.client);
     }
 
     if (result is SuccessResult) {
@@ -78,13 +66,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(chat.client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(chat.client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(chat.client);
-      }
-      throw result;
+      throw result.getCause(chat.client);
     }
 
     if (result is SuccessResult) {
@@ -106,13 +88,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
-      }
-      throw result;
+      throw result.getCause(client);
     }
 
     if (result is SuccessResult) {
@@ -135,13 +111,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
-      }
-      throw result;
+      throw result.getCause(client);
     }
 
     if (result is SuccessResult) {
@@ -164,13 +134,7 @@ class PlatformAvatarService {
       if (result.name == "NotFoundException") {
         throw ChatNotFoundException(client);
       }
-      if (result.name == "UnauthorizedException") {
-        throw UnauthorizedException(client);
-      }
-      if (disconnectExceptions.contains(result.name)) {
-        throw DisconnectException(client);
-      }
-      throw result;
+      throw result.getCause(client);
     }
 
     if (result is SuccessResult) {

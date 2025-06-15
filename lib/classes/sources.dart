@@ -21,9 +21,9 @@ abstract class Source {
   }
 
   Map<String, String> toMap() => {
-    "type": type,
-    "datetime": datetime.toIso8601String(),
-  };
+        "type": type,
+        "datetime": datetime.toIso8601String(),
+      };
 }
 
 class QRSource extends Source {

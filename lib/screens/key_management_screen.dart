@@ -22,8 +22,6 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
   List<EncryptorKey> encryptorKeys = [];
   List<DEK> deks = [];
 
-
-
   bool isLoading = true;
 
   @override
@@ -93,14 +91,14 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
-        controller: _tabController,
-        children: [
-          _buildServerKeysTab(),
-          _buildPersonalKeysTab(),
-          _buildEncryptorKeysTab(),
-          _buildDEKsTab(),
-        ],
-      ),
+              controller: _tabController,
+              children: [
+                _buildServerKeysTab(),
+                _buildPersonalKeysTab(),
+                _buildEncryptorKeysTab(),
+                _buildDEKsTab(),
+              ],
+            ),
     );
   }
 
@@ -269,15 +267,15 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             Text(subtitle),
             const SizedBox(height: 8),
             ...details.map((detail) => Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: Text(
-                detail,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-              ),
-            )),
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    detail,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
+                )),
           ],
         ),
         trailing: IconButton(
@@ -304,9 +302,9 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
           width: double.maxFinite,
           child: ListView(
             shrinkWrap: true,
-            children: details.entries.map((entry) =>
-                _buildDetailRow(entry.key, entry.value)
-            ).toList(),
+            children: details.entries
+                .map((entry) => _buildDetailRow(entry.key, entry.value))
+                .toList(),
           ),
         ),
         actions: [

@@ -17,7 +17,7 @@ class CodeDTO {
     this.activation,
   });
 
-  factory CodeDTO.fromMap(Map<String, dynamic> map) {
+  factory CodeDTO.fromMap(map) {
     var activationString = map["activation-date"];
     DateTime? activation;
 

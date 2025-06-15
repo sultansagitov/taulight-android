@@ -81,6 +81,6 @@ class NamedFileDTO {
 
   NamedFileDTO(this.id, this.contentType, this.filename);
 
-  factory NamedFileDTO.fromMap(map) =>
-      NamedFileDTO(map["id"], map["content-type"], map["filename"] ?? map["id"]);
+  factory NamedFileDTO.fromMap(map) => NamedFileDTO(
+      map["id"], map["content-type"], map["filename"] ?? map["id"]);
 }

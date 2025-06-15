@@ -3,6 +3,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/chat_screen.dart';
+import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/services/profile_avatar_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -39,7 +40,7 @@ class MemberInfoScreen extends StatelessWidget {
       }
     }
 
-    chat ??= await client.createDialog(nickname);
+    chat ??= await PlatformChatsService.ins.createDialog(client, nickname);
 
     await moveTo(context, ChatScreen(chat));
   }

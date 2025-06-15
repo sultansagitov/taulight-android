@@ -150,4 +150,3 @@ String link2address(String link) {
   }
   return address;
 }
-

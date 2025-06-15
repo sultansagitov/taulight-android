@@ -8,6 +8,7 @@ import 'package:taulight/screens/member_info_screen.dart';
 import 'package:taulight/screens/members_invite_screen.dart';
 import 'package:taulight/screens/profile_screen.dart';
 import 'package:taulight/services/chat_avatar_service.dart';
+import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -40,10 +41,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   Future<void> _loadMembers() async {
     try {
       if (widget.chat.client.connected) {
-        final fetchedMembers = await widget.chat.getMembers();
+        final m = await PlatformChatsService.ins.getMembers(widget.chat);
         if (mounted) {
           setState(() {
-            _members = fetchedMembers;
+            _members = m;
             _loadingError = false;
             _isLoading = false;
           });

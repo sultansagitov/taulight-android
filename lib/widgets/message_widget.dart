@@ -6,6 +6,7 @@ import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/services/platform_codes_service.dart';
 import 'package:taulight/widgets/invite_widget.dart';
 import 'package:taulight/widgets/message_files_widget.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
@@ -105,7 +106,6 @@ class MessageWidget extends StatelessWidget {
               children: [
                 if (!isDialog(chat) && first && !view.isMe)
                   _name(context, nickname),
-
                 if (view.repliedToMessages.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -114,7 +114,6 @@ class MessageWidget extends StatelessWidget {
                       message: view,
                     ),
                   ),
-
                 if (message.decrypted == null)
                   Text(
                     "Cannot decrypt message - ${message.view.text}",
@@ -127,11 +126,8 @@ class MessageWidget extends StatelessWidget {
                     message.decrypted!,
                     textColor,
                   ),
-
                 if (view.files.isNotEmpty) MessageFilesWidget(chat, view),
-
                 if (hasInvite) InviteWidget(chat, url),
-
                 _buildFooter(context, view),
               ],
             ),
@@ -215,7 +211,7 @@ Widget _buildText(
               String? error;
 
               try {
-                await client.useCode(code);
+                await PlatformCodesService.ins.useCode(client, code);
               } on NotFoundException {
                 error = "Code not found or not for you";
               } on NoEffectException {

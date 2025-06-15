@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/auth_state.dart';
+import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -49,8 +50,9 @@ class _CreateGroupScreenState extends AuthState<CreateGroupScreen> {
           return;
         }
 
-        final chatID =
-            await client.createGroup(title).timeout(Duration(seconds: 10));
+        final chatID = await PlatformChatsService.ins
+            .createGroup(client, title)
+            .timeout(Duration(seconds: 10));
         await client.loadChat(chatID).timeout(Duration(seconds: 10));
 
         if (mounted) {

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/services/platform_client_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
-import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -116,7 +116,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   Future<void> _recommended(String link) async {
     Client client;
     try {
-      client = await PlatformService.ins.connect(
+      client = await PlatformClientService.ins.connect(
         link,
         connectUpdate: widget.connectUpdate,
       );
@@ -145,7 +145,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   void _connect(BuildContext context, String link) async {
     try {
       setState(() => _loading ??= -1);
-      var client = await PlatformService.ins.connect(
+      var client = await PlatformClientService.ins.connect(
         link,
         connectUpdate: widget.connectUpdate,
       );

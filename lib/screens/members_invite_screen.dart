@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
@@ -37,8 +38,8 @@ class MembersInviteScreen extends StatelessWidget {
       onTap: () async {
         if (nickname.isNotEmpty) {
           try {
-            String code =
-                await chatToInvite.addMember(nickname, Duration(days: 1));
+            String code = await PlatformChatsService.ins
+                .addMember(chatToInvite, nickname, Duration(days: 1));
 
             String address = chatToInvite.client.address;
             String text = "sandnode://$address/invite/$code";

@@ -7,6 +7,7 @@ import 'package:taulight/auth_state.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/key_storage_service.dart';
+import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -57,7 +58,9 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
     final nickname = _titleController.text.trim();
 
     try {
-      await client.createDialog(nickname).timeout(Duration(seconds: 10));
+      await PlatformChatsService.ins
+          .createDialog(client, nickname)
+          .timeout(Duration(seconds: 10));
     } on AddressedMemberNotFoundException {
       setState(() {
         _error = "Member $nickname not found";
@@ -138,8 +141,8 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
                   return;
                 }
 
-                await client
-                    .createDialog(nickname)
+                await PlatformChatsService.ins
+                    .createDialog(client, nickname)
                     .timeout(Duration(seconds: 10));
 
                 Navigator.pop(context, nickname);

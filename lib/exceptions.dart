@@ -77,9 +77,7 @@ class NotFoundException extends ClientException {
 }
 
 class InvalidArgumentException extends ClientException {
-  InvalidArgumentException(super.client) {
-    client.user?.authorized = false;
-  }
+  InvalidArgumentException(super.client);
 }
 
 class ExpiredTokenException extends InvalidArgumentException {

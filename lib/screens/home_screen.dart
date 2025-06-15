@@ -4,6 +4,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/menus/home.dart';
 import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/platform_client_service.dart';
 import 'package:taulight/start_method.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/method_call_handler.dart';
@@ -135,7 +136,9 @@ class HomeScreenState extends State<HomeScreen> {
                   for (var c in clients.where((c) => !c.connected)) {
                     await c.reload().timeout(duration);
                   }
-                  await PlatformService.ins.loadClients().timeout(duration);
+                  await PlatformClientService.ins
+                      .loadClients()
+                      .timeout(duration);
                   for (var c in clients.where((c) => c.realName == null)) {
                     await c.resetName().timeout(duration);
                   }

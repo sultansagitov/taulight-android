@@ -5,7 +5,8 @@ import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_agent_service.dart';
+import 'package:taulight/services/platform_client_service.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
 
@@ -14,7 +15,7 @@ Future<void> start(
   MethodCallHandler methodCallHandler,
   VoidCallback callback,
 ) async {
-  await PlatformService.ins.loadClients();
+  await PlatformClientService.ins.loadClients();
 
   Map<String, ServerRecord> map = await StorageService.ins.getClients();
 
@@ -26,7 +27,11 @@ Future<void> start(
   for (String uuid in notConnectedId) {
     ServerRecord sr = map[uuid]!;
     try {
-      await PlatformService.ins.connectWithUUID(uuid, sr.link, keep: true);
+      await PlatformClientService.ins.connectWithUUID(
+        uuid,
+        sr.link,
+        keep: true,
+      );
     } on ConnectionException {
       if (context.mounted) {
         snackBarError(context, "Connection error: ${sr.name}");
@@ -54,7 +59,8 @@ Future<void> start(
         String? error;
 
         try {
-          await client.authByToken(serverRecord.user!.token, store: false);
+          var token = serverRecord.user!.token;
+          await PlatformAgentService.ins.authByToken(client, token);
         } on ExpiredTokenException {
           error = "Session expired. ${client.name}";
         } on InvalidArgumentException {

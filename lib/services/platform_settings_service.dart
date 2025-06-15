@@ -17,7 +17,7 @@ class PlatformSettingsService {
     );
 
     if (result is ExceptionResult) {
-      throw result;
+      throw result.getCause(client);
     }
 
     if (result is SuccessResult) {
@@ -35,7 +35,7 @@ class PlatformSettingsService {
     );
 
     if (result is ExceptionResult) {
-      throw result;
+      throw result.getCause(client);
     }
   }
 }

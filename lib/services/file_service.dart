@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform_messages_service.dart';
 import 'package:taulight/widget_utils.dart';
 
 class FileService {
@@ -15,7 +15,7 @@ class FileService {
   FileService._internal();
 
   Future<String?> downloadAndSaveFile(Client client, NamedFileDTO file) async {
-    var fileData = await PlatformService.ins.downloadFile(client, file.id!);
+    var f = await PlatformMessagesService.ins.downloadFile(client, file.id!);
 
     Directory dir = await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
@@ -23,7 +23,7 @@ class FileService {
     final filePath = '${dir.path}/${file.filename}';
 
     final fileObj = File(filePath);
-    await fileObj.writeAsBytes(fileData);
+    await fileObj.writeAsBytes(f);
 
     return filePath;
   }
