@@ -17,8 +17,8 @@ class InviteService {
 
   Future<CodeDTO> checkCode(Client client, String codeString) async {
     codes[client.uuid] ??= {};
-    final dto = await PlatformCodesService.ins.checkCode(client, codeString);
-    codes[client.uuid]![codeString] ??= dto;
+    codes[client.uuid]![codeString] ??=
+        await PlatformCodesService.ins.checkCode(client, codeString);
     return codes[client.uuid]![codeString]!;
   }
 }

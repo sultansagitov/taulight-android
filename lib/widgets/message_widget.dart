@@ -114,19 +114,21 @@ class MessageWidget extends StatelessWidget {
                       message: view,
                     ),
                   ),
+
+                if (view.files.isNotEmpty) MessageFilesWidget(chat, view),
+
                 if (message.decrypted == null)
                   Text(
                     "Cannot decrypt message - ${message.view.text}",
                     style: TextStyle(fontStyle: FontStyle.italic),
                   )
-                else
+                else if (message.decrypted!.isNotEmpty)
                   _buildText(
                     context,
                     chat.client,
                     message.decrypted!,
                     textColor,
                   ),
-                if (view.files.isNotEmpty) MessageFilesWidget(chat, view),
                 if (hasInvite) InviteWidget(chat, url),
                 _buildFooter(context, view),
               ],

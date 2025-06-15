@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/file_message_service.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_button.dart';
 
 class MessageFilesWidget extends StatelessWidget {
   final TauChat chat;
@@ -12,23 +14,204 @@ class MessageFilesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final textColor = isLight ? Colors.black : Colors.white;
-
     final files = message.files;
     if (files.isEmpty) return const SizedBox.shrink();
 
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? Colors.black : Colors.white;
+
+    final imageFiles =
+        files.where((f) => f.contentType.startsWith('image/')).toList();
+    final otherFiles =
+        files.where((f) => !f.contentType.startsWith('image/')).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: files.map((file) {
-        return _DownloadFileRow(
-          chat: chat,
-          file: file,
-          textColor: textColor,
-        );
-      }).toList(),
+      children: [
+        if (imageFiles.isNotEmpty) ...[
+          _ImageGrid(chat: chat, files: imageFiles),
+          const SizedBox(height: 10)
+        ],
+        if (otherFiles.isNotEmpty)
+          ...otherFiles.map((file) =>
+              _DownloadFileRow(chat: chat, file: file, textColor: textColor)),
+      ],
     );
   }
+}
+
+class _ImageGrid extends StatefulWidget {
+  final TauChat chat;
+  final List<NamedFileDTO> files;
+
+  const _ImageGrid({required this.chat, required this.files});
+
+  @override
+  State<_ImageGrid> createState() => _ImageGridState();
+}
+
+class _ImageGridState extends State<_ImageGrid> {
+  late Future<List<_ImageFileStatus>> _statusesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _statusesFuture = _loadImageStatuses();
+  }
+
+  Future<void> _refreshStatuses() async {
+    final newStatuses = await _loadImageStatuses();
+    setState(() {
+      _statusesFuture = Future.value(newStatuses);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<_ImageFileStatus>>(
+      future: _statusesFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final statuses = snapshot.data!;
+        final itemCount = statuses.length;
+
+        int crossAxisCount;
+        if (itemCount == 1) {
+          crossAxisCount = 1;
+        } else if (itemCount == 2) {
+          crossAxisCount = 2;
+        } else {
+          crossAxisCount = 3;
+        }
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: itemCount,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+            childAspectRatio: 1,
+          ),
+          itemBuilder: (context, index) {
+            final status = statuses[index];
+
+            return GestureDetector(
+              onTap: () async {
+                if (status.isDownloaded && status.localPath != null) {
+                  // If already downloaded, preview the image
+                  final file = File(status.localPath!);
+                  if (await file.exists()) {
+                    previewImage(
+                      size: MediaQuery.of(context).size,
+                      image: Image.file(file),
+                      context: context,
+                    );
+                    return;
+                  }
+                }
+
+                // Else, download
+                setState(() => status.isLoading = true);
+                try {
+                  await FileMessageService.ins.downloadAndSaveFile(
+                    widget.chat.client,
+                    status.file,
+                  );
+                  snackBar(context, 'Image saved');
+                  await _refreshStatuses();
+                } catch (e) {
+                  snackBarError(context, 'Download failed');
+                }
+              },
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: status.isDownloaded && status.localPath != null
+                          ? Image.file(
+                              File(status.localPath!),
+                              key: ValueKey('image_${status.localPath}'),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            )
+                          : Container(
+                              key: const ValueKey('placeholder'),
+                              width: double.infinity,
+                              height: double.infinity,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(
+                                  Icons.download,
+                                  size: 36,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  if (!status.isDownloaded && status.isLoading)
+                    const Positioned.fill(
+                      child: Center(
+                        child: SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<List<_ImageFileStatus>> _loadImageStatuses() async {
+    final List<_ImageFileStatus> result = [];
+
+    for (final file in widget.files) {
+      String? path = await FileMessageService.ins.getLocalPathForFile(file.id!);
+
+      if (path == null || !File(path).existsSync()) {
+        final fallbackPath =
+            await FileMessageService.ins.getLocalFilePath(file);
+        if (File(fallbackPath).existsSync()) {
+          path = fallbackPath;
+        } else {
+          path = null;
+        }
+      }
+
+      result.add(_ImageFileStatus(
+        file: file,
+        isDownloaded: path != null,
+        localPath: path,
+      ));
+    }
+
+    return result;
+  }
+}
+
+class _ImageFileStatus {
+  final NamedFileDTO file;
+  final bool isDownloaded;
+  final String? localPath;
+  bool isLoading;
+
+  _ImageFileStatus({
+    required this.file,
+    required this.isDownloaded,
+    required this.localPath,
+    this.isLoading = false,
+  });
 }
 
 class _DownloadFileRow extends StatefulWidget {
@@ -54,14 +237,15 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
   @override
   void initState() {
     super.initState();
-    _initFileStatus();
+    _checkDownloadStatus();
   }
 
-  Future<void> _initFileStatus() async {
-    final isSaved = await FileMessageService.ins.isFileDownloaded(widget.file);
+  Future<void> _checkDownloadStatus() async {
+    final downloaded =
+        await FileMessageService.ins.isFileDownloaded(widget.file);
     if (!mounted) return;
 
-    if (isSaved) {
+    if (downloaded) {
       final path = await FileMessageService.ins.getLocalFilePath(widget.file);
       setState(() {
         isDownloaded = true;
@@ -72,16 +256,16 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
 
   Future<void> _downloadFile() async {
     setState(() => isLoading = true);
-
-    final granted = await FileMessageService.ins.requestStoragePermission(context);
+    final granted =
+        await FileMessageService.ins.requestStoragePermission(context);
     if (!granted) {
       setState(() => isLoading = false);
       return;
     }
 
     try {
-      final client = widget.chat.client;
-      final path = await FileMessageService.ins.downloadAndSaveFile(client, widget.file);
+      final path = await FileMessageService.ins
+          .downloadAndSaveFile(widget.chat.client, widget.file);
       if (!mounted) return;
 
       setState(() {
@@ -91,33 +275,35 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
       });
 
       snackBar(context, 'File saved to $path');
-    } catch (e, stackTrace) {
+    } catch (e) {
       print(e);
-      print(stackTrace);
-      if (mounted) {
-        snackBarError(context, 'File not saved');
-        setState(() => isLoading = false);
-      }
+      snackBarError(context, 'File not saved');
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   Future<void> _openFile() async {
     try {
       await FileMessageService.ins.openFile(widget.file);
-    } catch (e, stackTrace) {
+    } catch (e) {
       print(e);
-      print(stackTrace);
       snackBarError(context, 'File opening error');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isImage = widget.file.contentType.startsWith('image/');
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          const Icon(Icons.insert_drive_file, size: 20, color: Colors.blue),
+          Icon(
+            isImage ? Icons.image : Icons.insert_drive_file,
+            size: 20,
+            color: Colors.blue,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -133,15 +319,15 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           else if (isDownloaded)
-            IconButton(
-              icon: const Icon(Icons.open_in_new, color: Colors.green),
-              tooltip: 'Открыть файл',
+            TauButton.icon(
+              Icons.open_in_new,
+              color: Colors.green,
               onPressed: _openFile,
             )
           else
-            IconButton(
-              icon: const Icon(Icons.download, color: Colors.blue),
-              tooltip: 'Скачать файл',
+            TauButton.icon(
+              Icons.download,
+              color: Colors.blue,
               onPressed: _downloadFile,
             ),
         ],

@@ -4,6 +4,7 @@ Future moveTo(
   BuildContext context,
   Widget screen, {
   bool fromLeft = false,
+  bool fromBottom = false,
 }) {
   return Navigator.push(
     context,
@@ -11,7 +12,11 @@ Future moveTo(
       pageBuilder: (_, __, ___) => screen,
       transitionDuration: const Duration(milliseconds: 300),
       transitionsBuilder: (_, animation, __, child) {
-        final begin = Offset(fromLeft ? -1 : 1, 0);
+        final begin = fromBottom
+            ? Offset(0, 1)
+            : fromLeft
+                ? Offset(-1, 0)
+                : Offset(1, 0);
         const end = Offset.zero;
         final parent = CurveTween(curve: Curves.easeOutCubic);
         final chain = Tween(begin: begin, end: end).chain(parent);
@@ -49,6 +54,7 @@ Future<void> previewImage({
 }) async {
   var stack = Stack(children: [
     InteractiveViewer(
+      maxScale: 100,
       child: Container(
         width: size.width,
         height: size.height,
@@ -67,6 +73,6 @@ Future<void> previewImage({
   ]);
 
   if (context.mounted) {
-    await moveTo(context, stack);
+    await moveTo(context, stack, fromBottom: true);
   }
 }
