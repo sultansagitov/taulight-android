@@ -28,6 +28,7 @@ dependencies:
   permission_handler: ^12.0.0+1
   mime_type: ^1.0.1
   file_picker: ^10.2.0
+  open_file: ^3.5.10
 
 dev_dependencies:
   flutter_test:

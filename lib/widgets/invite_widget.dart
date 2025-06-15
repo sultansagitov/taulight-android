@@ -16,20 +16,28 @@ class InviteWidget extends StatefulWidget {
 }
 
 class _InviteWidgetState extends State<InviteWidget> {
-  Future<CodeDTO>? inviteDetails;
+  late Future<CodeDTO> inviteDetails;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final Uri uri = Uri.parse(widget.url);
+    var where = uri.path.split("/").where((s) => s.isNotEmpty);
+    var codeString = where.elementAt(1);
+
+    inviteDetails = InviteService.ins
+        .checkCode(widget.chat.client, codeString)
+        .timeout(Duration(seconds: 5));
+  }
 
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final textColor = isLight ? Colors.black : Colors.white;
-    final Uri uri = Uri.parse(widget.url);
-    var where = uri.path.split("/").where((s) => s.isNotEmpty);
-    var codeString = where.elementAt(1);
 
     return FutureBuilder(
-      future: inviteDetails ??= InviteService.ins
-          .checkCode(widget.chat.client, codeString)
-          .timeout(Duration(seconds: 5)),
+      future: inviteDetails,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);

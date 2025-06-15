@@ -10,7 +10,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/platform_messages_service.dart';
+import 'package:taulight/services/file_message_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/group_info_screen.dart';
 import 'package:taulight/screens/member_info_screen.dart';
@@ -89,7 +89,7 @@ class ChatScreenState extends State<ChatScreen> {
       var path = file.path!;
 
       var chat = widget.chat;
-      var contentType = mimeFromExtension(path.split(".").last)!;
+      var contentType = mimeFromExtension(path.split(".").last) ?? "text/plain";
       var filename = path.split(Platform.pathSeparator).last;
 
       var dto = NamedFileDTO(null, contentType, filename);
@@ -97,8 +97,7 @@ class ChatScreenState extends State<ChatScreen> {
 
       setState(() => files.add(wrapper));
 
-      var id =
-          await PlatformMessagesService.ins.uploadFile(chat, path, filename);
+      var id = await FileMessageService.ins.uploadFile(chat, path, filename);
 
       setState(() {
         wrapper.loaded = true;
@@ -226,14 +225,13 @@ class ChatScreenState extends State<ChatScreen> {
               enabled: enabled,
               onFileAdd: _onFileAdd,
               sendMessage: (text) async {
-                await widget.chat.sendMessage(
-                  text,
-                  replies.map((r) => r.view.id).toList(),
-                  files.map((w) => w.file).toList(),
-                  update,
-                );
+                var r = replies.map((r) => r.view.id).toList();
+                var f = files.map((w) => w.file).toList();
+
                 replies.clear();
                 files.clear();
+
+                await widget.chat.sendMessage(text, r, f, update);
               },
             ),
           ],

@@ -44,7 +44,7 @@ class _MessageFieldState extends State<MessageField> {
   Future<void> _sendMessage([String? text]) async {
     var t = (text ?? _messageController.text).trim();
     _messageController.clear();
-    if (t.isEmpty) return;
+    if (t.isEmpty && widget.files.isEmpty && widget.replies.isEmpty) return;
     if (widget.enabled) widget.sendMessage(t);
   }
 

@@ -19,10 +19,7 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    ChatMessageWrapperDTO? wrapper;
-    if (chat.messages.isNotEmpty) {
-      wrapper = chat.messages.last;
-    }
+    ChatMessageWrapperDTO? wrapper = chat.messages.lastOrNull;
 
     Color? nicknameColor;
     var client = chat.client;
@@ -90,7 +87,7 @@ class ChatItem extends StatelessWidget {
                             ),
                           ],
                           TextSpan(
-                            text: wrapper!.decrypted ?? // TODO possible null
+                            text: wrapper!.decrypted ??
                                 "Cannot decrypt message - ${wrapper.view.text}",
                             style: TextStyle(
                               color: textColor,

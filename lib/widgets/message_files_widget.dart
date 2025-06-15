@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
-import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/file_service.dart';
+import 'package:taulight/services/file_message_service.dart';
 import 'package:taulight/widget_utils.dart';
 
 class MessageFilesWidget extends StatelessWidget {
@@ -50,34 +49,65 @@ class _DownloadFileRow extends StatefulWidget {
 class _DownloadFileRowState extends State<_DownloadFileRow> {
   bool isLoading = false;
   bool isDownloaded = false;
+  String? localFilePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFileStatus();
+  }
+
+  Future<void> _initFileStatus() async {
+    final isSaved = await FileMessageService.ins.isFileDownloaded(widget.file);
+    if (!mounted) return;
+
+    if (isSaved) {
+      final path = await FileMessageService.ins.getLocalFilePath(widget.file);
+      setState(() {
+        isDownloaded = true;
+        localFilePath = path;
+      });
+    }
+  }
 
   Future<void> _downloadFile() async {
-    setState(() {
-      isLoading = true;
-      isDownloaded = false;
-    });
+    setState(() => isLoading = true);
 
-    final granted = await FileService.ins.requestStoragePermission(context);
-    if (!granted) return;
-
-    String? filePath;
-    try {
-      Client client = widget.chat.client;
-      filePath = await FileService.ins.downloadAndSaveFile(client, widget.file);
-    } catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
-      snackBarError(context, 'Download failed: $e');
+    final granted = await FileMessageService.ins.requestStoragePermission(context);
+    if (!granted) {
+      setState(() => isLoading = false);
       return;
     }
 
-    if (filePath != null && context.mounted) {
-      setState(() => isDownloaded = true);
-      snackBar(context, 'File saved to $filePath');
-    }
+    try {
+      final client = widget.chat.client;
+      final path = await FileMessageService.ins.downloadAndSaveFile(client, widget.file);
+      if (!mounted) return;
 
-    if (context.mounted) {
-      setState(() => isLoading = false);
+      setState(() {
+        isDownloaded = true;
+        localFilePath = path;
+        isLoading = false;
+      });
+
+      snackBar(context, 'File saved to $path');
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      if (mounted) {
+        snackBarError(context, 'File not saved');
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _openFile() async {
+    try {
+      await FileMessageService.ins.openFile(widget.file);
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      snackBarError(context, 'File opening error');
     }
   }
 
@@ -103,10 +133,15 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           else if (isDownloaded)
-            const Icon(Icons.check_circle, color: Colors.green, size: 20)
+            IconButton(
+              icon: const Icon(Icons.open_in_new, color: Colors.green),
+              tooltip: 'Открыть файл',
+              onPressed: _openFile,
+            )
           else
             IconButton(
               icon: const Icon(Icons.download, color: Colors.blue),
+              tooltip: 'Скачать файл',
               onPressed: _downloadFile,
             ),
         ],

@@ -57,7 +57,9 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
         deks = results[3] as List<DEK>;
         isLoading = false;
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       setState(() => isLoading = false);
       if (mounted) {
         snackBarError(context, 'Failed to load keys: $e');
