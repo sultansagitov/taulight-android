@@ -400,7 +400,7 @@ class PlatformService {
       "chat-id": chat.record.id,
       "content": message.text,
       "replied-to-messages": message.repliedToMessages,
-      "file-id": message.files,
+      "file-id": message.files.map((f) => f.id).toList(),
     };
     Result result = isGroup(chat)
         ? await method("group-send", args)
@@ -759,10 +759,36 @@ class PlatformService {
     }
 
     if (result is SuccessResult) {
-
       final map = Map<String, dynamic>.from(result.obj);
       final base64Str = map["avatarBase64"]!;
       return base64Decode(base64Str);
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<String> uploadFile(TauChat chat, String path, String filename) async {
+    var result = await chain("MessageFileClientChain.upload",
+        client: chat.client, params: [chat.record.id, path, filename]);
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(chat.client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(chat.client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(chat.client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+      var obj = result.obj;
+      if (obj is String) {
+        return obj;
+      }
     }
 
     throw IncorrectFormatChannelException();

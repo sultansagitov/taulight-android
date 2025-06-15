@@ -15,7 +15,7 @@ class FileService {
   FileService._internal();
 
   Future<String?> downloadAndSaveFile(Client client, NamedFileDTO file) async {
-    var fileData = await PlatformService.ins.downloadFile(client, file.id);
+    var fileData = await PlatformService.ins.downloadFile(client, file.id!);
 
     Directory dir = await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();

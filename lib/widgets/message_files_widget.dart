@@ -21,27 +21,13 @@ class MessageFilesWidget extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        const Divider(height: 1, thickness: 1),
-        const SizedBox(height: 8),
-        Text(
-          'Attached Files:',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: textColor.withAlpha(180),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...files.map((file) {
-          return _DownloadFileRow(
-            chat: chat,
-            file: file,
-            textColor: textColor,
-          );
-        }),
-      ],
+      children: files.map((file) {
+        return _DownloadFileRow(
+          chat: chat,
+          file: file,
+          textColor: textColor,
+        );
+      }).toList(),
     );
   }
 }

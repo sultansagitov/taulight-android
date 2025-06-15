@@ -75,7 +75,7 @@ class ChatMessageViewDTO {
 }
 
 class NamedFileDTO {
-  final String id;
+  String? id;
   final String contentType;
   final String filename;
 

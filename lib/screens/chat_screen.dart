@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/services/platform_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/group_info_screen.dart';
 import 'package:taulight/screens/member_info_screen.dart';
@@ -29,8 +35,8 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<ChatMessageWrapperDTO> replies = [];
-  List<NamedFileDTO> files = []; // TODO
+  final List<ChatMessageWrapperDTO> replies = [];
+  final List<NamedFileWrapper> files = [];
 
   bool _loadingMessages = false;
 
@@ -68,6 +74,36 @@ class ChatScreenState extends State<ChatScreen> {
       setState(() {});
       widget.updateHome?.call();
     }
+  }
+
+  Future<void> _onFileAdd() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
+
+    if (result == null) {
+      return;
+    }
+
+    result.files;
+    await Future.wait(result.files.map((file) async {
+      var path = file.path!;
+
+      var chat = widget.chat;
+      var contentType = mimeFromExtension(path.split(".").last)!;
+      var filename = path.split(Platform.pathSeparator).last;
+
+      var dto = NamedFileDTO(null, contentType, filename);
+      var wrapper = NamedFileWrapper(dto);
+
+      setState(() => files.add(wrapper));
+
+      var id = await PlatformService.ins.uploadFile(chat, path, filename);
+
+      setState(() {
+        wrapper.loaded = true;
+        dto.id = id;
+      });
+    }));
   }
 
   @override
@@ -185,11 +221,18 @@ class ChatScreenState extends State<ChatScreen> {
             MessageField(
               chat: widget.chat,
               replies: replies,
+              files: files,
               enabled: enabled,
+              onFileAdd: _onFileAdd,
               sendMessage: (text) async {
+                await widget.chat.sendMessage(
+                  text,
+                  replies.map((r) => r.view.id).toList(),
+                  files.map((w) => w.file).toList(),
+                  update,
+                );
                 replies.clear();
-                final r = replies.map((r) => r.view.id).toList();
-                await widget.chat.sendMessage(text, r, files, update);
+                files.clear();
               },
             ),
           ],
@@ -204,6 +247,7 @@ class ChatScreenState extends State<ChatScreen> {
     ChatMessageWrapperDTO? next,
   ) {
     return SwipeableTile.swipeToTrigger(
+      key: UniqueKey(),
       behavior: HitTestBehavior.translucent,
       isElevated: false,
       color: Colors.transparent,
@@ -234,7 +278,6 @@ class ChatScreenState extends State<ChatScreen> {
           );
         },
       ),
-      key: UniqueKey(),
       child: MessageWidget(
         chat: widget.chat,
         message: message,
