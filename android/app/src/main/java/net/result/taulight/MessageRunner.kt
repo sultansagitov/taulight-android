@@ -19,7 +19,13 @@ object MessageRunner {
     val LOGGER = LogManager.getLogger("MessageRunner")!!
 }
 
-fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMessages: Set<UUID>): Map<String, String> {
+fun groupSend(
+    client: SandnodeClient,
+    chatID: UUID,
+    content: String,
+    repliedToMessages: Set<UUID>,
+    fileIDs: Set<UUID>
+): Map<String, String> {
     val chain = ForwardRequestClientChain(client)
 
     client.io.chainManager.linkChain(chain)
@@ -28,6 +34,7 @@ fun groupSend(client: SandnodeClient, chatID: UUID, content: String, repliedToMe
         .setChatID(chatID)
         .setContent(content)
         .setRepliedToMessages(repliedToMessages)
+        .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
     val id = chain.message(message)
@@ -42,7 +49,8 @@ fun dialogSend(
     nickname: String,
     chatID: UUID,
     content: String,
-    repliedToMessages: Set<UUID>
+    repliedToMessages: Set<UUID>,
+    fileIDs: Set<UUID>
 ): Map<String, String> {
     val chain = ForwardRequestClientChain(client)
 
@@ -51,6 +59,7 @@ fun dialogSend(
     val message = ChatMessageInputDTO()
         .setChatID(chatID)
         .setRepliedToMessages(repliedToMessages)
+        .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
     var dekChain: DEKClientChain? = null

@@ -73,7 +73,7 @@ Future<void> _savePersonalKey(MethodCall call) async {
     call.arguments["key-id"],
     PersonalKey(
       encryption: call.arguments["encryption"],
-      symKey: call.arguments["sym-key"],
+      symKey: call.arguments["sym"],
       publicKey: call.arguments["public"],
       privateKey: call.arguments["private"],
       source: HubSource(address: address)
@@ -89,7 +89,7 @@ Future<void> _saveEncryptor(MethodCall call) async {
     EncryptorKey(
       keyId: call.arguments["key-id"],
       encryption: call.arguments["encryption"],
-      symKey: call.arguments["sym-key"],
+      symKey: call.arguments["sym"],
       publicKey: call.arguments["public"],
       source: HubSource(address: address)
     ),
@@ -104,7 +104,7 @@ Future<void> _saveDEK(MethodCall call) async {
     DEK(
       keyId: call.arguments["key-id"],
       encryption: call.arguments["encryption"],
-      symKey: call.arguments["sym-key"],
+      symKey: call.arguments["sym"],
       publicKey: call.arguments["public"],
       privateKey: call.arguments["private"],
       source: HubSource(address: address)

@@ -7,8 +7,7 @@ import 'package:taulight/services/avatar_service.dart';
 import 'package:taulight/services/platform_avatar_service.dart';
 
 class ProfileAvatarService {
-  static final ProfileAvatarService _instance =
-      ProfileAvatarService._internal();
+  static final _instance = ProfileAvatarService._internal();
   static ProfileAvatarService get ins => _instance;
   ProfileAvatarService._internal();
 
@@ -22,9 +21,16 @@ class ProfileAvatarService {
         await _storage.read(key: 'member_avatar_$address:$nickname');
     if (avatarID == 'no_avatar') return null;
 
-    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
-      return PlatformAvatarService.ins.getMy(client);
-    });
+    ImageDTO? dto;
+    try {
+      dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
+        return PlatformAvatarService.ins.getMy(client);
+      });
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      return null;
+    }
 
     if (dto != null) {
       await _storage.write(
@@ -47,7 +53,9 @@ class ProfileAvatarService {
 
     if (dto != null) {
       await _storage.write(
-          key: 'member_avatar_$address:$nickname', value: dto.id!);
+        key: 'member_avatar_$address:$nickname',
+        value: dto.id!,
+      );
     }
 
     return dto?.image;

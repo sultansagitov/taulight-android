@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widget_utils.dart';
@@ -29,6 +30,7 @@ class ChatScreen extends StatefulWidget {
 class ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessageWrapperDTO> replies = [];
+  List<NamedFileDTO> files = []; // TODO
 
   bool _loadingMessages = false;
 
@@ -185,9 +187,9 @@ class ChatScreenState extends State<ChatScreen> {
               replies: replies,
               enabled: enabled,
               sendMessage: (text) async {
-                var repliesUuid = replies.map((r) => r.view.id).toList();
                 replies.clear();
-                await widget.chat.sendMessage(text, repliesUuid, update);
+                final r = replies.map((r) => r.view.id).toList();
+                await widget.chat.sendMessage(text, r, files, update);
               },
             ),
           ],

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:taulight/chat_filters.dart';
@@ -398,6 +400,7 @@ class PlatformService {
       "chat-id": chat.record.id,
       "content": message.text,
       "replied-to-messages": message.repliedToMessages,
+      "file-id": message.files,
     };
     Result result = isGroup(chat)
         ? await method("group-send", args)
@@ -730,6 +733,36 @@ class PlatformService {
           .map((invite) => Map<String, dynamic>.from(invite as Map))
           .map((map) => LoginHistoryDTO.fromMap(map))
           .toList();
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
+  Future<Uint8List> downloadFile(Client client, String fileId) async {
+    var result = await chain(
+      "MessageFileClientChain.download",
+      client: client,
+      params: [fileId],
+    );
+
+    if (result is ExceptionResult) {
+      if (result.name == "NotFoundException") {
+        throw ChatNotFoundException(client);
+      }
+      if (result.name == "UnauthorizedException") {
+        throw UnauthorizedException(client);
+      }
+      if (disconnectExceptions.contains(result.name)) {
+        throw DisconnectException(client);
+      }
+      throw result;
+    }
+
+    if (result is SuccessResult) {
+
+      final map = Map<String, dynamic>.from(result.obj);
+      final base64Str = map["avatarBase64"]!;
+      return base64Decode(base64Str);
     }
 
     throw IncorrectFormatChannelException();

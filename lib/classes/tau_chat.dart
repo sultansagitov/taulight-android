@@ -54,6 +54,7 @@ class TauChat {
   Future<void> sendMessage(
     String text,
     List<String> repliedToMessages,
+    List<NamedFileDTO> files,
     VoidCallback callback,
   ) async {
     var tempUuid = "temp_${Uuid().v4()}";
@@ -69,6 +70,7 @@ class TauChat {
       sys: false,
       repliedToMessages: repliedToMessages,
       reactions: {},
+      files: files
     );
 
     var wrapper = ChatMessageWrapperDTO(message, text);

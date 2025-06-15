@@ -110,7 +110,6 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         dekByIdCache[keyID] = keyStorage
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun loadPersonalKey(address: Address, keyID: UUID): KeyStorage {
         personalKeyCache[keyID]?.let { return it }
 
@@ -139,7 +138,6 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         return keyStorage
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun loadEncryptor(address: Address, nickname: String): KeyEntry {
         encryptorCache[nickname]?.let { return it }
 
@@ -168,7 +166,6 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         return keyEntry
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun loadDEK(address: Address, nickname: String): KeyEntry {
         dekByNicknameCache[nickname]?.let { return it }
 
@@ -200,7 +197,6 @@ class AndroidAgentConfig(val taulight: Taulight) : AgentConfig {
         return keyEntry
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun loadDEK(address: Address, keyID: UUID): KeyStorage {
         dekByIdCache[keyID]?.let { return it }
 

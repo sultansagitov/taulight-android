@@ -132,11 +132,13 @@ fun groupSend(call: MethodCall): Map<String, String> {
     val chatID: String = call.argument<String>("chat-id")!!
     val content: String = call.argument<String>("content")!!
     val repliedToMessagesString: List<String> = call.argument<List<String>>("replied-to-messages")!!
+    val fileIDsString: List<String> = call.argument<List<String>>("file-id")!!
 
     val mc: MemberClient = taulight!!.getClient(uuid)
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
+    val fileIDs: Set<UUID> = fileIDsString.map { UUID.fromString(it) }.toSet()
 
-    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages)
+    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages, fileIDs)
 }
 
 fun dialogSend(call: MethodCall): Map<String, String> {
@@ -145,11 +147,13 @@ fun dialogSend(call: MethodCall): Map<String, String> {
     val nickname: String = call.argument<String>("nickname")!!
     val content: String = call.argument<String>("content")!!
     val repliedToMessagesString: List<String> = call.argument<List<String>>("replied-to-messages")!!
+    val fileIDsString: List<String> = call.argument<List<String>>("file-id")!!
 
     val mc: MemberClient = taulight!!.getClient(uuid)
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
+    val fileIDs: Set<UUID> = fileIDsString.map { UUID.fromString(it) }.toSet()
 
-    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages)
+    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages, fileIDs)
 }
 
 fun getChats(call: MethodCall): List<Map<String, Any>> {
@@ -159,7 +163,6 @@ fun getChats(call: MethodCall): List<Map<String, Any>> {
     return getChats(client)
 }
 
-@Throws(Exception::class)
 fun loadMessages(call: MethodCall): Map<String, Any> {
     val uuid: String = call.argument<String>("uuid")!!
     val chatIDStr: String = call.argument<String>("chat-id")!!

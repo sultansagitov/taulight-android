@@ -160,10 +160,11 @@ class HubsScreenState extends State<HubsScreen> {
             )
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: buildMember(context, client, d: 44, update: connectUpdate),
-        ),
+        if (client.user != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: buildMember(context, client, d: 44, update: connectUpdate),
+          ),
       ],
     );
   }

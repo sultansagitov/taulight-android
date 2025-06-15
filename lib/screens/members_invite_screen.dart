@@ -42,7 +42,7 @@ class MembersInviteScreen extends StatelessWidget {
 
             String address = chatToInvite.client.address;
             String text = "sandnode://$address/invite/$code";
-            await chat.sendMessage(text, [], () {});
+            await chat.sendMessage(text, [], [], () {});
 
             if (context.mounted) {
               Navigator.pop(context);

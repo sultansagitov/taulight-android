@@ -6,8 +6,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform_service.dart';
 
 class PlatformSettingsService {
-  static final PlatformSettingsService _instance =
-      PlatformSettingsService._internal();
+  static final _instance = PlatformSettingsService._internal();
   static PlatformSettingsService get ins => _instance;
   PlatformSettingsService._internal();
 

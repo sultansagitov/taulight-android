@@ -4,8 +4,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform_service.dart';
 
 class PlatformAvatarService {
-  static final PlatformAvatarService _instance =
-      PlatformAvatarService._internal();
+  static final _instance = PlatformAvatarService._internal();
   static PlatformAvatarService get ins => _instance;
   PlatformAvatarService._internal();
 

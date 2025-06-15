@@ -11,19 +11,20 @@ class ChatMessageViewDTO {
   final bool sys;
   final List<String> repliedToMessages;
   final Map<String, List<String>> reactions;
+  final List<NamedFileDTO> files;
 
-  ChatMessageViewDTO({
-    required this.id,
-    required this.chatID,
-    required this.keyID,
-    required this.nickname,
-    required this.text,
-    required this.isMe,
-    required this.dateTime,
-    required this.sys,
-    required this.repliedToMessages,
-    required this.reactions,
-  });
+  ChatMessageViewDTO(
+      {required this.id,
+      required this.chatID,
+      required this.keyID,
+      required this.nickname,
+      required this.text,
+      required this.isMe,
+      required this.dateTime,
+      required this.sys,
+      required this.repliedToMessages,
+      required this.reactions,
+      required this.files});
 
   static ChatMessageViewDTO fromMap(Client client, json) {
     var map = Map<String, dynamic>.from(json as Map);
@@ -38,8 +39,11 @@ class ChatMessageViewDTO {
       reactions[entry.key] = mapped.toList();
     }
 
-    var message = map["message"]!;
+    List<NamedFileDTO> files = map["files"] != null
+        ? (map["files"] as List).map((m) => NamedFileDTO.fromMap(m)).toList()
+        : <NamedFileDTO>[];
 
+    var message = map["message"]!;
     String chatID = message["chat-id"]!;
     String? keyId = message["key-id"];
     String nickname = message["nickname"]!;
@@ -59,6 +63,7 @@ class ChatMessageViewDTO {
       dateTime: dateTime,
       sys: sys,
       repliedToMessages: repliedToMessages,
+      files: files,
       reactions: reactions,
     );
   }
@@ -67,4 +72,15 @@ class ChatMessageViewDTO {
   String toString() {
     return "Message{chat=$chatID, member=$nickname, content=$text}";
   }
+}
+
+class NamedFileDTO {
+  final String id;
+  final String contentType;
+  final String filename;
+
+  NamedFileDTO(this.id, this.contentType, this.filename);
+
+  factory NamedFileDTO.fromMap(map) =>
+      NamedFileDTO(map["id"], map["content-type"], map["filename"] ?? map["id"]);
 }
