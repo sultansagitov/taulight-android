@@ -68,14 +68,13 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Future<void> _showImagePreview(BuildContext context) async {
-    var size = MediaQuery.of(context).size;
     var memoryImage =
         await ChatAvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
     if (memoryImage == null) return;
 
     var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
-    await previewImage(context: context, image: image, size: size);
+    await previewImage(context, image);
   }
 
   Future<void> _pickAndSetGroupAvatar(BuildContext context) async {

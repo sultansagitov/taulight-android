@@ -103,11 +103,7 @@ class _ImageGridState extends State<_ImageGrid> {
                   // If already downloaded, preview the image
                   final file = File(status.localPath!);
                   if (await file.exists()) {
-                    previewImage(
-                      size: MediaQuery.of(context).size,
-                      image: Image.file(file),
-                      context: context,
-                    );
+                    await previewImage(context, Image.file(file));
                     return;
                   }
                 }

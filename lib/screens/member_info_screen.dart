@@ -16,17 +16,12 @@ class MemberInfoScreen extends StatelessWidget {
   const MemberInfoScreen(this.client, this.nickname, {super.key});
 
   Future<void> _previewImage(BuildContext context) async {
-    var size = MediaQuery.of(context).size;
     var memoryImage = await ProfileAvatarService.ins.getOf(client, nickname);
     if (memoryImage == null) return;
 
     var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
-    await previewImage(
-      context: context,
-      image: image,
-      size: size,
-    );
+    await previewImage(context, image);
   }
 
   Future<void> _message(BuildContext context) async {

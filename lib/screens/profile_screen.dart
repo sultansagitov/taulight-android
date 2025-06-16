@@ -41,17 +41,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showImagePreview(BuildContext context) async {
-    var size = MediaQuery.of(context).size;
     var memoryImage = await ProfileAvatarService.ins.getMy(widget.client);
     if (memoryImage == null) return;
 
     var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
-    await previewImage(
-      context: context,
-      image: image,
-      size: size,
-    );
+    await previewImage(context, image);
   }
 
   @override
