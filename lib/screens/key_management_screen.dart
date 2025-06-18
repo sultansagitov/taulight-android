@@ -62,7 +62,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       print(stackTrace);
       setState(() => isLoading = false);
       if (mounted) {
-        snackBarError(context, 'Failed to load keys: $e');
+        snackBarError(context, 'Failed to load keys');
       }
     }
   }

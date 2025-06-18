@@ -140,9 +140,7 @@ Future<Map<String, dynamic>> _loadDEK(MethodCall call) async {
 }
 
 Future<Map<String, dynamic>> _loadDEKByID(MethodCall call) async {
-  final dek = await KeyStorageService.ins.loadDEKByID(
-    call.arguments["address"],
-    call.arguments["key-id"],
-  );
+  final keyID = call.arguments["key-id"];
+  final dek = await KeyStorageService.ins.loadDEKByID(keyID);
   return dek.toMap();
 }
