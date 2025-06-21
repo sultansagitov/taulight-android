@@ -23,8 +23,9 @@ class ProfileAvatarService {
 
     ImageDTO? dto;
     try {
-      dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
-        return PlatformAvatarService.ins.getMy(client);
+      dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
+        if (!client.connected) return {};
+        return await PlatformAvatarService.ins.getMy(client);
       });
     } catch (e, stackTrace) {
       print(e);
@@ -47,8 +48,9 @@ class ProfileAvatarService {
         await _storage.read(key: 'member_avatar_$address:$nickname');
     if (avatarID == 'no_avatar') return null;
 
-    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () {
-      return PlatformAvatarService.ins.getOf(client, nickname);
+    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
+      if (!client.connected) return {};
+      return await PlatformAvatarService.ins.getOf(client, nickname);
     });
 
     if (dto != null) {

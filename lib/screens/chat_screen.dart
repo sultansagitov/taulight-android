@@ -10,6 +10,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/screens/profile_screen.dart';
 import 'package:taulight/services/file_message_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/group_info_screen.dart';
@@ -136,18 +137,26 @@ class ChatScreenState extends State<ChatScreen> {
           TauButton.icon(
             Icons.more_vert,
             onPressed: () async {
-              Widget screen = isDialog(widget.chat)
-                  ? MemberInfoScreen(
-                      widget.chat.client,
-                      (widget.chat.record as DialogDTO).otherNickname,
-                    )
-                  : GroupInfoScreen(
-                      widget.chat,
-                      updateHome: () {
-                        setState(() {});
-                        widget.updateHome?.call();
-                      },
-                    );
+              final chat = widget.chat;
+              final client = chat.client;
+
+              Widget screen;
+
+              if (isDialog(chat)) {
+                final dialog = chat.record as DialogDTO;
+                final otherNickname = dialog.otherNickname;
+
+                if (client.user!.nickname == otherNickname) {
+                  screen = ProfileScreen(client);
+                } else {
+                  screen = MemberInfoScreen(client, otherNickname);
+                }
+              } else {
+                screen = GroupInfoScreen(chat, updateHome: () {
+                  setState(() {});
+                  widget.updateHome?.call();
+                });
+              }
 
               await moveTo(context, screen);
               setState(() {});

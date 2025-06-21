@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:taulight/classes/keys.dart';
 import 'package:taulight/classes/sources.dart';
+import 'package:taulight/screens/key_details_screen.dart';
 import 'package:taulight/services/key_storage_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
@@ -71,6 +72,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Removes back arrow space
         title: const Text('Key Management'),
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -80,34 +82,48 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             onPressed: _loadAllKeys,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Server (${serverKeys.length})'),
-            Tab(text: 'Personal (${personalKeys.length})'),
-            Tab(text: 'Encryptor (${encryptorKeys.length})'),
-            Tab(text: 'DEK (${deks.length})'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              padding: EdgeInsets.zero,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                Tab(text: 'Server (${serverKeys.length})'),
+                Tab(text: 'Personal (${personalKeys.length})'),
+                Tab(text: 'Encryptor (${encryptorKeys.length})'),
+                Tab(text: 'DEK (${deks.length})'),
+              ],
+            ),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildServerKeysTab(),
+                        _buildPersonalKeysTab(),
+                        _buildEncryptorKeysTab(),
+                        _buildDEKsTab(),
+                      ],
+                    ),
+            ),
           ],
         ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildServerKeysTab(),
-                _buildPersonalKeysTab(),
-                _buildEncryptorKeysTab(),
-                _buildDEKsTab(),
-              ],
-            ),
     );
   }
 
   Widget _buildServerKeysTab() {
     if (serverKeys.isEmpty) {
       return const Center(
-        child: Text('No server keys found', style: TextStyle(fontSize: 16)),
+        child: Text(
+          'No server keys found',
+          style: TextStyle(fontSize: 16),
+        ),
       );
     }
 
@@ -151,7 +167,6 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final key = personalKeys[index];
         return _buildKeyCard(
-          title: 'Personal Key',
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -188,7 +203,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final key = encryptorKeys[index];
         return _buildKeyCard(
-          title: 'Key ID: ${key.keyId}',
+          title: key.keyId,
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -224,7 +239,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final dek = deks[index];
         return _buildKeyCard(
-          title: 'DEK ID: ${dek.keyId}',
+          title: dek.keyId,
           subtitle: 'Encryption: ${dek.encryption}',
           details: [
             if (dek.symKey != null) 'Has Symmetric Key',
@@ -250,7 +265,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
   }
 
   Widget _buildKeyCard({
-    required String title,
+    String? title,
     required String subtitle,
     required List<String> details,
     required VoidCallback onTap,
@@ -258,10 +273,13 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: title != null
+            ? Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              )
+            : null,
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -295,70 +313,8 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     return '${key.substring(0, 10)}...${key.substring(key.length - 10)}';
   }
 
-  void _showKeyDetails(String title, Map<String, String> details) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: details.entries
-                .map((entry) => _buildDetailRow(entry.key, entry.value))
-                .toList(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 4),
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: value));
-              snackBar(context, 'Copied to clipboard');
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: Theme.of(context).dividerColor,
-                ),
-              ),
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> _showKeyDetails(String title, Map<String, String> det) async {
+    KeyDetailsScreen screen = KeyDetailsScreen(title: title, details: det);
+    await moveTo(context, screen, fromBottom: true);
   }
 }

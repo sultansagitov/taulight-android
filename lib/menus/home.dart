@@ -3,8 +3,8 @@ import 'package:taulight/screens/key_management_screen.dart';
 import 'package:taulight/screens/start_dialog_screen.dart';
 import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/screens/hubs_screen.dart';
-import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/storage_service.dart';
+// import 'package:taulight/services/client_service.dart';
+// import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/create_group_screen.dart';
 
@@ -33,22 +33,22 @@ enum MenuOption {
     text: "Keys",
     action: _keysAction,
     icon: Icons.key_outlined,
-  ),
-  clearStorage(
-    text: "CLEAR STORAGE",
-    action: _clearStorageAction,
-    icon: Icons.bug_report_outlined,
-  ),
-  clearMessages(
-    text: "CLEAR ALL MESSAGES",
-    action: _clearMessagesAction,
-    icon: Icons.bug_report_outlined,
-  ),
-  printClients(
-    text: "PRINT CLIENTS",
-    action: _printClientsAction,
-    icon: Icons.bug_report_outlined,
   );
+  // clearStorage(
+  //   text: "CLEAR STORAGE",
+  //   action: _clearStorageAction,
+  //   icon: Icons.bug_report_outlined,
+  // ),
+  // clearMessages(
+  //   text: "CLEAR ALL MESSAGES",
+  //   action: _clearMessagesAction,
+  //   icon: Icons.bug_report_outlined,
+  // ),
+  // printClients(
+  //   text: "PRINT CLIENTS",
+  //   action: _printClientsAction,
+  //   icon: Icons.bug_report_outlined,
+  // );
 
   final String text;
   final Future<void> Function(BuildContext, VoidCallback) action;
@@ -107,21 +107,21 @@ enum MenuOption {
     }
   }
 
-  static Future<void> _clearStorageAction(_, __) async {
-    return StorageService.ins.clear();
-  }
-
-  static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
-    for (var client in ClientService.ins.clientsList) {
-      for (var chat in client.chats.values) {
-        chat.messages.clear();
-      }
-    }
-    callback();
-  }
-
-  static Future<void> _printClientsAction(_, __) async =>
-      print("Clients: ${ClientService.ins.clientsList}");
+  // static Future<void> _clearStorageAction(_, __) async {
+  //   return StorageService.ins.clear();
+  // }
+  //
+  // static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
+  //   for (var client in ClientService.ins.clientsList) {
+  //     for (var chat in client.chats.values) {
+  //       chat.messages.clear();
+  //     }
+  //   }
+  //   callback();
+  // }
+  //
+  // static Future<void> _printClientsAction(_, __) async =>
+  //     print("Clients: ${ClientService.ins.clientsList}");
 }
 
 Future<void> showMenuAtHome(BuildContext context, VoidCallback callback) async {

@@ -14,10 +14,10 @@ class ChatAvatarService {
     String? avatarID = chat.avatarID;
     if (avatarID == null) return null;
 
-    var dto = await AvatarService.ins.loadOrFetchAvatar(
-      avatarID,
-      () => PlatformAvatarService.ins.getGroupAvatar(chat),
-    );
+    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
+      if (!chat.client.connected) return {};
+      return await PlatformAvatarService.ins.getGroupAvatar(chat);
+    });
     return dto?.image;
   }
 
@@ -25,10 +25,10 @@ class ChatAvatarService {
     String? avatarID = chat.avatarID;
     if (avatarID == null) return null;
 
-    var dto = await AvatarService.ins.loadOrFetchAvatar(
-      avatarID,
-      () => PlatformAvatarService.ins.getDialogAvatar(chat),
-    );
+    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
+      if (!chat.client.connected) return {};
+      return await PlatformAvatarService.ins.getDialogAvatar(chat);
+    });
     return dto?.image;
   }
 

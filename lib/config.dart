@@ -16,6 +16,14 @@ class Config {
           "ClQdolhofu7FLwlvZYnvgNJQ3EajfSJsKIb0bjJOuOlAB"
           "TCwDBA7pOj3pxMxuAKA5hnpX8T8hoMPdXG%2FyA%3D%3D",
     ),
+    ServerRecord(
+      name: "Hub on Serveo",
+      link: "sandnode://hub@serveo.net?encryption=ECIES"
+          "&key=MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx"
+          "4Wm6M9gPirLIwFTYWCyX30kou80KOOSoUVdD6T0MP0"
+          "zztAK%2BzwhVOEljQz3N%2FwL2OyG1%2FQj%2FrlUU"
+          "G3R0MK%2BBg%3D%3D",
+    ),
   ];
 
   static Map<String, String> reactions = {

@@ -93,14 +93,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: theme.textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
-            Text(
-              bio,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontStyle: FontStyle.italic,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
+            // TODO add bio
+            // Text(
+            //   bio,
+            //   style: theme.textTheme.bodyMedium?.copyWith(
+            //     fontStyle: FontStyle.italic,
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
+            // const SizedBox(height: 24),
             ShowStatusSettings(widget.client),
             const SizedBox(height: 24),
             Align(
