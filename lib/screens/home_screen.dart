@@ -155,12 +155,13 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() => _fullLoading = !_fullLoading);
-        },
-        child: const Icon(Icons.edit),
-      ),
+      // TODO Create group / start dialog
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     setState(() => _fullLoading = !_fullLoading);
+      //   },
+      //   child: const Icon(Icons.edit),
+      // ),
     );
   }
 

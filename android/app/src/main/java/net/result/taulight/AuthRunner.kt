@@ -8,8 +8,7 @@ import net.result.sandnode.encryption.AsymmetricEncryptions
 import net.result.sandnode.hubagent.Agent
 import net.result.sandnode.serverclient.SandnodeClient
 
-fun register(client: SandnodeClient, nickname: String, password: String, device: String)
-        : RegistrationResponseDTO {
+fun register(client: SandnodeClient, nickname: String, password: String, device: String): RegistrationResponseDTO {
     val agent = client.node as Agent
 
     val chain = RegistrationClientChain(client)

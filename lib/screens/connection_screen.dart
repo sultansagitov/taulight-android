@@ -163,6 +163,12 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       if (mounted) {
         snackBarError(context, "Cannot connect to ${e.client.address}");
       }
+    } on InvalidSandnodeLinkException catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      if (mounted) {
+        snackBarError(context, "Invalid link or changed key");
+      }
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);

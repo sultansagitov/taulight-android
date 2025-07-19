@@ -145,56 +145,75 @@ class ReplyPreviewWidget extends StatelessWidget {
       previewText = "${previewText.substring(0, 47)}...";
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 2,
-            height: 20,
-            color: getRandomColor(message.nickname),
-            margin: const EdgeInsets.only(left: 4, right: 8, top: 2),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      message.nickname,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: getRandomColor(message.nickname),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      formatOnlyTime(message.dateTime),
-                      style: TextStyle(
-                        fontSize: 8,
-                        color: textColor.withAlpha(128),
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  previewText,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: textColor,
-                    fontStyle: !decrypted ? FontStyle.italic : null,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
+    return LayoutBuilder(builder: (context, constraints) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 2,
+              height: 20,
+              color: getRandomColor(message.nickname),
+              margin: const EdgeInsets.only(left: 4, right: 8, top: 2),
             ),
-          ),
-        ],
-      ),
-    );
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        message.nickname,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: getRandomColor(message.nickname),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        formatOnlyTime(message.dateTime),
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: textColor.withAlpha(128),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      ...message.files.take(3).map((file) {
+                        return Container(
+                          color: Colors.grey.withAlpha(32),
+                          margin: const EdgeInsets.only(right: 4),
+                          padding: const EdgeInsets.all(4),
+                          child: Text(
+                            file.filename.substring(0, 10) + (file.filename.length > 10 ? "..." : ""),
+                            style: TextStyle(fontSize: 9),
+                          ),
+                        );
+                      }),
+                      Expanded(
+                        child: Text(
+                          previewText,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textColor,
+                            fontStyle: !decrypted ? FontStyle.italic : null,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

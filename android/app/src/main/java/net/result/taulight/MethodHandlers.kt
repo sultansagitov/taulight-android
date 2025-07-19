@@ -7,7 +7,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import net.result.sandnode.chain.IChain
+import net.result.sandnode.chain.Chain
 import net.result.sandnode.dto.FileDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.exception.error.SandnodeErrorException
@@ -260,7 +260,7 @@ fun chain(call: MethodCall): Any? {
         .firstOrNull { it.name == methodName && it.parameterTypes.size == params.size }
         ?: throw ClassNotFoundException()
 
-    val chain: IChain? = declaredConstructor.newInstance(client) as IChain?
+    val chain: Chain? = declaredConstructor.newInstance(client) as Chain?
 
     client.io.chainManager.linkChain(chain)
     try {

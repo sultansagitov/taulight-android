@@ -226,7 +226,7 @@ Widget _buildText(
                 if (error != null) {
                   snackBarError(context, error);
                 } else {
-                  snackBar(context, "Code used");
+                  Navigator.pop(context);
                 }
               }
             },
