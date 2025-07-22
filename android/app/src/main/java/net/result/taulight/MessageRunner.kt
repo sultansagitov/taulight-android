@@ -52,17 +52,12 @@ fun dialogSend(
     repliedToMessages: Set<UUID>,
     fileIDs: Set<UUID>
 ): Map<String, String> {
-    val chain = ForwardRequestClientChain(client)
-
-    client.io.chainManager.linkChain(chain)
-
     val message = ChatMessageInputDTO()
         .setChatID(chatID)
         .setRepliedToMessages(repliedToMessages)
         .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
-    var dekChain: DEKClientChain? = null
     var dek: KeyEntry? = null
     try {
         val agent = client.node as Agent
@@ -70,24 +65,26 @@ fun dialogSend(
         dek = try {
             agent.config.loadDEK(client.address, nickname)
         } catch (_: KeyStorageNotFoundException) {
-            dekChain = DEKClientChain(client)
-            client.io.chainManager.linkChain(dekChain)
 
             val encryptor = try {
                 agent.config.loadEncryptor(client.address, nickname)
             } catch (_: KeyStorageNotFoundException) {
-                val dto = dekChain.getKeyOf(nickname)
+                val chainKO = DEKClientChain(client)
+                client.io.chainManager.linkChain(chainKO)
+                val dto = chainKO.getKeyOf(nickname)
+                client.io.chainManager.removeChain(chainKO)
                 KeyEntry(dto.keyID, dto.keyStorage)
             }
 
             val dek = SymmetricEncryptions.AES.generate()
-            val dekID = dekChain.sendDEK(nickname, KeyDTO(encryptor.id, encryptor.keyStorage), dek)
+            val chainSD = DEKClientChain(client)
+            client.io.chainManager.linkChain(chainSD)
+            val dekID = chainSD.sendDEK(nickname, KeyDTO(encryptor.id, encryptor.keyStorage), dek)
+            client.io.chainManager.removeChain(chainSD)
 
             agent.config.saveDEK(client.address, nickname, dekID, dek)
 
             KeyEntry(dekID, dek)
-        } finally {
-            dekChain?.also { client.io.chainManager.removeChain(it) }
         }
 
         message.setEncryptedContent(dek!!.id, dek.keyStorage, content)
@@ -96,8 +93,9 @@ fun dialogSend(
         message.setContent(content)
     }
 
+    val chain = ForwardRequestClientChain(client)
+    client.io.chainManager.linkChain(chain)
     val id = chain.message(message)
-
     client.io.chainManager.removeChain(chain)
 
     return mutableMapOf("message" to id.toString()).apply { dek?.id?.let { put("key", it.toString()) } }

@@ -32,7 +32,8 @@ class FileMessageService {
 
   // Upload file and register it locally
   Future<String> uploadFile(TauChat chat, String path, String filename) async {
-    final id = await PlatformMessagesService.ins.uploadFile(chat, path, filename);
+    final id =
+        await PlatformMessagesService.ins.uploadFile(chat, path, filename);
     await registerLocalFile(id, path);
     return id;
   }

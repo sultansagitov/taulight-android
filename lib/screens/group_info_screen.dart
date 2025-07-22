@@ -12,6 +12,7 @@ import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 class GroupInfoScreen extends StatefulWidget {
   final TauChat chat;
@@ -99,7 +100,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     final record = widget.chat.record as GroupDTO;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: TauAppBar.empty(),
       body: Column(
         children: [
           Center(

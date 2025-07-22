@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/screens/hubs_screen.dart';
 import 'package:taulight/services/client_service.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 abstract class AuthState<T extends StatefulWidget> extends State<T> {
   Widget authorizedBuild(BuildContext context);
@@ -13,7 +14,7 @@ abstract class AuthState<T extends StatefulWidget> extends State<T> {
     if (auth) return authorizedBuild(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Not authorized")),
+      appBar: TauAppBar.text("Not authorized"),
       body: HubsScreenState.buildScreen(clients, () => setState(() {})),
     );
   }

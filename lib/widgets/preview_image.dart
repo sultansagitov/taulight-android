@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:taulight/widget_utils.dart';
 
-
 class PreviewImage extends StatelessWidget {
   final Image image;
 

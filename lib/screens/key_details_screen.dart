@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 class KeyDetailsScreen extends StatelessWidget {
   final String title;
@@ -15,7 +16,7 @@ class KeyDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: TauAppBar.text(title),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(

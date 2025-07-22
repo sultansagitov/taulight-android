@@ -114,9 +114,7 @@ class MessageWidget extends StatelessWidget {
                       message: view,
                     ),
                   ),
-
                 if (view.files.isNotEmpty) MessageFilesWidget(chat, view),
-
                 if (message.decrypted == null)
                   Text(
                     "Cannot decrypt message - ${message.view.text}",

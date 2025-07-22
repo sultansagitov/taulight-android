@@ -5,6 +5,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 class MembersInviteScreen extends StatelessWidget {
   final List<TauChat> chats;
@@ -19,17 +20,16 @@ class MembersInviteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Send link to ...")),
+      appBar: TauAppBar.text("Send link to ..."),
       body: ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: chats.length,
-          itemBuilder: (context, index) {
-            var chat = chats[index];
-
-            final String nickname = (chat.record as DialogDTO).otherNickname;
-
-            return _buildMember(nickname, chat, context);
-          }),
+        padding: EdgeInsets.zero,
+        itemCount: chats.length,
+        itemBuilder: (context, index) {
+          var chat = chats[index];
+          final String nickname = (chat.record as DialogDTO).otherNickname;
+          return _buildMember(nickname, chat, context);
+        },
+      ),
     );
   }
 

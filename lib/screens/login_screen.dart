@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/platform_agent_service.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -129,7 +130,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isRegistering ? "Register" : "Login")),
+      appBar: TauAppBar.text(_isRegistering ? "Register" : "Login"),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

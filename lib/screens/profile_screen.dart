@@ -7,6 +7,7 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/login_list.dart';
 import 'package:taulight/widgets/show_status_settings.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/tip.dart';
 
@@ -54,15 +55,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-        actions: [
-          TauButton.icon(
-            Icons.qr_code,
-            onPressed: () => showQR(context),
-          ),
-        ],
-      ),
+      appBar: TauAppBar.text("Profile", actions: [
+        TauButton.icon(Icons.qr_code, onPressed: () => showQR(context)),
+      ]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

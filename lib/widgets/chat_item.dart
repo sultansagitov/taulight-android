@@ -41,7 +41,7 @@ class ChatItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            ChatAvatar(chat, d: 52),
+            ChatAvatar(chat, d: 56),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -54,7 +54,7 @@ class ChatItem extends StatelessWidget {
                       text: chat.record.getTitle(),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18,
                       ),
                     ),
                   ),

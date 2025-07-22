@@ -18,6 +18,7 @@ import 'package:taulight/screens/member_info_screen.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/message_widget.dart';
 import 'package:taulight/widgets/message_field.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -115,24 +116,9 @@ class ChatScreenState extends State<ChatScreen> {
 
     final enabled = widget.chat.client.authorized;
     return Scaffold(
-      appBar: AppBar(
-        leading: TauButton.icon(
-          Icons.arrow_back,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Row(
-          children: [
-            ChatAvatar(widget.chat, d: 36),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                widget.chat.record.getTitle(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+      appBar: TauAppBar.icon(
+        ChatAvatar(widget.chat, d: 36),
+        widget.chat.record.getTitle(),
         actions: [
           TauButton.icon(
             Icons.more_vert,

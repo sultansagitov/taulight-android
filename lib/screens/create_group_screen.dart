@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/auth_state.dart';
 import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -76,7 +77,7 @@ class _CreateGroupScreenState extends AuthState<CreateGroupScreen> {
   @override
   Widget authorizedBuild(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Group")),
+      appBar: TauAppBar.text("Create Group"),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/screens/hubs_screen.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubInfoScreen extends StatefulWidget {
@@ -39,19 +40,17 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
     var status = widget.client.status;
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TauButton.icon(Icons.qr_code, onPressed: () {
-            showQR(context, size.width * 0.6);
-          }),
-          TauButton.icon(Icons.share, onPressed: () {
-            SharePlus.instance.share(ShareParams(
-              text: widget.client.link,
-              subject: 'Check out this Hub',
-            ));
-          }),
-        ],
-      ),
+      appBar: TauAppBar.empty(actions: [
+        TauButton.icon(Icons.qr_code, onPressed: () {
+          showQR(context, size.width * 0.6);
+        }),
+        TauButton.icon(Icons.share, onPressed: () {
+          SharePlus.instance.share(ShareParams(
+            text: widget.client.link,
+            subject: 'Check out this Hub',
+          ));
+        }),
+      ]),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

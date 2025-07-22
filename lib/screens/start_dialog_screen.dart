@@ -10,6 +10,7 @@ import 'package:taulight/services/key_storage_service.dart';
 import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class StartDialogScreen extends StatefulWidget {
@@ -85,72 +86,9 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
   @override
   Widget authorizedBuild(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Start Dialog"),
-        actions: [
-          TauButton.icon(
-            Icons.qr_code_scanner,
-            onPressed: () async {
-              var result = await moveTo(context, QrScannerScreen());
-              if (result is String) {
-                var uri = Uri.parse(result);
-
-                var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
-                var params = uri.queryParameters;
-                var nickname = params["nickname"]!;
-                var keyID = params['key-id']!;
-                var encryption = params["encryption"]!;
-
-                await KeyStorageService.ins.saveEncryptor(
-                  address,
-                  nickname,
-                  EncryptorKey(
-                    keyId: keyID,
-                    encryption: encryption,
-                    symKey: params["sym"],
-                    publicKey: params["public"],
-                    source: QRSource(),
-                  ),
-                );
-
-                Client? client;
-
-                Iterable<Client> authorized =
-                    ClientService.ins.clientsList.where((c) => c.authorized);
-                var length = authorized.length;
-
-                if (length == 0) {
-                  return;
-                } else if (length == 1) {
-                  client = authorized.first;
-                } else if (length > 1) {
-                  var controller = ClientDropdownController();
-
-                  var screen = SafeArea(
-                    child: Center(
-                      child: ClientDropdown(controller: controller),
-                    ),
-                  );
-
-                  await moveTo(context, screen);
-
-                  client = controller.client;
-                }
-
-                if (client == null) {
-                  return;
-                }
-
-                await PlatformChatsService.ins
-                    .createDialog(client, nickname)
-                    .timeout(Duration(seconds: 10));
-
-                Navigator.pop(context, nickname);
-              }
-            },
-          ),
-        ],
-      ),
+      appBar: TauAppBar.text("Start Dialog", actions: [
+        TauButton.icon(Icons.qr_code_scanner, onPressed: _startDialogPressed),
+      ]),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -188,5 +126,64 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _startDialogPressed() async {
+    var result = await moveTo(context, QrScannerScreen());
+    if (result is String) {
+      var uri = Uri.parse(result);
+
+      var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
+      var params = uri.queryParameters;
+      var nickname = params["nickname"]!;
+      var keyID = params['key-id']!;
+      var encryption = params["encryption"]!;
+
+      await KeyStorageService.ins.saveEncryptor(
+        address,
+        nickname,
+        EncryptorKey(
+          keyId: keyID,
+          encryption: encryption,
+          symKey: params["sym"],
+          publicKey: params["public"],
+          source: QRSource(),
+        ),
+      );
+
+      Client? client;
+
+      Iterable<Client> authorized =
+          ClientService.ins.clientsList.where((c) => c.authorized);
+      var length = authorized.length;
+
+      if (length == 0) {
+        return;
+      } else if (length == 1) {
+        client = authorized.first;
+      } else if (length > 1) {
+        var controller = ClientDropdownController();
+
+        var screen = SafeArea(
+          child: Center(
+            child: ClientDropdown(controller: controller),
+          ),
+        );
+
+        await moveTo(context, screen);
+
+        client = controller.client;
+      }
+
+      if (client == null) {
+        return;
+      }
+
+      await PlatformChatsService.ins
+          .createDialog(client, nickname)
+          .timeout(Duration(seconds: 10));
+
+      Navigator.pop(context, nickname);
+    }
   }
 }

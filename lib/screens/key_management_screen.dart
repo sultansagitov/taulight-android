@@ -6,6 +6,7 @@ import 'package:taulight/screens/key_details_screen.dart';
 import 'package:taulight/services/key_storage_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 class KeyManagementScreen extends StatefulWidget {
   const KeyManagementScreen({super.key});
@@ -71,18 +72,9 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Removes back arrow space
-        title: const Text('Key Management'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadAllKeys,
-          ),
-        ],
-      ),
+      appBar: TauAppBar.text('Key Management', actions: [
+        IconButton(icon: const Icon(Icons.refresh), onPressed: _loadAllKeys),
+      ]),
       body: SafeArea(
         child: Column(
           children: [

@@ -10,6 +10,7 @@ import 'package:taulight/screens/connection_screen.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsScreen extends StatefulWidget {
@@ -32,24 +33,13 @@ class HubsScreenState extends State<HubsScreen> {
     var clients = ClientService.ins.clientsList;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Hubs",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            TauButton.icon(Icons.add, onPressed: () async {
-              var screen = ConnectionScreen(connectUpdate: _connectUpdate);
-              var result = await moveTo(context, screen);
-              if (result != null) {
-                setState(() {});
-              }
-            }),
-          ],
-        ),
-      ),
+      appBar: TauAppBar.text("Hubs", actions: [
+        TauButton.icon(Icons.add, onPressed: () async {
+          var screen = ConnectionScreen(connectUpdate: _connectUpdate);
+          var result = await moveTo(context, screen);
+          if (result != null) setState(() {});
+        }),
+      ]),
       body: buildScreen(clients, _connectUpdate),
     );
   }

@@ -5,6 +5,7 @@ import 'package:taulight/classes/keys.dart';
 import 'package:taulight/services/key_storage_service.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 
 class ProfileQRScreen extends StatelessWidget {
   final Client client;
@@ -21,7 +22,7 @@ class ProfileQRScreen extends StatelessWidget {
     final keyID = client.user!.keyID;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: TauAppBar.empty(),
       body: FutureBuilder<PersonalKey>(
         future: KeyStorageService.ins.loadPersonalKey(address, keyID),
         builder: (context, snapshot) {

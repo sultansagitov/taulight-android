@@ -8,6 +8,7 @@ import 'package:taulight/screens/login_screen.dart';
 import 'package:taulight/screens/qr_scanner_screen.dart';
 import 'package:taulight/services/storage_service.dart';
 import 'package:taulight/utils.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class ConnectionScreen extends StatefulWidget {
@@ -28,26 +29,17 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Connect Hubs",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            TauButton.icon(
-              Icons.qr_code_scanner,
-              onPressed: () async {
-                var result = await moveTo(context, QrScannerScreen());
-                if (result is String) {
-                  _connect(context, result);
-                }
-              },
-            ),
-          ],
+      appBar: TauAppBar.text("Connect Hubs", actions: [
+        TauButton.icon(
+          Icons.qr_code_scanner,
+          onPressed: () async {
+            var result = await moveTo(context, QrScannerScreen());
+            if (result is String) {
+              _connect(context, result);
+            }
+          },
         ),
-      ),
+      ]),
       body: Container(
         padding: const EdgeInsets.all(8.0),
         height: 300,
