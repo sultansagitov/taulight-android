@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/menus/home.dart';
 import 'package:taulight/screens/login_screen.dart';
@@ -89,7 +90,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var isLight = Theme.of(context).brightness == Brightness.light;
-    var color = Colors.deepOrange[isLight ? 700 : 300];
+    var color = Config.primarySwatch[isLight ? 700 : 300];
 
     var names = ClientService.ins.clientsList
         .where((c) => c.user != null)
@@ -156,18 +157,45 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       // TODO Create group / start dialog
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     setState(() => _fullLoading = !_fullLoading);
-      //   },
-      //   child: const Icon(Icons.edit),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() => _fullLoading = !_fullLoading);
+        },
+        child: const Icon(Icons.edit),
+      ),
     );
   }
 
   Widget _buildChatList() {
     if (_fullLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          ...ClientService.ins.clientsList.map((client) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    client.name,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    client.status.str,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: client.status.color,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          })
+        ],
+      );
     }
 
     var clients = ClientService.ins.clientsList;

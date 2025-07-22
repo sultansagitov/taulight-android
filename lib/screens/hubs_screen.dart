@@ -40,24 +40,20 @@ class HubsScreenState extends State<HubsScreen> {
           if (result != null) setState(() {});
         }),
       ]),
-      body: buildScreen(clients, _connectUpdate),
+      body: buildScreen(context, clients, _connectUpdate),
     );
   }
 
-  static Widget buildScreen(List<Client> clients, VoidCallback connectUpdate) {
+  static Widget buildScreen(
+      BuildContext context, List<Client> clients, VoidCallback connectUpdate) {
     if (clients.isEmpty) return HubsEmpty(connectUpdate: connectUpdate);
 
     return Container(
       padding: const EdgeInsets.all(8),
-      height: 300,
-      child: ListView.builder(
-        itemCount: clients.length,
-        itemBuilder: (context, index) {
-          Client client = clients[index];
-
-          return _buildHubItem(context, client, connectUpdate);
-        },
-      ),
+      child: ListView(
+          children: clients
+              .map((client) => _buildHubItem(context, client, connectUpdate))
+              .toList()),
     );
   }
 
@@ -66,96 +62,142 @@ class HubsScreenState extends State<HubsScreen> {
     Client client,
     VoidCallback connectUpdate,
   ) {
-    var status = client.status;
-    return Column(
-      children: [
-        Row(
+    final status = client.status;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () async {
-                  await moveTo(context, HubInfoScreen(client));
-                  connectUpdate();
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          client.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () async {
+                      await moveTo(context, HubInfoScreen(client));
+                      connectUpdate();
+                    },
+                    child: Card(
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              client.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              status.str,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: status.color.withAlpha(200),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          status.str,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: status.color.withAlpha(192),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                if (client.user != null) ...[
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          await moveTo(context, ProfileScreen(client));
+                          connectUpdate();
+                        },
+                        child: MyAvatar(client: client, d: 44),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-            if (client.hide)
-              TauButton.icon(
-                Icons.visibility,
-                onPressed: connectUpdate,
-              ),
-            if (!client.connected)
-              TauButton.icon(
-                Icons.refresh,
-                onPressed: () async {
-                  try {
-                    await client.reload();
-                  } on ConnectionException {
-                    if (context.mounted) {
-                      snackBarError(
-                          context, "Connection error: ${client.name}");
-                    }
-                  } finally {
-                    connectUpdate();
-                  }
-                },
-              ),
-            if (client.connected &&
-                (client.user == null || !client.user!.authorized))
-              TauButton.icon(
-                Icons.login,
-                onPressed: () async {
-                  var screen = LoginScreen(client: client);
-                  var result = await moveTo(context, screen);
-                  if (result is String && result.contains("success")) {
-                    connectUpdate();
-                  }
-                },
-              ),
-            TauButton.icon(
-              Icons.close,
-              onPressed: () async {
-                await client.disconnect();
-                await StorageService.ins.removeClient(client);
-                ClientService.ins.remove(client);
-                connectUpdate();
-              },
-            )
+            const SizedBox(height: 12),
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: TauButton.icon(
+                    client.hide ? Icons.visibility : Icons.visibility_off,
+                    disable: client.connected,
+                    onPressed: () {
+                      client.hide = !client.hide;
+                      connectUpdate();
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: TauButton.icon(
+                    Icons.refresh,
+                    onPressed: () async {
+                      try {
+                        await client.reload();
+                      } on ConnectionException {
+                        if (context.mounted) {
+                          snackBarError(
+                              context, "Connection error: ${client.name}");
+                        }
+                      } finally {
+                        connectUpdate();
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: TauButton.icon(
+                    Icons.login,
+                    disable: !(client.connected &&
+                        (client.user == null || !client.user!.authorized)),
+                    onPressed: () async {
+                      final result =
+                          await moveTo(context, LoginScreen(client: client));
+                      if (result is String && result.contains("success")) {
+                        connectUpdate();
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: TauButton.icon(
+                    Icons.close,
+                    onPressed: () async {
+                      await client.disconnect();
+                      await StorageService.ins.removeClient(client);
+                      ClientService.ins.remove(client);
+                      connectUpdate();
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-        if (client.user != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: buildMember(context, client, d: 44, update: connectUpdate),
-          ),
-      ],
+      ),
     );
   }
 

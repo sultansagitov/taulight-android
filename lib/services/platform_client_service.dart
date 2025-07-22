@@ -48,9 +48,8 @@ class PlatformClientService {
       throw InvalidSandnodeLinkException(link);
     }
 
-    // TODO add connecting status
-
     Client client = Client(uuid: uuid, address: address, link: link);
+    client.connecting = true;
 
     if (keep) ClientService.ins.add(client);
     connectUpdate?.call();
@@ -78,6 +77,9 @@ class PlatformClientService {
   }
 
   Future<void> reconnect(Client client, [VoidCallback? callback]) async {
+    client.connecting = true;
+    callback?.call();
+
     String uuid = client.uuid;
     String link = client.link;
     Result result = await PlatformService.ins.method("connect", {

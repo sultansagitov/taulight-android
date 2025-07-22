@@ -6,6 +6,7 @@ import 'package:taulight/services/platform_chats_service.dart';
 import 'package:taulight/services/platform_client_service.dart';
 
 enum ClientStatus {
+  connecting("Connecting", Colors.blue),
   connected("Connected", Colors.green),
   unauthorized("Unauthorized", Colors.amber),
   expired("Expired Token", Colors.amber),
@@ -28,6 +29,8 @@ class Client {
 
   bool hide = false;
 
+  bool connecting = false;
+
   bool _connected = false;
   bool get connected => _connected;
 
@@ -38,6 +41,7 @@ class Client {
   User? user;
 
   set connected(bool value) {
+    connecting = false;
     _connected = value;
     if (value) {
       hide = false;
@@ -49,6 +53,7 @@ class Client {
   Client({required this.uuid, required this.address, required this.link});
 
   ClientStatus get status {
+    if (connecting) return ClientStatus.connecting;
     if (!connected) return ClientStatus.disconnected;
     if (user == null || !user!.authorized) return ClientStatus.unauthorized;
     if (user!.expiredToken) return ClientStatus.expired;

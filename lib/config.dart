@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:taulight/services/storage_service.dart';
 
 class Config {
+  static Color seedColor = Colors.deepOrangeAccent;
+  static MaterialColor primarySwatch = Colors.deepOrange;
+
   static var recommended = [
     ServerRecord(
       name: "Local Hub",

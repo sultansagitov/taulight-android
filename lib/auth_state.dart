@@ -15,7 +15,7 @@ abstract class AuthState<T extends StatefulWidget> extends State<T> {
 
     return Scaffold(
       appBar: TauAppBar.text("Not authorized"),
-      body: HubsScreenState.buildScreen(clients, () => setState(() {})),
+      body: HubsScreenState.buildScreen(context, clients, () => setState(() {})),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:taulight/config.dart';
 import 'package:taulight/screens/pin_screen.dart';
 
 void main() {
@@ -42,7 +43,7 @@ class _TaulightAppState extends State<TaulightApp> {
       title: 'Taulight',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrangeAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Config.seedColor),
         useMaterial3: true,
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
@@ -54,10 +55,10 @@ class _TaulightAppState extends State<TaulightApp> {
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepOrangeAccent,
+          seedColor: Config.seedColor,
           brightness: Brightness.dark,
         ),
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Config.primarySwatch,
         useMaterial3: true,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Color(0xFF121212),
