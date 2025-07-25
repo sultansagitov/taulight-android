@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:taulight/screens/home_screen.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/screens/home.dart';
+import 'package:taulight/services/storage.dart';
 
 class PinScreen extends StatefulWidget {
   const PinScreen({super.key});

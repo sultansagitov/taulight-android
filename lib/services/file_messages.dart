@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/platform_messages_service.dart';
+import 'package:taulight/services/platform/messages.dart';
 import 'package:taulight/widget_utils.dart';
 
 class FileMessageService {

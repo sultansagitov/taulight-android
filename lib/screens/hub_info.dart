@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/hubs_screen.dart';
+import 'package:taulight/screens/hubs.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';

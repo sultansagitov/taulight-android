@@ -3,8 +3,8 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform_service.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/platform/platform_service.dart';
+import 'package:taulight/services/storage.dart';
 
 final incorrectUserDataExceptions = [
   "UnauthorizedException",

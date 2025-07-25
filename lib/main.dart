@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:taulight/config.dart';
-import 'package:taulight/screens/pin_screen.dart';
+import 'package:taulight/screens/pin.dart';
 
 void main() {
   runApp(const TaulightApp());
@@ -40,7 +40,7 @@ class _TaulightAppState extends State<TaulightApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Taulight',
+      title: 'Taulight Agent',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Config.seedColor),

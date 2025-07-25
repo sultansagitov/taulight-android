@@ -3,7 +3,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/widgets/chat_item.dart';
 import 'package:taulight/widgets/chats_filter.dart';
 import 'package:taulight/widgets/warning_disconnect_message.dart';

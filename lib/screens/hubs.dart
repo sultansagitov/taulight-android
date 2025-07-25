@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/screens/hub_info_screen.dart';
-import 'package:taulight/screens/login_screen.dart';
-import 'package:taulight/screens/profile_screen.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/screens/hub_info.dart';
+import 'package:taulight/screens/login.dart';
+import 'package:taulight/screens/profile.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/connection_screen.dart';
+import 'package:taulight/screens/connection.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/storage.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

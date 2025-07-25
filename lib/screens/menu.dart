@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/screens/connection_screen.dart';
-import 'package:taulight/screens/create_group_screen.dart';
-import 'package:taulight/screens/hubs_screen.dart';
-import 'package:taulight/screens/key_management_screen.dart';
-import 'package:taulight/screens/start_dialog_screen.dart';
-import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/screens/connection.dart';
+import 'package:taulight/screens/create_group.dart';
+import 'package:taulight/screens/hubs.dart';
+import 'package:taulight/screens/key_management.dart';
+import 'package:taulight/screens/start_dialog.dart';
+import 'package:taulight/services/client.dart';
+import 'package:taulight/services/storage.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
@@ -136,7 +136,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TauAppBar.text("Taulight"),
+      appBar: TauAppBar.text("Taulight Agent"),
       body: ListView(
         children: MenuOption.values.map((option) {
           return ListTile(

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/avatar_service.dart';
-import 'package:taulight/services/platform_avatar_service.dart';
+import 'package:taulight/services/avatar.dart';
+import 'package:taulight/services/platform/avatar.dart';
 
 class ChatAvatarService {
   static final ChatAvatarService _instance = ChatAvatarService._internal();

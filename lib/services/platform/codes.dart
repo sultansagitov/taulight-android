@@ -2,7 +2,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/code_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform/platform_service.dart';
 
 class PlatformCodesService {
   static final _instance = PlatformCodesService._internal();

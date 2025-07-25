@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/screens/hub_info_screen.dart';
+import 'package:taulight/screens/hub_info.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

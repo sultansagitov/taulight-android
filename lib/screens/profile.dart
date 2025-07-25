@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/profile_qr_screen.dart';
-import 'package:taulight/services/profile_avatar_service.dart';
+import 'package:taulight/screens/profile_qr.dart';
+import 'package:taulight/services/profile_avatar.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/login_list.dart';

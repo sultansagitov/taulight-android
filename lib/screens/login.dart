@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/platform_agent_service.dart';
+import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/storage.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

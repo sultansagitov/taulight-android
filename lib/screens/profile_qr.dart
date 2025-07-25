@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
-import 'package:taulight/services/key_storage_service.dart';
+import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';

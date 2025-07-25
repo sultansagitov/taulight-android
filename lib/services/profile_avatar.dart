@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/avatar_service.dart';
-import 'package:taulight/services/platform_avatar_service.dart';
+import 'package:taulight/services/avatar.dart';
+import 'package:taulight/services/platform/avatar.dart';
 
 class ProfileAvatarService {
   static final _instance = ProfileAvatarService._internal();

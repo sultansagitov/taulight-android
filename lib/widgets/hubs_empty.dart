@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/connection_screen.dart';
+import 'package:taulight/screens/connection.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsEmpty extends StatefulWidget {

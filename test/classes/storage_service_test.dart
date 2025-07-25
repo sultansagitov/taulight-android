@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/storage.dart';
 
 void main() {
   group('UserRecord', () {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform_chats_service.dart';
+import 'package:taulight/services/platform/chats.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';

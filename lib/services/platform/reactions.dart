@@ -1,7 +1,7 @@
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform/platform_service.dart';
 
 class PlatformReactionService {
   static final _instance = PlatformReactionService._internal();

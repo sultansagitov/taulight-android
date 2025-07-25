@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 
 class ClientDropdown extends StatefulWidget {

@@ -6,10 +6,10 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/user.dart';
-import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/platform_agent_service.dart';
-import 'package:taulight/services/platform_messages_service.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/client.dart';
+import 'package:taulight/services/platform/agent.dart';
+import 'package:taulight/services/platform/messages.dart';
+import 'package:taulight/services/storage.dart';
 import 'package:uuid/uuid.dart';
 
 import 'chat_message_wrapper_dto.dart';

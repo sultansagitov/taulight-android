@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/platform_settings_service.dart';
+import 'package:taulight/services/platform/settings.dart';
 import 'package:taulight/widgets/tip.dart';
 
 class ShowStatusSettings extends StatefulWidget {

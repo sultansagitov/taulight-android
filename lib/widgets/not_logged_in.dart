@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/login_screen.dart';
+import 'package:taulight/screens/login.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/storage.dart';
 
 class Config {
   static Color seedColor = Colors.deepOrangeAccent;

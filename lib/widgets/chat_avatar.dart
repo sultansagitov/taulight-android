@@ -3,8 +3,8 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/chat_avatar_service.dart';
-import 'package:taulight/services/profile_avatar_service.dart';
+import 'package:taulight/services/chat_avatar.dart';
+import 'package:taulight/services/profile_avatar.dart';
 import 'package:taulight/utils.dart';
 
 class ChatAvatar extends StatefulWidget {

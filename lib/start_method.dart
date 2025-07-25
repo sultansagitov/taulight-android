@@ -4,10 +4,10 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
-import 'package:taulight/services/client_service.dart';
-import 'package:taulight/services/platform_agent_service.dart';
-import 'package:taulight/services/platform_client_service.dart';
-import 'package:taulight/services/storage_service.dart';
+import 'package:taulight/services/client.dart';
+import 'package:taulight/services/platform/agent.dart';
+import 'package:taulight/services/platform/client.dart';
+import 'package:taulight/services/storage.dart';
 import 'package:taulight/widget_utils.dart';
 
 Future<void> start(

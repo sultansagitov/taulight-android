@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:taulight/screens/create_group_screen.dart';
-import 'package:taulight/screens/start_dialog_screen.dart';
+import 'package:taulight/screens/create_group.dart';
+import 'package:taulight/screens/start_dialog.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

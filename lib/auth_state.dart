@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/screens/hubs_screen.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/screens/hubs.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
 abstract class AuthState<T extends StatefulWidget> extends State<T> {

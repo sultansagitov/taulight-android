@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/code_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/services/invite_service.dart';
+import 'package:taulight/services/invites.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_member_settings_response_dto.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform_service.dart';
+import 'package:taulight/services/platform/platform_service.dart';
 
 class PlatformSettingsService {
   static final _instance = PlatformSettingsService._internal();

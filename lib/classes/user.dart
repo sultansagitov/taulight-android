@@ -1,5 +1,5 @@
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/services/platform_agent_service.dart';
+import 'package:taulight/services/platform/agent.dart';
 
 class User {
   Client client;

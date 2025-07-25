@@ -1,6 +1,6 @@
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/code_dto.dart';
-import 'package:taulight/services/platform_codes_service.dart';
+import 'package:taulight/services/platform/codes.dart';
 
 class InviteService {
   static final InviteService _instance = InviteService._internal();

@@ -4,9 +4,9 @@ import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
 import 'package:taulight/classes/sources.dart';
-import 'package:taulight/services/client_service.dart';
+import 'package:taulight/services/client.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/key_storage_service.dart';
+import 'package:taulight/services/key_storages.dart';
 
 class MethodCallHandler {
   final Map<String, Future Function(MethodCall)> handlers = {
