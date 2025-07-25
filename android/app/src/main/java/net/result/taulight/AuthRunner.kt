@@ -9,24 +9,24 @@ import net.result.sandnode.hubagent.Agent
 import net.result.sandnode.serverclient.SandnodeClient
 
 fun register(client: SandnodeClient, nickname: String, password: String, device: String): RegistrationResponseDTO {
-    val agent = client.node as Agent
+    val agent = client.node().agent()
 
     val chain = RegistrationClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val keyStorage = AsymmetricEncryptions.ECIES.generate()
     val response = chain.register(nickname, password, device, keyStorage)
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
     agent.config.savePersonalKey(client.address, response.keyID, keyStorage)
     return response
 }
 
 fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
     val chain = LoginClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val response = chain.history
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
 
-    val agent = client.node as Agent
+    val agent = client.node().agent()
 
     return response.map {
         val personalKey = agent.config.loadPersonalKey(client.address, it.encryptorID)

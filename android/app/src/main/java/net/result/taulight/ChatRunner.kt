@@ -17,9 +17,9 @@ object ChatRunner {
 
 fun getChats(client: SandnodeClient): List<Map<String, Any>> {
     val chain = ChatClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val infos = chain.getByMember(ChatInfoPropDTO.all())
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
     return infos.map {
         val map: MutableMap<String, Any> = mutableMapOf(
             "chat" to taulight!!.objectMapper.convertValue(it, Map::class.java)!!
@@ -38,9 +38,9 @@ fun getChats(client: SandnodeClient): List<Map<String, Any>> {
 
 fun loadChat(client: SandnodeClient, chatID: UUID): Map<String, Any> {
     val chain = ChatClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val optChats = chain.getByID(listOf(chatID), ChatInfoPropDTO.all())
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
 
     val chat = optChats.first()
 
@@ -48,13 +48,14 @@ fun loadChat(client: SandnodeClient, chatID: UUID): Map<String, Any> {
         "chat" to taulight!!.objectMapper.convertValue(chat, Map::class.java)!!
     )
 
-    try {
-        decrypt(client, chat)
-        map["decrypted-last-message"] = chat.decryptedMessage!!
-    } catch (e: KeyStorageNotFoundException) {
-        ChatRunner.LOGGER.error("Send to flutter without decrypting - {}, {}", client, chat, e)
+    if (chat.lastMessage != null) {
+        try {
+            decrypt(client, chat)
+            map["decrypted-last-message"] = chat.decryptedMessage!!
+        } catch (e: KeyStorageNotFoundException) {
+            ChatRunner.LOGGER.error("Send to flutter without decrypting - {}, {}", client, chat, e)
+        }
     }
-
     return map
 }
 
@@ -65,12 +66,12 @@ private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
         chat.decrypt(client)
     } catch (e: KeyStorageNotFoundException) {
         val chain = DEKClientChain(client)
-        client.io.chainManager.linkChain(chain)
+        client.io().chainManager.linkChain(chain)
         val deks = chain.get()
         ChatRunner.LOGGER.debug("DEKs from hub - {}", deks)
-        client.io.chainManager.removeChain(chain)
+        client.io().chainManager.removeChain(chain)
 
-        val agent = client.node as Agent
+        val agent = client.node().agent()
 
         var decrypted = false
         for (dek in deks) {
@@ -85,7 +86,7 @@ private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
         }
 
         if (!decrypted) {
-            throw KeyStorageNotFoundException(e)
+            throw e;
         }
     }
 }

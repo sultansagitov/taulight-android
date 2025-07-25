@@ -18,13 +18,14 @@ class NotLoggedIn extends StatelessWidget {
         children: [
           Text(client.name),
           const SizedBox(height: 10),
-          const Text(
-            "Not logged in",
-            style: TextStyle(fontSize: 18),
-          ),
+          const Text("Not logged in", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 10),
           TauButton.text("Login", onPressed: () async {
-            var result = await moveTo(context, LoginScreen(client: client));
+            var screen = LoginScreen(
+              client: client,
+              nickname: client.user?.nickname,
+            );
+            var result = await moveTo(context, screen);
             await onLogin?.call(result);
           }),
         ],

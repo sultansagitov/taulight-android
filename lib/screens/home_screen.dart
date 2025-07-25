@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
-import 'package:taulight/menus/home.dart';
 import 'package:taulight/screens/login_screen.dart';
+import 'package:taulight/screens/main_menu_screen.dart';
 import 'package:taulight/services/client_service.dart';
 import 'package:taulight/services/platform_client_service.dart';
 import 'package:taulight/start_method.dart';
@@ -108,24 +108,21 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Expanded(child: AnimatedGreeting(names: names)),
+                  TauButton.icon(
+                    Icons.more_vert,
+                    color: color,
+                    onPressed: () async {
+                      var screen = MainMenuScreen();
+                      await moveTo(context, screen, fromLeft: true);
+                      await _updateHome(animation: false);
+                    },
+                  ),
                   if (loadingChats)
                     CircularProgressIndicator(
                       color: color,
                       padding: EdgeInsets.symmetric(horizontal: 10),
                     ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: TauButton.icon(
-                        Icons.more_vert,
-                        color: color,
-                        onPressed: () => showMenuAtHome(context, () {
-                          _updateHome(animation: true);
-                        }),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: AnimatedGreeting(names: names)),
                 ],
               ),
             ),
@@ -235,13 +232,11 @@ class HomeScreenState extends State<HomeScreen> {
         _updateHome(animation: true);
       },
       onChatTap: (TauChat chat) async {
-        await moveTo(
-          context,
-          ChatScreen(chat, key: chatKey, updateHome: () {
-            _updateHome(animation: true);
-          }),
-        );
-        await _updateHome(animation: true);
+        var screen = ChatScreen(chat, key: chatKey, updateHome: () {
+          _updateHome(animation: true);
+        });
+        await moveTo(context, screen);
+        await _updateHome(animation: false);
       },
       onLoginTap: (Client client) async {
         var result = await moveTo(context, LoginScreen(client: client));

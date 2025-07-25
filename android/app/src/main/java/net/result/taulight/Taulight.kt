@@ -80,7 +80,7 @@ class Taulight(val methodChannel: MethodChannel) {
         client.start(AndroidClientChainManager(mc, this))
 
         val serverKey = AgentProtocol.loadOrFetchServerKey(client, link)
-        client.io.setServerKey(serverKey)
+        client.io().setServerKey(serverKey)
         ClientProtocol.sendSYM(client)
 
         clients[uuid] = mc

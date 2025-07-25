@@ -64,7 +64,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         executorService.execute {
             val handler = methodHandlerMap[call.method]
             if (handler != null) {
-                taulight!!.clients.entries.removeIf { (_, mc) -> !mc.client.io.isConnected }
+                taulight!!.clients.entries.removeIf { (_, mc) -> !mc.client.io().isConnected }
 
                 try {
                     val res: Any? = handler(call)
@@ -186,7 +186,7 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
                 val decrypted: String
                 val input: ChatMessageInputDTO = it.message
                 if (input.keyID != null) {
-                    val agent = client.node as Agent
+                    val agent = client.node().agent()
                     val keyStorage = agent.config.loadDEK(client.address, input.keyID)
                     val decoded = Base64.decode(input.content, Base64.NO_WRAP)
                     decrypted = keyStorage.encryption().decrypt(decoded, keyStorage)
@@ -262,7 +262,7 @@ fun chain(call: MethodCall): Any? {
 
     val chain: Chain? = declaredConstructor.newInstance(client) as Chain?
 
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     try {
         val processedParams = params.map {
             if (it is String && uuidRegex.matches(it)) {
@@ -285,6 +285,6 @@ fun chain(call: MethodCall): Any? {
     } catch (e: InvocationTargetException) {
         throw e.cause ?: e
     } finally {
-        client.io.chainManager.removeChain(chain)
+        client.io().chainManager.removeChain(chain)
     }
 }

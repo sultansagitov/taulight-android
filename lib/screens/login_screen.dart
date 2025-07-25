@@ -8,10 +8,12 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class LoginScreen extends StatefulWidget {
   final Client client;
+  final String? nickname;
 
   const LoginScreen({
     super.key,
     required this.client,
+    this.nickname,
   });
 
   @override
@@ -19,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final _nicknameController = TextEditingController();
+  late final TextEditingController _nicknameController;
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -28,6 +30,12 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool _loading = false;
   bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController = TextEditingController(text: widget.nickname);
+  }
 
   Future<void> _login() async {
     Client client = widget.client;

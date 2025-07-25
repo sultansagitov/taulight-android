@@ -28,7 +28,7 @@ fun groupSend(
 ): Map<String, String> {
     val chain = ForwardRequestClientChain(client)
 
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
 
     val message = ChatMessageInputDTO()
         .setChatID(chatID)
@@ -39,7 +39,7 @@ fun groupSend(
 
     val id = chain.message(message)
 
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
 
     return mutableMapOf("message" to id.toString())
 }
@@ -60,7 +60,7 @@ fun dialogSend(
 
     var dek: KeyEntry? = null
     try {
-        val agent = client.node as Agent
+        val agent = client.node().agent()
 
         dek = try {
             agent.config.loadDEK(client.address, nickname)
@@ -70,17 +70,17 @@ fun dialogSend(
                 agent.config.loadEncryptor(client.address, nickname)
             } catch (_: KeyStorageNotFoundException) {
                 val chainKO = DEKClientChain(client)
-                client.io.chainManager.linkChain(chainKO)
+                client.io().chainManager.linkChain(chainKO)
                 val dto = chainKO.getKeyOf(nickname)
-                client.io.chainManager.removeChain(chainKO)
+                client.io().chainManager.removeChain(chainKO)
                 KeyEntry(dto.keyID, dto.keyStorage)
             }
 
             val dek = SymmetricEncryptions.AES.generate()
             val chainSD = DEKClientChain(client)
-            client.io.chainManager.linkChain(chainSD)
+            client.io().chainManager.linkChain(chainSD)
             val dekID = chainSD.sendDEK(nickname, KeyDTO(encryptor.id, encryptor.keyStorage), dek)
-            client.io.chainManager.removeChain(chainSD)
+            client.io().chainManager.removeChain(chainSD)
 
             agent.config.saveDEK(client.address, nickname, dekID, dek)
 
@@ -94,17 +94,17 @@ fun dialogSend(
     }
 
     val chain = ForwardRequestClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val id = chain.message(message)
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
 
     return mutableMapOf("message" to id.toString()).apply { dek?.id?.let { put("key", it.toString()) } }
 }
 
 fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): PaginatedDTO<ChatMessageViewDTO> {
     val chain = MessageClientChain(client)
-    client.io.chainManager.linkChain(chain)
+    client.io().chainManager.linkChain(chain)
     val paginated = chain.getMessages(chatID, index, size)
-    client.io.chainManager.removeChain(chain)
+    client.io().chainManager.removeChain(chain)
     return paginated
 }
