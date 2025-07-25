@@ -69,17 +69,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: () => _showImagePreview(context),
                   child: MyAvatar(client: widget.client, d: 200),
                 ),
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.black54,
-                    child: IconButton(
-                      icon: Icon(Icons.edit, color: Colors.white, size: 20),
-                      onPressed: _pickImage,
+                if (widget.client.connected)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      child: IconButton(
+                        icon: Icon(Icons.edit, color: Colors.white, size: 20),
+                        onPressed: _pickImage,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -108,7 +109,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 "except for the timestamp, are encrypted on the "
                 "server to ensure data security."),
             const SizedBox(height: 8),
-            LoginList(widget.client),
+            if (widget.client.connected)
+              LoginList(widget.client)
+            else
+              Text(
+                "Client is disconnected",
+                style: TextStyle(color: Colors.red),
+              ),
           ],
         ),
       ),

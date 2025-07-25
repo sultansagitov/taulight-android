@@ -69,7 +69,12 @@ class _ShowStatusSettingsState extends State<ShowStatusSettings> {
               "Visible to others",
               style: theme.textTheme.bodyLarge,
             ),
-            if (showStatus != null)
+            if (!widget.client.connected)
+              Switch(
+                value: false, // TODO save value to storage
+                onChanged: null,
+              )
+            else if (showStatus != null)
               Switch(
                 value: showStatus!,
                 onChanged: loading ? null : _setValue,
