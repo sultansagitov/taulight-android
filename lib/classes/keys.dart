@@ -69,14 +69,12 @@ class PersonalKey {
 }
 
 class EncryptorKey {
-  final String keyId;
   final String encryption;
   final String? symKey;
   final String? publicKey;
   final Source source;
 
   EncryptorKey({
-    required this.keyId,
     required this.encryption,
     required this.source,
     this.symKey,
@@ -85,7 +83,6 @@ class EncryptorKey {
 
   factory EncryptorKey.fromMap(Map<String, dynamic> json) {
     return EncryptorKey(
-      keyId: json['key-id']!,
       encryption: json['encryption']!,
       source: Source.fromMap(json['source']),
       symKey: json['sym'],
@@ -95,7 +92,6 @@ class EncryptorKey {
 
   Map<String, dynamic> toMap() {
     return {
-      'key-id': keyId,
       'encryption': encryption,
       'source': source.toMap(),
       if (symKey != null) 'sym': symKey!,

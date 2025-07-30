@@ -195,7 +195,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final key = encryptorKeys[index];
         return _buildKeyCard(
-          title: key.keyId,
+          title: key.encryption, // TODO add nickname
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -204,7 +204,6 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             'Added: ${formatTime(key.source.datetime)}',
           ],
           onTap: () => _showKeyDetails('Encryptor Key', {
-            'Key ID': key.keyId,
             'Encryption': key.encryption,
             if (key.symKey != null) 'Symmetric Key': key.symKey!,
             if (key.publicKey != null) 'Public Key': key.publicKey!,

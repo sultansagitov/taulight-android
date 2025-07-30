@@ -49,7 +49,7 @@ class HomeScreenState extends State<HomeScreen> {
       } catch (e, stackTrace) {
         print(e);
         print(stackTrace);
-        return e;
+        rethrow;
       }
     });
 

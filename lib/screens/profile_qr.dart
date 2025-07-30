@@ -19,12 +19,14 @@ class ProfileQRScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final address = client.address;
     final nickname = client.user!.nickname;
-    final keyID = client.user!.keyID;
 
     return Scaffold(
       appBar: TauAppBar.empty(),
       body: FutureBuilder<PersonalKey>(
-        future: KeyStorageService.ins.loadPersonalKey(address, keyID),
+        future: KeyStorageService.ins.loadPersonalKey(
+          address: address,
+          nickname: nickname,
+        ),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             print(snapshot.error);
@@ -39,7 +41,6 @@ class ProfileQRScreen extends StatelessWidget {
           PersonalKey personalKey = snapshot.data!;
           final Map<String, String> data = {
             'nickname': nickname,
-            'key-id': keyID,
             'encryption': personalKey.encryption,
             if (personalKey.symKey != null) 'sym': personalKey.symKey!,
             if (personalKey.publicKey != null) 'public': personalKey.publicKey!,

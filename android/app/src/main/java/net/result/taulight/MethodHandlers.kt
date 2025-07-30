@@ -10,8 +10,6 @@ import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.Chain
 import net.result.sandnode.dto.FileDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
-import net.result.sandnode.exception.error.SandnodeErrorException
-import net.result.sandnode.hubagent.Agent
 import net.result.sandnode.link.Links
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.dto.ChatMessageInputDTO
@@ -49,8 +47,7 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
             "connect" to ::connect,
             "disconnect" to ::disconnect,
             "register" to ::register,
-            "group-send" to ::groupSend,
-            "dialog-send" to ::dialogSend,
+            "send" to ::send,
             "get-chats" to ::getChats,
             "load-messages" to ::loadMessages,
             "load-clients" to ::loadClients,
@@ -69,15 +66,6 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
                 try {
                     val res: Any? = handler(call)
                     result.success(mapOf("success" to res))
-                } catch (e: SandnodeErrorException) {
-                    result.success(
-                        mapOf(
-                            "error" to mapOf(
-                                "name" to e.javaClass.simpleName,
-                                "message" to e.message
-                            )
-                        )
-                    )
                 } catch (e: Exception) {
                     M.LOGGER.error("Unhandled", e)
                     result.success(
@@ -118,18 +106,18 @@ fun register(call: MethodCall): Map<String, String> {
     val password: String = call.argument<String>("password")!!
     val device: String = call.argument<String>("device")!!
 
-    val client = taulight!!.getClient(uuid).client
+    val client = taulight!!.getClient(uuid)
 
-    val response = register(client, nickname, password, device)
+    val response = register(client.client, nickname, password, device)
     return mapOf(
         "token" to response.token,
         "key-id" to response.keyID.toString()
     )
 }
 
-fun groupSend(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val chatID: String = call.argument<String>("chat-id")!!
+fun send(call: MethodCall): Map<String, String> {
+    val uuid: UUID = UUID.fromString(call.argument<String>("uuid")!!)
+    val chatID: UUID = UUID.fromString(call.argument<String>("chat-id")!!)
     val content: String = call.argument<String>("content")!!
     val repliedToMessagesString: List<String> = call.argument<List<String>>("replied-to-messages")!!
     val fileIDsString: List<String> = call.argument<List<String>>("file-id")!!
@@ -138,29 +126,17 @@ fun groupSend(call: MethodCall): Map<String, String> {
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
     val fileIDs: Set<UUID> = fileIDsString.map { UUID.fromString(it) }.toSet()
 
-    return groupSend(mc.client, UUID.fromString(chatID), content, repliedToMessages, fileIDs)
-}
-
-fun dialogSend(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val chatID: String = call.argument<String>("chat-id")!!
-    val nickname: String = call.argument<String>("nickname")!!
-    val content: String = call.argument<String>("content")!!
-    val repliedToMessagesString: List<String> = call.argument<List<String>>("replied-to-messages")!!
-    val fileIDsString: List<String> = call.argument<List<String>>("file-id")!!
-
-    val mc: MemberClient = taulight!!.getClient(uuid)
-    val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
-    val fileIDs: Set<UUID> = fileIDsString.map { UUID.fromString(it) }.toSet()
-
-    return dialogSend(mc.client, nickname, UUID.fromString(chatID), content, repliedToMessages, fileIDs)
+    val chat = taulight!!.getChat(chatID) ?: run {
+        loadChat(mc.client, chatID)
+        taulight!!.getChat(chatID)!!
+    }
+    return send(mc.client, chat, content, repliedToMessages, fileIDs)
 }
 
 fun getChats(call: MethodCall): List<Map<String, Any>> {
     val uuid: String = call.argument<String>("uuid")!!
-    val client = taulight!!.getClient(uuid).client
-
-    return getChats(client)
+    val mc = taulight!!.getClient(uuid)
+    return getChats(mc.client)
 }
 
 fun loadMessages(call: MethodCall): Map<String, Any> {
@@ -207,13 +183,14 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
 @Suppress("unused")
 fun loadClients(ignoredCall: MethodCall): List<Map<String, String>> {
     return taulight!!.clients.entries.map { (clientID, mc) ->
+        val client = mc.client
         val map = mutableMapOf(
             "uuid" to clientID.toString(),
-            "address" to mc.client.address.toString(),
+            "address" to client.address.toString(),
             "link" to mc.link.toString(),
         )
 
-        if (mc.nickname != null) map["nickname"] = mc.nickname!!
+        if (client.nickname != null) map["nickname"] = client.nickname!!
 
         map
     }
@@ -224,17 +201,14 @@ fun loadChat(call: MethodCall): Map<String, Any> {
     val chatString: String = call.argument<String>("chat-id")!!
 
     val chatID: UUID = UUID.fromString(chatString)
-    val client: SandnodeClient = taulight!!.getClient(uuid).client
-
-    return loadChat(client, chatID)
+    val mc = taulight!!.getClient(uuid)
+    return loadChat(mc.client, chatID)
 }
 
 fun loginHistory(call: MethodCall): List<Map<String, Any>> {
     val uuid: String = call.argument<String>("uuid")!!
-
-    val client = taulight!!.getClient(uuid).client
-
-    return loginHistory(client)
+    val mc = taulight!!.getClient(uuid)
+    return loginHistory(mc.client)
 }
 
 fun chain(call: MethodCall): Any? {

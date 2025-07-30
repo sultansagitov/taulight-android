@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:taulight/chat_filters.dart';
-import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
@@ -54,12 +52,7 @@ class PlatformMessagesService {
       "replied-to-messages": message.repliedToMessages,
       "file-id": message.files.map((f) => f.id).toList(),
     };
-    Result result = isGroup(chat)
-        ? await PlatformService.ins.method("group-send", args)
-        : await PlatformService.ins.method("dialog-send", {
-            ...args,
-            "nickname": (chat.record as DialogDTO).otherNickname,
-          });
+    Result result = await PlatformService.ins.method("send", args);
 
     if (result is ExceptionResult) {
       throw result.getCause(chat.client);

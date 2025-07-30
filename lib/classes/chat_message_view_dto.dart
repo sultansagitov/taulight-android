@@ -13,18 +13,19 @@ class ChatMessageViewDTO {
   final Map<String, List<String>> reactions;
   final List<NamedFileDTO> files;
 
-  ChatMessageViewDTO(
-      {required this.id,
-      required this.chatID,
-      required this.keyID,
-      required this.nickname,
-      required this.text,
-      required this.isMe,
-      required this.dateTime,
-      required this.sys,
-      required this.repliedToMessages,
-      required this.reactions,
-      required this.files});
+  ChatMessageViewDTO({
+    required this.id,
+    required this.chatID,
+    required this.keyID,
+    required this.nickname,
+    required this.text,
+    required this.isMe,
+    required this.dateTime,
+    required this.sys,
+    required this.repliedToMessages,
+    required this.reactions,
+    required this.files,
+  });
 
   static ChatMessageViewDTO fromMap(Client client, json) {
     var map = Map<String, dynamic>.from(json as Map);

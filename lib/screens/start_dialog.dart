@@ -136,14 +136,12 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
       var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
       var params = uri.queryParameters;
       var nickname = params["nickname"]!;
-      var keyID = params['key-id']!;
       var encryption = params["encryption"]!;
 
       await KeyStorageService.ins.saveEncryptor(
-        address,
-        nickname,
-        EncryptorKey(
-          keyId: keyID,
+        address: address,
+        nickname: nickname,
+        key: EncryptorKey(
           encryption: encryption,
           symKey: params["sym"],
           publicKey: params["public"],

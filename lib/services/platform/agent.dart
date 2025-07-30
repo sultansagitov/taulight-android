@@ -28,6 +28,7 @@ class PlatformAgentService {
       client: client,
       params: [nickname, password, _device!],
     );
+
     if (result is ExceptionResult) {
       if (incorrectUserDataExceptions.contains(result.name)) {
         throw IncorrectUserDataException();

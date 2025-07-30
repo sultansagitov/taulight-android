@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.flutter.plugin.common.MethodChannel
+import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.hubagent.AgentProtocol
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
@@ -13,6 +14,7 @@ import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.chain.AndroidClientChainManager
 import net.result.taulight.config.AndroidAgentConfig
 import net.result.taulight.config.AndroidClientConfig
+import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.exception.ClientNotFoundException
 import org.apache.logging.log4j.LogManager
 import java.util.*
@@ -24,6 +26,7 @@ class Taulight(val methodChannel: MethodChannel) {
     }
 
     val clients: MutableMap<UUID, MemberClient> = mutableMapOf()
+    val chats: MutableMap<UUID, ChatInfoDTO> = mutableMapOf()
     val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -35,6 +38,7 @@ class Taulight(val methodChannel: MethodChannel) {
     fun callFromFlutter(method: String, obj: Map<String, Any>): Map<String, String> {
         val latch = CountDownLatch(1)
         var resultMap: Map<String, String>? = null
+        var resultException: String? = null
 
         handler.post {
             methodChannel.invokeMethod(method, obj, object : MethodChannel.Result {
@@ -49,9 +53,10 @@ class Taulight(val methodChannel: MethodChannel) {
                 }
 
                 override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                    LOGGER.error(errorCode)
-                    LOGGER.error(errorMessage ?: "null")
-                    LOGGER.error(errorDetails?.toString() ?: "null")
+                    LOGGER.error("Code: {} {}", errorCode, errorCode.javaClass)
+                    LOGGER.error("Message: {} {}", errorMessage, errorMessage?.javaClass)
+                    LOGGER.error("Details: {} {}", errorDetails, errorDetails?.javaClass)
+                    resultException = errorMessage
                     latch.countDown()
                 }
 
@@ -63,6 +68,12 @@ class Taulight(val methodChannel: MethodChannel) {
         }
 
         latch.await()
+
+        if (resultException != null) {
+            if (resultException!!.contains("KeyStorageNotFoundException")) {
+                throw KeyStorageNotFoundException(resultException)
+            }
+        }
         return resultMap ?: throw RuntimeException(obj.toString())
     }
 
@@ -90,5 +101,13 @@ class Taulight(val methodChannel: MethodChannel) {
 
     fun getClient(uuid: UUID): MemberClient {
         return clients[uuid] ?: throw ClientNotFoundException(uuid)
+    }
+
+    fun addChat(chat: ChatInfoDTO) {
+        chats.putIfAbsent(chat.id, chat)
+    }
+
+    fun getChat(uuid: UUID): ChatInfoDTO? {
+        return chats[uuid]
     }
 }

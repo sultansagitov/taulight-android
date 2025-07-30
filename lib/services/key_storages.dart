@@ -9,46 +9,50 @@ class KeyStorageService {
   static KeyStorageService get ins => _instance;
   KeyStorageService._internal();
 
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   Future<void> saveServerKey(ServerKey key) async {
-    await _secureStorage.write(
-      key: "server:${key.address}",
+    await _storage.write(
+      key: "server:address:${key.address}",
       value: jsonEncode(key.toMap()),
     );
   }
 
-  Future<void> savePersonalKey(
-    String address,
-    String keyID,
-    PersonalKey key,
-  ) async {
-    await _secureStorage.write(
-      key: "personal:$address:$keyID",
+  Future<void> savePersonalKey({
+    required String address,
+    required String nickname,
+    required PersonalKey key,
+  }) async {
+    await _storage.write(
+      key: "personal:address:$address:nickname:$nickname",
       value: jsonEncode(key.toMap()),
     );
   }
 
-  Future<void> saveEncryptor(
-    String address,
-    String nickname,
-    EncryptorKey key,
-  ) async {
-    await _secureStorage.write(
-      key: "encryptor:$address:$nickname",
+  Future<void> saveEncryptor({
+    required String address,
+    required String nickname,
+    required EncryptorKey key,
+  }) async {
+    await _storage.write(
+      key: "encryptor:address:$address:nickname:$nickname",
       value: jsonEncode(key.toMap()),
     );
   }
 
-  Future<void> saveDEK(String address, String nickname, DEK dek) async {
+  Future<void> saveDEK({
+    required String address,
+    required String nickname,
+    required DEK dek,
+  }) async {
     final json = jsonEncode(dek.toMap());
-    await _secureStorage.write(key: "dek:id:${dek.keyId}", value: json);
-    final nicknameKey = "dek:nickname:$address:$nickname";
-    await _secureStorage.write(key: nicknameKey, value: dek.keyId);
+    await _storage.write(key: "dek:id:${dek.keyId}", value: json);
+    final nicknameKey = "dek:address:$address:nickname:$nickname:id";
+    await _storage.write(key: nicknameKey, value: dek.keyId);
   }
 
   Future<List<ServerKey>> loadAllServerKeys() async {
-    final all = await _secureStorage.readAll();
+    final all = await _storage.readAll();
     return all.entries
         .where((e) => e.key.startsWith('server:'))
         .map((e) => ServerKey.fromMap(jsonDecode(e.value)))
@@ -56,7 +60,7 @@ class KeyStorageService {
   }
 
   Future<ServerKey> loadServerKey(String address) async {
-    final data = await _secureStorage.read(key: "server:$address");
+    final data = await _storage.read(key: "server:address:$address");
     if (data == null) {
       throw KeyStorageNotFoundException("Address $address");
     }
@@ -64,31 +68,39 @@ class KeyStorageService {
   }
 
   Future<List<PersonalKey>> loadAllPersonalKeys() async {
-    final all = await _secureStorage.readAll();
+    final all = await _storage.readAll();
     return all.entries
         .where((e) => e.key.startsWith('personal:'))
         .map((e) => PersonalKey.fromMap(jsonDecode(e.value)))
         .toList();
   }
 
-  Future<PersonalKey> loadPersonalKey(String address, String keyID) async {
-    final data = await _secureStorage.read(key: "personal:$address:$keyID");
+  Future<PersonalKey> loadPersonalKey({
+    required String address,
+    required String nickname,
+  }) async {
+    final data = await _storage.read(
+        key: "personal:address:$address:nickname:$nickname");
     if (data == null) {
-      throw KeyStorageNotFoundException("ID $keyID");
+      throw KeyStorageNotFoundException("Nickname $nickname");
     }
     return PersonalKey.fromMap(jsonDecode(data));
   }
 
   Future<List<EncryptorKey>> loadAllEncryptors() async {
-    final all = await _secureStorage.readAll();
+    final all = await _storage.readAll();
     return all.entries
         .where((e) => e.key.startsWith('encryptor:'))
         .map((e) => EncryptorKey.fromMap(jsonDecode(e.value)))
         .toList();
   }
 
-  Future<EncryptorKey> loadEncryptor(String address, String nickname) async {
-    final data = await _secureStorage.read(key: "encryptor:$address:$nickname");
+  Future<EncryptorKey> loadEncryptor({
+    required String address,
+    required String nickname,
+  }) async {
+    final data = await _storage.read(
+        key: "encryptor:address:$address:nickname:$nickname");
     if (data == null) {
       throw KeyStorageNotFoundException("Address $address nickname $nickname");
     }
@@ -96,7 +108,7 @@ class KeyStorageService {
   }
 
   Future<List<DEK>> loadAllDEKs() async {
-    final all = await _secureStorage.readAll();
+    final all = await _storage.readAll();
     final seen = <String>{};
     final deks = <DEK>[];
 
@@ -113,23 +125,26 @@ class KeyStorageService {
     return deks;
   }
 
-  Future<DEK> loadDEK(String address, String nickname) async {
-    final keyId =
-        await _secureStorage.read(key: "dek:nickname:$address:$nickname");
-    if (keyId == null) {
-      throw KeyStorageNotFoundException("Nickname $nickname");
+  Future<DEK> loadDEK({
+    required String address,
+    required String nickname,
+  }) async {
+    final id =
+        await _storage.read(key: "dek:address:$address:nickname:$nickname:id");
+    if (id == null) {
+      throw KeyStorageNotFoundException("Address $address Nickname $nickname");
     }
 
-    final data = await _secureStorage.read(key: "dek:id:$keyId");
+    final data = await _storage.read(key: "dek:id:$id");
     if (data == null) {
-      throw KeyStorageNotFoundException("DEK for keyId $keyId not found");
+      throw KeyStorageNotFoundException("DEK for keyId $id not found");
     }
 
     return DEK.fromMap(jsonDecode(data));
   }
 
   Future<DEK> loadDEKByID(String keyID) async {
-    final data = await _secureStorage.read(key: "dek:id:$keyID");
+    final data = await _storage.read(key: "dek:id:$keyID");
     if (data == null) {
       throw KeyStorageNotFoundException("ID $keyID");
     }

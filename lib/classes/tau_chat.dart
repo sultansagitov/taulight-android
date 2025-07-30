@@ -64,17 +64,18 @@ class TauChat {
     var tempUuid = "temp_${Uuid().v4()}";
 
     var message = ChatMessageViewDTO(
-        id: tempUuid,
-        chatID: record.id,
-        keyID: null,
-        nickname: client.user!.nickname,
-        text: text,
-        isMe: true,
-        dateTime: DateTime.now(),
-        sys: false,
-        repliedToMessages: repliedToMessages,
-        reactions: {},
-        files: files);
+      id: tempUuid,
+      chatID: record.id,
+      keyID: null,
+      nickname: client.user!.nickname,
+      text: text,
+      isMe: true,
+      dateTime: DateTime.now(),
+      sys: false,
+      repliedToMessages: repliedToMessages,
+      reactions: {},
+      files: files,
+    );
 
     var wrapper = ChatMessageWrapperDTO(message, text);
 

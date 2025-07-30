@@ -17,7 +17,7 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     fun setupBouncyCastle() {
-        var provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME)
+        val provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME)
         if (provider == null) {
             // Web3j will set up the provider lazily when it's first used.
             return

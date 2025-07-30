@@ -67,15 +67,16 @@ Future<void> _saveServerKey(MethodCall call) async {
 }
 
 Future<void> _savePersonalKey(MethodCall call) async {
-  String address = call.arguments["address"];
+  var args = call.arguments;
+  String address = args["address"];
   await KeyStorageService.ins.savePersonalKey(
-    address,
-    call.arguments["key-id"],
-    PersonalKey(
-        encryption: call.arguments["encryption"],
-        symKey: call.arguments["sym"],
-        publicKey: call.arguments["public"],
-        privateKey: call.arguments["private"],
+    address: address,
+    nickname: args["nickname"],
+    key: PersonalKey(
+        encryption: args["encryption"],
+        symKey: args["sym"],
+        publicKey: args["public"],
+        privateKey: args["private"],
         source: HubSource(address: address)),
   );
 }
@@ -83,29 +84,30 @@ Future<void> _savePersonalKey(MethodCall call) async {
 Future<void> _saveEncryptor(MethodCall call) async {
   String address = call.arguments["address"];
   await KeyStorageService.ins.saveEncryptor(
-    address,
-    call.arguments["nickname"],
-    EncryptorKey(
-        keyId: call.arguments["key-id"],
-        encryption: call.arguments["encryption"],
-        symKey: call.arguments["sym"],
-        publicKey: call.arguments["public"],
-        source: HubSource(address: address)),
+    address: address,
+    nickname: call.arguments["nickname"],
+    key: EncryptorKey(
+      encryption: call.arguments["encryption"],
+      symKey: call.arguments["sym"],
+      publicKey: call.arguments["public"],
+      source: HubSource(address: address),
+    ),
   );
 }
 
 Future<void> _saveDEK(MethodCall call) async {
   String address = call.arguments["address"];
   await KeyStorageService.ins.saveDEK(
-    address,
-    call.arguments["nickname"],
-    DEK(
-        keyId: call.arguments["key-id"],
-        encryption: call.arguments["encryption"],
-        symKey: call.arguments["sym"],
-        publicKey: call.arguments["public"],
-        privateKey: call.arguments["private"],
-        source: HubSource(address: address)),
+    address: address,
+    nickname: call.arguments["nickname"],
+    dek: DEK(
+      keyId: call.arguments["key-id"],
+      encryption: call.arguments["encryption"],
+      symKey: call.arguments["sym"],
+      publicKey: call.arguments["public"],
+      privateKey: call.arguments["private"],
+      source: HubSource(address: address),
+    ),
   );
 }
 
@@ -117,24 +119,24 @@ Future<Map<String, dynamic>> _loadServerKey(MethodCall call) async {
 
 Future<Map<String, dynamic>> _loadPersonalKey(MethodCall call) async {
   final personalKey = await KeyStorageService.ins.loadPersonalKey(
-    call.arguments["address"],
-    call.arguments["key-id"],
+    address: call.arguments["address"],
+    nickname: call.arguments["nickname"],
   );
   return personalKey.toMap();
 }
 
 Future<Map<String, dynamic>> _loadEncryptor(MethodCall call) async {
   final encryptor = await KeyStorageService.ins.loadEncryptor(
-    call.arguments["address"],
-    call.arguments["nickname"],
+    address: call.arguments["address"],
+    nickname: call.arguments["nickname"],
   );
   return encryptor.toMap();
 }
 
 Future<Map<String, dynamic>> _loadDEK(MethodCall call) async {
   final dek = await KeyStorageService.ins.loadDEK(
-    call.arguments["address"],
-    call.arguments["nickname"],
+    address: call.arguments["address"],
+    nickname: call.arguments["nickname"],
   );
   return dek.toMap();
 }
