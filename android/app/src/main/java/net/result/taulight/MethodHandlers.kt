@@ -126,10 +126,8 @@ fun send(call: MethodCall): Map<String, String> {
     val repliedToMessages: Set<UUID> = repliedToMessagesString.map { UUID.fromString(it) }.toSet()
     val fileIDs: Set<UUID> = fileIDsString.map { UUID.fromString(it) }.toSet()
 
-    val chat = taulight!!.getChat(chatID) ?: run {
-        loadChat(mc.client, chatID)
-        taulight!!.getChat(chatID)!!
-    }
+    val chat = taulight!!.getChat(chatID) ?: loadChat(mc.client, chatID)
+
     return send(mc.client, chat, content, repliedToMessages, fileIDs)
 }
 
@@ -202,7 +200,22 @@ fun loadChat(call: MethodCall): Map<String, Any> {
 
     val chatID: UUID = UUID.fromString(chatString)
     val mc = taulight!!.getClient(uuid)
-    return loadChat(mc.client, chatID)
+    val client = mc.client
+    val chat = loadChat(client, chatID)
+
+    val map: MutableMap<String, Any> = mutableMapOf(
+        "chat" to taulight!!.objectMapper.convertValue(chat, Map::class.java)!!
+    )
+
+    chat.lastMessage?.let {
+        try {
+            decrypt(client, chat)
+            map["decrypted-last-message"] = chat.decryptedMessage!!
+        } catch (e: KeyStorageNotFoundException) {
+            ChatRunner.LOGGER.error("Send to flutter without decrypting - {}, {}", client, chat, e)
+        }
+    }
+    return map
 }
 
 fun loginHistory(call: MethodCall): List<Map<String, Any>> {

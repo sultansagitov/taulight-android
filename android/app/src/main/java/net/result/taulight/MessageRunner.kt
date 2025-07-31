@@ -11,7 +11,13 @@ import net.result.taulight.chain.sender.MessageClientChain
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.dto.ChatMessageInputDTO
 import net.result.taulight.dto.ChatMessageViewDTO
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.*
+
+object MessageRunner {
+    val LOGGER: Logger = LogManager.getLogger("MessageRunner")
+}
 
 fun send(
     client: SandnodeClient,
@@ -49,8 +55,6 @@ fun send(
 
     val chain = ForwardRequestClientChain(client)
 
-    client.io().chainManager.linkChain(chain)
-
     val message = ChatMessageInputDTO()
         .setChatID(chat.id)
         .setContent(content)
@@ -58,11 +62,17 @@ fun send(
         .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
-    val id = chain.messageWithoutFallback(chat, message, content)
-
+    client.io().chainManager.linkChain(chain)
+    val messageID = chain.sendMessage(chat, message, content, false, false)
     client.io().chainManager.removeChain(chain)
 
-    return mutableMapOf("message" to id.toString())
+    MessageRunner.LOGGER.info("Message ID: {}", messageID)
+
+    return mutableMapOf("message" to messageID.toString()).apply {
+        message.keyID?.let {
+            put("key", it.toString())
+        }
+    }
 }
 
 fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): PaginatedDTO<ChatMessageViewDTO> {

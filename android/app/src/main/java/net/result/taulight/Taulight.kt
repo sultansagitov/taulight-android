@@ -69,9 +69,9 @@ class Taulight(val methodChannel: MethodChannel) {
 
         latch.await()
 
-        if (resultException != null) {
-            if (resultException!!.contains("KeyStorageNotFoundException")) {
-                throw KeyStorageNotFoundException(resultException)
+        resultException?.let {
+            if (it.contains("KeyStorageNotFoundException")) {
+                throw KeyStorageNotFoundException(it)
             }
         }
         return resultMap ?: throw RuntimeException(obj.toString())
@@ -104,7 +104,7 @@ class Taulight(val methodChannel: MethodChannel) {
     }
 
     fun addChat(chat: ChatInfoDTO) {
-        chats.putIfAbsent(chat.id, chat)
+        chats[chat.id] = chat
     }
 
     fun getChat(uuid: UUID): ChatInfoDTO? {

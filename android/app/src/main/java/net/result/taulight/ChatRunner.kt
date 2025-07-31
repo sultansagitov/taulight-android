@@ -38,7 +38,7 @@ fun getChats(client: SandnodeClient): List<Map<String, Any>> {
     }
 }
 
-fun loadChat(client: SandnodeClient, chatID: UUID): Map<String, Any> {
+fun loadChat(client: SandnodeClient, chatID: UUID): ChatInfoDTO {
     val chain = ChatClientChain(client)
     client.io().chainManager.linkChain(chain)
     val optChats = chain.getByID(listOf(chatID), ChatInfoPropDTO.all())
@@ -48,22 +48,10 @@ fun loadChat(client: SandnodeClient, chatID: UUID): Map<String, Any> {
 
     taulight!!.addChat(chat)
 
-    val map: MutableMap<String, Any> = mutableMapOf(
-        "chat" to taulight!!.objectMapper.convertValue(chat, Map::class.java)!!
-    )
-
-    if (chat.lastMessage != null) {
-        try {
-            decrypt(client, chat)
-            map["decrypted-last-message"] = chat.decryptedMessage!!
-        } catch (e: KeyStorageNotFoundException) {
-            ChatRunner.LOGGER.error("Send to flutter without decrypting - {}, {}", client, chat, e)
-        }
-    }
-    return map
+    return chat
 }
 
-private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
+fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
     ChatRunner.LOGGER.info("Decrypting message with id {}", chat.lastMessage!!.id)
 
     try {
@@ -90,7 +78,7 @@ private fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
         }
 
         if (!decrypted) {
-            throw e;
+            throw e
         }
     }
 }
