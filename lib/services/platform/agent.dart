@@ -54,12 +54,11 @@ class PlatformAgentService {
 
     _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
 
-    Result result = await PlatformService.ins.method("register", {
-      "uuid": client.uuid,
-      "nickname": nickname,
-      "password": password,
-      "device": _device!,
-    });
+    Result result = await PlatformService.ins.chain(
+      "RegistrationClientChain.register",
+      client: client,
+      params: [nickname, password, _device],
+    );
 
     if (result is ExceptionResult) {
       if (incorrectUserDataExceptions.contains(result.name)) {

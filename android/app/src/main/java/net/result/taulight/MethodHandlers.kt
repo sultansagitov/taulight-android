@@ -46,7 +46,6 @@ class MethodHandlers(flutterEngine: FlutterEngine) {
         methodHandlerMap = mapOf(
             "connect" to ::connect,
             "disconnect" to ::disconnect,
-            "register" to ::register,
             "send" to ::send,
             "get-chats" to ::getChats,
             "load-messages" to ::loadMessages,
@@ -98,18 +97,6 @@ fun disconnect(call: MethodCall): String {
     val uuid: String = call.argument<String>("uuid")!!
     disconnect(taulight!!, uuid)
     return "disconnected"
-}
-
-fun register(call: MethodCall): Map<String, String> {
-    val uuid: String = call.argument<String>("uuid")!!
-    val nickname: String = call.argument<String>("nickname")!!
-    val password: String = call.argument<String>("password")!!
-    val device: String = call.argument<String>("device")!!
-
-    val client = taulight!!.getClient(uuid)
-
-    val response = register(client.client, nickname, password, device)
-    return mapOf("token" to response.token)
 }
 
 fun send(call: MethodCall): Map<String, String> {
