@@ -16,7 +16,7 @@ class FakeClient extends Client {
 }
 
 class FakeUser extends User {
-  FakeUser(Client client) : super(client, "", "", "");
+  FakeUser(Client client) : super(client, "", "");
 
   @override
   String get nickname => 'john';

@@ -40,9 +40,8 @@ class PlatformAgentService {
     if (result is SuccessResult) {
       var map = Map<String, String>.from(result.obj);
       var token = map['token']!;
-      String keyID = map['key-id']!;
-      client.user = User(client, nickname, keyID, token);
-      UserRecord userRecord = UserRecord(nickname, token, keyID);
+      client.user = User(client, nickname, token);
+      UserRecord userRecord = UserRecord(nickname, token);
       await StorageService.ins.saveWithToken(client, userRecord);
       return token;
     }
@@ -73,8 +72,7 @@ class PlatformAgentService {
       var map = Map<String, String>.from(result.obj);
       print(map);
       var token = map["token"]!;
-      var keyID = map["key-id"]!;
-      client.user = User(client, nickname, keyID, token);
+      client.user = User(client, nickname, token);
       return token;
     }
 
@@ -96,11 +94,10 @@ class PlatformAgentService {
     if (result is SuccessResult) {
       var obj = Map<String, String>.from(result.obj);
       String nickname = obj["nickname"]!.trim();
-      String keyID = obj["key-id"]!.trim();
 
-      var record = UserRecord(nickname, token, keyID);
+      var record = UserRecord(nickname, token);
       StorageService.ins.saveWithToken(client, record);
-      client.user = User(client, nickname, keyID, token);
+      client.user = User(client, nickname, token);
       return nickname;
     }
 

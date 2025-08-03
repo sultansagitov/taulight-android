@@ -42,9 +42,8 @@ Future<void> start(
         UserRecord? userRecord = sr.user;
         if (userRecord != null) {
           String nickname = userRecord.nickname.trim();
-          String keyID = userRecord.keyID;
           String token = userRecord.token;
-          c.user = User.unauthorized(c, nickname, keyID, token);
+          c.user = User.unauthorized(c, nickname, token);
         }
       }
     }

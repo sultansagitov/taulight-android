@@ -5,6 +5,7 @@ import net.result.sandnode.chain.sender.DEKClientChain
 import net.result.sandnode.dto.DEKResponseDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.serverclient.SandnodeClient
+import net.result.sandnode.util.DEKUtil
 import net.result.taulight.chain.sender.ChatClientChain
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.dto.ChatInfoPropDTO
@@ -67,12 +68,13 @@ fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
 
         var decrypted = false
         for (dto: DEKResponseDTO in deks) {
-            val keyStorage = dto.dek.decrypt(agent.config.loadPersonalKey(client.address, client.nickname))
-            agent.config.saveDEK(client.address, chat.otherNickname, dto.dek.id, keyStorage)
+            val personalKey = agent.config.loadPersonalKey(client.address, client.nickname)
+            val dek = DEKUtil.decrypt(dto.dek.encryptedKey, personalKey)
+            agent.config.saveDEK(client.address, chat.otherNickname, dto.dek.id, dek)
 
             if (dto.dek.id == chat.lastMessage!!.message.keyID) {
                 val bytes = Base64.decode(chat.lastMessage!!.message.content, Base64.NO_WRAP)
-                chat.decryptedMessage = keyStorage.encryption().decrypt(bytes, keyStorage)
+                chat.decryptedMessage = dek.encryption().decrypt(bytes, dek)
                 decrypted = true
             }
         }

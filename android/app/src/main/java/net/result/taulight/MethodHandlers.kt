@@ -109,10 +109,7 @@ fun register(call: MethodCall): Map<String, String> {
     val client = taulight!!.getClient(uuid)
 
     val response = register(client.client, nickname, password, device)
-    return mapOf(
-        "token" to response.token,
-        "key-id" to response.keyID.toString()
-    )
+    return mapOf("token" to response.token)
 }
 
 fun send(call: MethodCall): Map<String, String> {

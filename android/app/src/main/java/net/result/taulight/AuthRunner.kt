@@ -9,10 +9,10 @@ import net.result.sandnode.serverclient.SandnodeClient
 
 fun register(client: SandnodeClient, nickname: String, password: String, device: String): RegistrationResponseDTO {
     val agent = client.node().agent()
+    val keyStorage = AsymmetricEncryptions.ECIES.generate()
 
     val chain = RegistrationClientChain(client)
     client.io().chainManager.linkChain(chain)
-    val keyStorage = AsymmetricEncryptions.ECIES.generate()
     val response = chain.register(nickname, password, device, keyStorage)
     client.io().chainManager.removeChain(chain)
     agent.config.savePersonalKey(client.address, nickname, keyStorage)

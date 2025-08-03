@@ -1,4 +1,4 @@
-package net.result.taulight.chain.client
+package net.result.taulight.chain.sender
 
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.Taulight

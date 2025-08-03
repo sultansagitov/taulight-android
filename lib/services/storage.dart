@@ -118,17 +118,16 @@ class StorageService {
 class UserRecord {
   String nickname;
   String token;
-  String keyID;
 
-  UserRecord(this.nickname, this.token, this.keyID);
+  UserRecord(this.nickname, this.token);
 
   factory UserRecord.fromJSON(dynamic json) {
     var map = Map<String, String>.from(json);
-    return UserRecord(map["nickname"]!, map["token"]!, map["key-id"]!);
+    return UserRecord(map["nickname"]!, map["token"]!);
   }
 
   Map<String, String> toMap() {
-    return {"nickname": nickname, "token": token, "key-id": keyID};
+    return {"nickname": nickname, "token": token};
   }
 }
 

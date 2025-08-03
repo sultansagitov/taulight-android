@@ -53,8 +53,6 @@ fun send(
         }
     }
 
-    val chain = ForwardRequestClientChain(client)
-
     val message = ChatMessageInputDTO()
         .setChatID(chat.id)
         .setContent(content)
@@ -62,6 +60,7 @@ fun send(
         .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
+    val chain = ForwardRequestClientChain(client)
     client.io().chainManager.linkChain(chain)
     val messageID = chain.sendMessage(chat, message, content, false, false)
     client.io().chainManager.removeChain(chain)

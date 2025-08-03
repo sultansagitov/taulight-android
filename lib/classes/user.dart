@@ -3,18 +3,16 @@ import 'package:taulight/services/platform/agent.dart';
 
 class User {
   Client client;
-  String keyID;
   String? avatarID;
   String nickname;
   String token;
   bool authorized = true;
   bool expiredToken = false;
 
-  User(this.client, this.nickname, this.keyID, this.token);
+  User(this.client, this.nickname, this.token);
 
-  factory User.unauthorized(
-          Client client, String nickname, String keyID, String token) =>
-      User(client, nickname, keyID, token)..authorized = false;
+  factory User.unauthorized(Client client, String nickname, String token) =>
+      User(client, nickname, token)..authorized = false;
 
   Future<void> reloadIfUnauthorized() async {
     if (!authorized) {
