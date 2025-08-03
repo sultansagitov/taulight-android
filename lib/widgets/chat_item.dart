@@ -1,9 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
+import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
+
+enum ChatMenuOptions {
+  copy(Icons.copy, 'Copy ID', _copy);
+
+  final IconData icon;
+  final String text;
+  final Future<void> Function(BuildContext, TauChat) action;
+
+  const ChatMenuOptions(this.icon, this.text, this.action);
+}
+
+Future<void> _copy(BuildContext context, TauChat chat) async {
+  var id = chat.record.id;
+  await Clipboard.setData(ClipboardData(text: id));
+  snackBar(context, 'Copied: $id');
+}
+
+Future<void> _onLongPressStart(
+  BuildContext context,
+  TauChat chat,
+  LongPressStartDetails details,
+) async {
+  final tapPosition = details.globalPosition;
+  await showMenu(
+    context: context,
+    position: RelativeRect.fromLTRB(50, tapPosition.dy, 50, tapPosition.dy),
+    items: ChatMenuOptions.values.map((opt) {
+      return PopupMenuItem(
+        child: Row(
+          children: [Icon(opt.icon), SizedBox(width: 4), Text(opt.text)],
+        ),
+        onTap: () => opt.action(context, chat),
+      );
+    }).toList(),
+  );
+}
 
 class ChatItem extends StatelessWidget {
   final TauChat chat;
@@ -35,8 +73,10 @@ class ChatItem extends StatelessWidget {
 
     var textColor = Colors.grey[isLight ? 600 : 400];
 
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => onTap(chat),
+      onLongPressStart: (details) => _onLongPressStart(context, chat, details),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
