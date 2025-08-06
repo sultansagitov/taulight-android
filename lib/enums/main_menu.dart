@@ -7,9 +7,8 @@ import 'package:taulight/screens/start_dialog.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/widgets/tau_app_bar.dart';
 
-enum MenuOption {
+enum MainMenu {
   connect(
     text: "Connect",
     action: _connectAction,
@@ -22,12 +21,12 @@ enum MenuOption {
   ),
   newGroup(
     text: "Create group",
-    action: _newGroupAction,
+    action: newGroupAction,
     icon: Icons.add_box_outlined,
   ),
   newDialog(
     text: "Start dialog",
-    action: _newDialogAction,
+    action: newDialogAction,
     icon: Icons.chat_outlined,
   ),
   keys(
@@ -55,16 +54,16 @@ enum MenuOption {
   final Future<void> Function(BuildContext, VoidCallback) action;
   final IconData icon;
 
-  const MenuOption({
+  const MainMenu({
     required this.text,
     required this.action,
     required this.icon,
   });
 
   static Future<void> _connectAction(
-      BuildContext context,
-      VoidCallback callback,
-      ) async {
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
     var screen = ConnectionScreen(connectUpdate: callback);
     var result = await moveTo(context, screen);
     if (result != null) {
@@ -73,25 +72,25 @@ enum MenuOption {
   }
 
   static Future<void> _hubsAction(
-      BuildContext context,
-      VoidCallback callback,
-      ) async {
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
     await moveTo(context, HubsScreen(connectUpdate: callback));
     callback();
   }
 
-  static Future<void> _newGroupAction(
-      BuildContext context,
-      VoidCallback callback,
-      ) async {
+  static Future<void> newGroupAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
     var result = await moveTo(context, CreateGroupScreen());
     if (result == "success") callback();
   }
 
-  static Future<void> _newDialogAction(
-      BuildContext context,
-      VoidCallback callback,
-      ) async {
+  static Future<void> newDialogAction(
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
     var result = await moveTo(context, StartDialogScreen());
     if (result is String) {
       callback();
@@ -99,9 +98,9 @@ enum MenuOption {
   }
 
   static Future<void> _keysAction(
-      BuildContext context,
-      VoidCallback callback,
-      ) async {
+    BuildContext context,
+    VoidCallback callback,
+  ) async {
     var result = await moveTo(context, KeyManagementScreen());
     if (result is String) {
       callback();
@@ -123,29 +122,4 @@ enum MenuOption {
 
   static Future<void> _printClientsAction(_, __) async =>
       print("Clients: ${ClientService.ins.clientsList}");
-}
-
-class MainMenuScreen extends StatefulWidget {
-  const MainMenuScreen({super.key});
-
-  @override
-  State<MainMenuScreen> createState() => _MainMenuScreenState();
-}
-
-class _MainMenuScreenState extends State<MainMenuScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: TauAppBar.text("Taulight Agent"),
-      body: ListView(
-        children: MenuOption.values.map((option) {
-          return ListTile(
-            leading: Icon(option.icon),
-            title: Text(option.text),
-            onTap: () => option.action(context, () => setState(() {})),
-          );
-        }).toList(),
-      ),
-    );
-  }
 }

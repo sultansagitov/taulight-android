@@ -55,7 +55,6 @@ fun send(
 
     val message = ChatMessageInputDTO()
         .setChatID(chat.id)
-        .setContent(content)
         .setRepliedToMessages(repliedToMessages)
         .setFileIDs(fileIDs)
         .setSentDatetimeNow()

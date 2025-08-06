@@ -42,7 +42,6 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       ]),
       body: Container(
         padding: const EdgeInsets.all(8.0),
-        height: 300,
         child: Column(
           children: [
             Form(

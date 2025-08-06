@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
+import 'package:taulight/enums/main_menu.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/login.dart';
-import 'package:taulight/screens/menu.dart';
+import 'package:taulight/screens/main_menu.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/start_method.dart';
@@ -14,6 +15,7 @@ import 'package:taulight/services/platform/platform_service.dart';
 import 'package:taulight/widgets/animated_greetings.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/chat_list.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
 
@@ -87,6 +89,52 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _newChatDialog(BuildContext context, VoidCallback update) async {
+    await showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Start new chat",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              FlatRectButton(
+                label: "Start Dialog",
+                icon: Icons.chat_bubble_outline,
+                onPressed: () {
+                  Navigator.pop(context);
+                  MainMenu.newDialogAction(context, update);
+                },
+              ),
+              const SizedBox(height: 12),
+              FlatRectButton(
+                label: "Create Group",
+                icon: Icons.group_outlined,
+                onPressed: () {
+                  Navigator.pop(context);
+                  MainMenu.newGroupAction(context, update);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var isLight = Theme.of(context).brightness == Brightness.light;
@@ -153,11 +201,10 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // TODO Create group / start dialog
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() => _fullLoading = !_fullLoading);
-        },
+        onPressed: () => _newChatDialog(context, () {
+          _updateHome(animation: false);
+        }),
         child: const Icon(Icons.edit),
       ),
     );

@@ -83,9 +83,8 @@ class TauChat {
     callback();
 
     var map = await PlatformMessagesService.ins.sendMessage(this, message);
-    print(map);
     message.id = map["message"]!;
-    message.keyID = map["key"]!;
+    message.keyID = map["key"];
     callback();
   }
 
