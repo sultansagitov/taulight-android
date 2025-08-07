@@ -90,21 +90,25 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _newChatDialog(BuildContext context, VoidCallback update) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     await showDialog(
       context: context,
       barrierColor: Colors.black54,
       builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: bgColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 "Start new chat",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: textColor,
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                 ),

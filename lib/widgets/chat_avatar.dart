@@ -201,12 +201,11 @@ class MemberAvatar extends StatefulWidget {
   final String nickname;
   final int d;
 
-  const MemberAvatar({
-    super.key,
+  MemberAvatar({
     required this.client,
     required this.nickname,
     required this.d,
-  });
+  }) : super(key: ValueKey("${client.uuid}/$nickname"));
 
   @override
   State<MemberAvatar> createState() => _MemberAvatarState();

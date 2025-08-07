@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/screens/hubs.dart';
+import 'package:taulight/screens/login.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/member_item.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -76,15 +77,16 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (widget.client.user != null)
+                  MemberItem(
+                    client: widget.client,
+                    onUpdated: () => setState(() {}),
+                  )
+                else
+                  _buildLogin(context),
                 if (widget.client.realName != null)
                   _info(context, "Hub name", widget.client.name),
                 _info(context, "Link", widget.client.link),
-                if (widget.client.user != null)
-                  HubsScreenState.buildMember(
-                    context,
-                    widget.client,
-                    update: () => setState(() {}),
-                  ),
               ],
             ),
           ),
@@ -92,17 +94,67 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
       ),
     );
   }
+
+  Widget _buildLogin(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200;
+    final primaryTextColor = isDark ? Colors.white : Colors.black;
+
+    return GestureDetector(
+      onTap: () async {
+        var screen = LoginScreen(client: widget.client);
+        await moveTo(context, screen);
+        setState(() {});
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.login),
+              const SizedBox(width: 10),
+              Text(
+                "Login",
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
+                style: TextStyle(
+                  color: primaryTextColor,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 Widget _info(BuildContext context, String key, String value) {
-  bool isLight = Theme.of(context).brightness == Brightness.light;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final bgColor = isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200;
+  final primaryTextColor = isDark ? Colors.white : Colors.black;
+  final secondaryTextColor = isDark ? Colors.white54 : Colors.black54;
+
   return GestureDetector(
     onLongPress: () {
       Clipboard.setData(ClipboardData(text: value));
       snackBar(context, "$key copied");
     },
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -111,16 +163,16 @@ Widget _info(BuildContext context, String key, String value) {
             overflow: TextOverflow.ellipsis,
             maxLines: 3,
             style: TextStyle(
-              color: isLight ? Colors.black : Colors.white,
+              color: primaryTextColor,
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             "Hold to copy",
             style: TextStyle(
               fontSize: 12,
-              color: isLight ? Colors.black54 : Colors.white54,
+              color: secondaryTextColor,
               fontStyle: FontStyle.italic,
             ),
           ),

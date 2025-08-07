@@ -144,7 +144,7 @@ class ChatItem extends StatelessWidget {
                     ),
                   ] else ...[
                     Text(
-                      parseSysMessages(chat, wrapper!), // TODO possible null
+                      parseSysMessages(chat, wrapper!),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
