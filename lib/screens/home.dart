@@ -161,7 +161,7 @@ class HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: [
                   TauButton.icon(
-                    Icons.more_vert,
+                    Icons.menu,
                     color: color,
                     onPressed: () async {
                       var screen = MainMenuScreen();

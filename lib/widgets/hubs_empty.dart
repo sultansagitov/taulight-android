@@ -3,6 +3,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/connection.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class HubsEmpty extends StatefulWidget {
@@ -47,8 +48,8 @@ class _HubsEmptyState extends State<HubsEmpty> {
             Text("Reconnect disconnected hubs (${clients.length})"),
           ],
           const SizedBox(height: 12),
-          TauButton.text(
-            "Connect to hub",
+        FlatRectButton(
+            label: "Connect to hub",
             onPressed: () async {
               var screen = ConnectionScreen(connectUpdate: _connectUpdate);
               await moveTo(context, screen);

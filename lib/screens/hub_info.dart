@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/member_item.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -53,7 +54,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
         }),
       ]),
       body: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 16),
           Text(
@@ -83,7 +84,19 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
                     onUpdated: () => setState(() {}),
                   )
                 else
-                  _buildLogin(context),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: FlatRectButton(
+                      icon: Icons.login,
+                      label: "Login",
+                      width: double.infinity,
+                      onPressed: () async {
+                        var screen = LoginScreen(client: widget.client);
+                        await moveTo(context, screen);
+                        setState(() {});
+                      },
+                    ),
+                  ),
                 if (widget.client.realName != null)
                   _info(context, "Hub name", widget.client.name),
                 _info(context, "Link", widget.client.link),
@@ -91,46 +104,6 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildLogin(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200;
-    final primaryTextColor = isDark ? Colors.white : Colors.black;
-
-    return GestureDetector(
-      onTap: () async {
-        var screen = LoginScreen(client: widget.client);
-        await moveTo(context, screen);
-        setState(() {});
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.login),
-              const SizedBox(width: 10),
-              Text(
-                "Login",
-                overflow: TextOverflow.ellipsis,
-                maxLines: 3,
-                style: TextStyle(
-                  color: primaryTextColor,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

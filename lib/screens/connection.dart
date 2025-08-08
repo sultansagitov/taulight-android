@@ -8,6 +8,7 @@ import 'package:taulight/screens/login.dart';
 import 'package:taulight/screens/hub_qr_scanner.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/utils.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -40,7 +41,8 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           },
         ),
       ]),
-      body: Container(
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
@@ -66,8 +68,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                 },
               ),
             ),
-            TauButton.text(
-              "Connect",
+            const SizedBox(height: 6),
+            FlatRectButton(
+              label: "Connect",
               loading: _loading == -1,
               disable: _loading != null,
               onPressed: _connectPressed,
@@ -77,26 +80,27 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
               "Recommended hubs",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: Config.recommended.length,
-                itemBuilder: (_, index) {
-                  ServerRecord recommended = Config.recommended[index];
-                  return TauButton.text(
-                    "${recommended.name} : ${recommended.address}",
-                    loading: _loading == index,
-                    disable: _loading != null,
-                    onPressed: () async {
-                      try {
-                        setState(() => _loading ??= index);
-                        await _recommended(recommended.link);
-                      } finally {
-                        setState(() => _loading = null);
-                      }
-                    },
-                  );
-                },
-              ),
+            Column(
+              children: Config.recommended.asMap().entries.map((entry) {
+                ServerRecord recommended = entry.value;
+                int index = entry.key;
+
+                return FlatRectButton(
+                  label: "${recommended.name} : ${recommended.address}",
+                  margin: const EdgeInsets.only(bottom: 8),
+                  loading: _loading == index,
+                  disable: _loading != null,
+                  width: double.infinity,
+                  onPressed: () async {
+                    try {
+                      setState(() => _loading ??= index);
+                      await _recommended(recommended.link);
+                    } finally {
+                      setState(() => _loading = null);
+                    }
+                  },
+                );
+              }).toList(),
             ),
           ],
         ),
