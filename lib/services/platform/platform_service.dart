@@ -72,6 +72,8 @@ class ExceptionResult extends Result implements Exception {
         return BackClientNotFoundException(client!);
       case "BusyNicknameException":
         return BusyNicknameException(client!);
+      case "PermissionDeniedException":
+        return PermissionDeniedException(client!);
       default:
         return this;
     }

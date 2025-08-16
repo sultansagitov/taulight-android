@@ -70,6 +70,10 @@ class BusyNicknameException extends ClientException {
   BusyNicknameException(super.client);
 }
 
+class PermissionDeniedException extends ClientException {
+  PermissionDeniedException(super.client);
+}
+
 class NotFoundException extends ClientException {
   dynamic object;
 

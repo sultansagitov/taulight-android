@@ -117,7 +117,7 @@ class ChatScreenState extends State<ChatScreen> {
     final enabled = widget.chat.client.authorized;
     return Scaffold(
       appBar: TauAppBar.icon(
-        ChatAvatar(widget.chat, d: 36),
+        ChatAvatar(widget.chat, d: 48),
         widget.chat.record.getTitle(),
         actions: [
           TauButton.icon(

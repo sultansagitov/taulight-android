@@ -38,7 +38,7 @@ class PlatformCodesService {
 
   Future<CodeDTO> checkCode(Client client, String code) async {
     Result result = await PlatformService.ins.chain(
-      "CheckCodeClientChain.check",
+      "CodeClientChain.check",
       client: client,
       params: [code],
     );
@@ -59,7 +59,7 @@ class PlatformCodesService {
 
   Future<void> useCode(Client client, String code) async {
     Result result = await PlatformService.ins.chain(
-      "UseCodeClientChain.use",
+      "CodeClientChain.use",
       client: client,
       params: [code],
     );

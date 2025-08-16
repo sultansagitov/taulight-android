@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 
 class NotLoggedIn extends StatelessWidget {
   final Client client;
@@ -20,7 +20,7 @@ class NotLoggedIn extends StatelessWidget {
           const SizedBox(height: 10),
           const Text("Not logged in", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 10),
-          TauButton.text("Login", onPressed: () async {
+          FlatRectButton(label: "Login", onPressed: () async {
             var screen = LoginScreen(
               client: client,
               nickname: client.user?.nickname,

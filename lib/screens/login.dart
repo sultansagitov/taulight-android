@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/storage.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -177,8 +178,8 @@ class LoginScreenState extends State<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TauButton.text(
-                  _isRegistering ? "Register" : "Login",
+                FlatRectButton(
+                  label: _isRegistering ? "Register" : "Login",
                   onPressed: _isRegistering ? _register : _login,
                   loading: _loading,
                 ),

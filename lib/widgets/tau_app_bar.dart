@@ -3,7 +3,7 @@ import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
 class TauAppBar extends AppBar {
-  TauAppBar({super.key, super.title, super.actions});
+  TauAppBar({super.key, super.title, super.actions}) : super(backgroundColor: Colors.white, elevation: 2);
 
   factory TauAppBar.text(String? title, {Key? key, List<Widget>? actions}) {
     if (title == null) {

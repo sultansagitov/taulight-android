@@ -30,7 +30,8 @@ class FlatRectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final bgColor = backgroundColor ?? (isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200);
+    final bgColor = backgroundColor ??
+        (isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200);
     final fgColor = foregroundColor ?? (isDark ? Colors.white : Colors.black);
 
     final isDisabled = disable || loading;
@@ -43,7 +44,11 @@ class FlatRectButton extends StatelessWidget {
         child: Container(
           width: width,
           margin: margin,
-          padding: padding ?? const EdgeInsets.all(14), // default chunky padding
+          padding: padding ??
+              const EdgeInsets.symmetric(
+                vertical: 14,
+                horizontal: 28,
+              ),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(10),

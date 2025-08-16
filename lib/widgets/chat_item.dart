@@ -28,15 +28,17 @@ Future<void> _onLongPressStart(
   TauChat chat,
   LongPressStartDetails details,
 ) async {
-  final tapPosition = details.globalPosition;
+  final pos = details.globalPosition;
   await showMenu(
     context: context,
-    position: RelativeRect.fromLTRB(50, tapPosition.dy, 50, tapPosition.dy),
+    position: RelativeRect.fromLTRB(50, pos.dy, 50, pos.dy),
     items: ChatMenuOptions.values.map((opt) {
       return PopupMenuItem(
-        child: Row(
-          children: [Icon(opt.icon), SizedBox(width: 4), Text(opt.text)],
-        ),
+        child: Row(children: [
+          Icon(opt.icon),
+          const SizedBox(width: 4),
+          Text(opt.text),
+        ]),
         onTap: () => opt.action(context, chat),
       );
     }).toList(),

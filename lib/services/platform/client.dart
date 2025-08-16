@@ -150,9 +150,10 @@ class PlatformClientService {
           Client client = clientService.fromMap(map);
           client.connected = true;
 
-          if (map["nickname"] != null) {
+          var nickname = map["nickname"];
+          if (nickname != null) {
             var record = await StorageService.ins.getClient(uuid);
-            client.user = User(client, map["nickname"], record!.user!.token);
+            client.user = User(client, nickname, record!.user!.token);
           }
 
           await client.resetName();

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/member_info.dart';
 import 'package:taulight/screens/members_invite.dart';
 import 'package:taulight/screens/profile.dart';
 import 'package:taulight/services/chat_avatar.dart';
 import 'package:taulight/services/platform/chats.dart';
+import 'package:taulight/services/platform/role.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -25,47 +28,22 @@ class GroupInfoScreen extends StatefulWidget {
 }
 
 class _GroupInfoScreenState extends State<GroupInfoScreen> {
-  List<ChatMember> _members = [];
-  bool _loadingError = false;
-  bool _isLoading = true;
-
   final List<String> _tabs = ['Members', 'Roles'];
 
   int _selectedTab = 0;
 
+  late final Future<(List<ChatMember>, RolesDTO)> _future;
+
   @override
   void initState() {
     super.initState();
-    _loadMembers();
+    _future = _loadData();
   }
 
-  Future<void> _loadMembers() async {
-    try {
-      if (widget.chat.client.connected) {
-        final m = await PlatformChatsService.ins.getMembers(widget.chat);
-        if (mounted) {
-          setState(() {
-            _members = m;
-            _loadingError = false;
-            _isLoading = false;
-          });
-        }
-      }
-    } catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
-
-      if (mounted) {
-        setState(() {
-          _loadingError = true;
-          _isLoading = false;
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  Future<(List<ChatMember>, RolesDTO)> _loadData() async {
+    final m = await PlatformChatsService.ins.getMembers(widget.chat);
+    final r = await PlatformRoleService.ins.getRoles(widget.chat);
+    return (m, r);
   }
 
   Future<void> _showImagePreview(BuildContext context) async {
@@ -101,58 +79,74 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     return Scaffold(
       appBar: TauAppBar.empty(),
-      body: Column(
-        children: [
-          Center(
-            child: Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                GestureDetector(
-                  onTap: () => _showImagePreview(context),
-                  child: ChatAvatar(widget.chat, d: 200),
-                ),
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.black54,
-                    child: IconButton(
-                      onPressed: () => _pickAndSetGroupAvatar(context),
-                      icon: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 20,
+      body: FutureBuilder<(List<ChatMember>, RolesDTO)>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'Failed to load data.',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          }
+          final (members, roles) = snapshot.data!;
+
+          return Column(
+            children: [
+              Center(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _showImagePreview(context),
+                      child: ChatAvatar(widget.chat, d: 200),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.black54,
+                        child: IconButton(
+                          onPressed: () => _pickAndSetGroupAvatar(context),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            record.title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 16),
-          _buildTabs(),
-          const SizedBox(height: 12),
-          Expanded(child: _buildTabContent(record)),
-        ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                record.title,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+              _buildTabs(),
+              const SizedBox(height: 12),
+              Expanded(child: _buildTabContent(record, members)),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildTabs() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _tabs.length,
-        (index) => _buildTabButton(_tabs[index], index),
-      ),
-    );
-  }
+  Widget _buildTabs() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(_tabs.length, (i) {
+          return _buildTabButton(_tabs[i], i);
+        }),
+      );
 
   Widget _buildTabButton(String label, int index) {
     final isSelected = _selectedTab == index;
@@ -183,31 +177,18 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     );
   }
 
-  Widget _buildTabContent(GroupDTO record) {
+  Widget _buildTabContent(GroupDTO record, List<ChatMember> members) {
     return switch (_selectedTab) {
-      0 => _buildMembersTab(record),
-      1 => _buildRolesTab(record),
-      _ => Center(child: Text('Tab not implemented'))
+      0 => _buildMembersTab(record, members),
+      1 => _buildRolesTab(record, members),
+      _ => const Center(child: Text('Tab not implemented'))
     };
   }
 
-  Widget _buildMembersTab(GroupDTO record) {
+  Widget _buildMembersTab(GroupDTO record, List<ChatMember> members) {
     final currentUser = widget.chat.client.user?.nickname;
 
-    if (_loadingError) {
-      return const Center(
-        child: Text(
-          'Failed to load members.',
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    }
-
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_members.isEmpty) {
+    if (members.isEmpty) {
       return const Center(
         child: Text(
           'No members found.',
@@ -217,7 +198,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     }
 
     return ListView.separated(
-      itemCount: _members.length + 1,
+      itemCount: members.length + 1,
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -237,8 +218,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             ),
           );
         }
-
-        return _buildMember(_members[index - 1], record);
+        return _buildMember(members[index - 1], record);
       },
     );
   }
@@ -309,21 +289,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     );
   }
 
-  Widget _buildRolesTab(GroupDTO record) {
-    if (_loadingError) {
-      return const Center(
-        child: Text(
-          'Failed to load members.',
-          style: TextStyle(color: Colors.red),
-        ),
-      );
-    }
-
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_members.isEmpty) {
+  Widget _buildRolesTab(GroupDTO record, List<ChatMember> members) {
+    if (members.isEmpty) {
       return const Center(
         child: Text(
           'No roles found.',
@@ -332,15 +299,13 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       );
     }
 
-    final Set<String> uniqueRoles = {};
+    final Set<RoleDTO> uniqueRoles = {};
     bool hasOwner = false;
 
-    for (var member in _members) {
-      if (member.nickname == record.owner) {
-        hasOwner = true;
-      }
-      for (var role in member.roles) {
-        uniqueRoles.add(role.name);
+    for (var m in members) {
+      if (m.nickname == record.owner) hasOwner = true;
+      for (var role in m.roles) {
+        uniqueRoles.add(role);
       }
     }
 
@@ -353,23 +318,46 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       itemBuilder: (context, index) {
         if (hasOwner && index == 0) {
           return ListTile(
-            leading: Icon(Icons.star, color: Colors.blueAccent),
+            leading: const Icon(Icons.star, color: Colors.blueAccent),
             title: const Text('Owner'),
             subtitle: const Text('Group Owner'),
           );
         }
 
         final roleIndex = index - (hasOwner ? 1 : 0);
-        final roleName = rolesList[roleIndex];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: getRandomColor(roleName),
-            child: Text(
-              roleName[0].toUpperCase(),
-              style: const TextStyle(color: Colors.white),
+        final role = rolesList[roleIndex];
+        return GestureDetector(
+          onLongPressStart: (details) async {
+            final pos = details.globalPosition;
+            await showMenu(
+              context: context,
+              position: RelativeRect.fromLTRB(50, pos.dy, 50, pos.dy),
+              items: [
+                PopupMenuItem(
+                  child: const Row(children: [
+                    Icon(Icons.copy),
+                    SizedBox(width: 4),
+                    Text("Copy ID"),
+                  ]),
+                  onTap: () async {
+                    String id = role.id;
+                    await Clipboard.setData(ClipboardData(text: id));
+                    snackBar(context, 'Copied: $id');
+                  },
+                ),
+              ],
+            );
+          },
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: getRandomColor(role.id),
+              child: Text(
+                role.name.characters.firstOrNull ?? "?",
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
+            title: Text(role.name),
           ),
-          title: Text(roleName),
         );
       },
     );
