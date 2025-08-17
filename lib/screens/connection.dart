@@ -34,7 +34,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         TauButton.icon(
           Icons.qr_code_scanner,
           onPressed: () async {
-            var result = await moveTo(context, QrScannerScreen());
+            final result = await moveTo(context, QrScannerScreen());
             if (result is String) {
               _connect(context, result);
             }
@@ -124,7 +124,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     await StorageService.ins.saveClient(client);
 
     if (mounted) {
-      var result = await moveTo(context, LoginScreen(client: client));
+      final result = await moveTo(context, LoginScreen(client: client));
       if (result is String && result.contains("success")) {
         Navigator.pop(context, result);
       }
@@ -140,14 +140,14 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   void _connect(BuildContext context, String link) async {
     try {
       setState(() => _loading ??= -1);
-      var client = await PlatformClientService.ins.connect(
+      final client = await PlatformClientService.ins.connect(
         link,
         connectUpdate: widget.connectUpdate,
       );
       await StorageService.ins.saveClient(client);
 
       if (context.mounted) {
-        var result = await moveTo(context, LoginScreen(client: client));
+        final result = await moveTo(context, LoginScreen(client: client));
         if (result is String && result.contains("success")) {
           Navigator.pop(context, result);
         }

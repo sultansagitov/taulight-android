@@ -17,10 +17,10 @@ class MemberInfoScreen extends StatelessWidget {
   const MemberInfoScreen(this.client, this.nickname, {super.key});
 
   Future<void> _previewImage(BuildContext context) async {
-    var memoryImage = await ProfileAvatarService.ins.getOf(client, nickname);
+    final memoryImage = await ProfileAvatarService.ins.getOf(client, nickname);
     if (memoryImage == null) return;
 
-    var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
+    final image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
     await previewImage(context, image);
   }
@@ -28,8 +28,8 @@ class MemberInfoScreen extends StatelessWidget {
   Future<void> _message(BuildContext context) async {
     TauChat? chat;
 
-    for (var c in client.chats.values) {
-      var record = c.record;
+    for (final c in client.chats.values) {
+      final record = c.record;
       if (record is DialogDTO && record.otherNickname == nickname) {
         chat = c;
         break;

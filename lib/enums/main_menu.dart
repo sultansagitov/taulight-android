@@ -64,8 +64,8 @@ enum MainMenu {
     BuildContext context,
     VoidCallback callback,
   ) async {
-    var screen = ConnectionScreen(connectUpdate: callback);
-    var result = await moveTo(context, screen);
+    final screen = ConnectionScreen(connectUpdate: callback);
+    final result = await moveTo(context, screen);
     if (result != null) {
       callback();
     }
@@ -83,7 +83,7 @@ enum MainMenu {
     BuildContext context,
     VoidCallback callback,
   ) async {
-    var result = await moveTo(context, CreateGroupScreen());
+    final result = await moveTo(context, CreateGroupScreen());
     if (result == "success") callback();
   }
 
@@ -91,7 +91,7 @@ enum MainMenu {
     BuildContext context,
     VoidCallback callback,
   ) async {
-    var result = await moveTo(context, StartDialogScreen());
+    final result = await moveTo(context, StartDialogScreen());
     if (result is String) {
       callback();
     }
@@ -101,7 +101,7 @@ enum MainMenu {
     BuildContext context,
     VoidCallback callback,
   ) async {
-    var result = await moveTo(context, KeyManagementScreen());
+    final result = await moveTo(context, KeyManagementScreen());
     if (result is String) {
       callback();
     }
@@ -112,8 +112,8 @@ enum MainMenu {
   }
 
   static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
-    for (var client in ClientService.ins.clientsList) {
-      for (var chat in client.chats.values) {
+    for (final client in ClientService.ins.clientsList) {
+      for (final chat in client.chats.values) {
         chat.messages.clear();
       }
     }

@@ -6,11 +6,11 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/services/platform/messages.dart';
 import 'package:taulight/services/storage.dart';
-import 'package:uuid/uuid.dart';
 
 import 'chat_message_wrapper_dto.dart';
 
@@ -19,16 +19,14 @@ class TauChat {
   final ChatDTO record;
   final List<ChatMessageWrapperDTO> messages;
   final List<RoleDTO> roles = [];
-  String? avatarID;
+  UUID? avatarID;
 
   int? totalCount;
   List<ChatMessageWrapperDTO> get realMsg {
-    return messages.where((m) => !m.view.id.startsWith("temp_")).toList();
+    return messages.where((m) => m.view.isLoading).toList();
   }
 
-  TauChat(this.client, this.record) : messages = [record.lastMessage] {
-    print("new TauChat");
-  }
+  TauChat(this.client, this.record) : messages = [record.lastMessage];
 
   void addMessage(ChatMessageWrapperDTO message) {
     if (!messages.any((m) => m.view.id == message.view.id)) {
@@ -57,14 +55,11 @@ class TauChat {
 
   Future<void> sendMessage(
     String text,
-    List<String> repliedToMessages,
+    List<UUID> repliedToMessages,
     List<NamedFileDTO> files,
     VoidCallback callback,
   ) async {
-    var tempUuid = "temp_${Uuid().v4()}";
-
-    var message = ChatMessageViewDTO(
-      id: tempUuid,
+    final message = ChatMessageViewDTO.loading(
       chatID: record.id,
       keyID: null,
       nickname: client.user!.nickname,
@@ -77,14 +72,14 @@ class TauChat {
       files: files,
     );
 
-    var wrapper = ChatMessageWrapperDTO(message, text);
+    final wrapper = ChatMessageWrapperDTO(message, text);
 
     addMessage(wrapper);
     callback();
 
-    var map = await PlatformMessagesService.ins.sendMessage(this, message);
-    message.id = map["message"]!;
-    message.keyID = map["key"];
+    final map = await PlatformMessagesService.ins.sendMessage(this, message);
+    message.id = UUID.fromString(map["message"]!);
+    message.keyID = UUID.fromNullableString(map["key"]);
     callback();
   }
 

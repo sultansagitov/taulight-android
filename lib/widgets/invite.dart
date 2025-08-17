@@ -23,8 +23,8 @@ class _InviteWidgetState extends State<InviteWidget> {
     super.initState();
 
     final Uri uri = Uri.parse(widget.url);
-    var where = uri.path.split("/").where((s) => s.isNotEmpty);
-    var codeString = where.elementAt(1);
+    final where = uri.path.split("/").where((s) => s.isNotEmpty);
+    final codeString = where.elementAt(1);
 
     inviteDetails = InviteService.ins
         .checkCode(widget.chat.client, codeString)
@@ -44,7 +44,7 @@ class _InviteWidgetState extends State<InviteWidget> {
           print(snapshot.stackTrace);
         }
 
-        var code = snapshot.data;
+        final code = snapshot.data;
         if (code == null) {
           return SizedBox.shrink();
         }

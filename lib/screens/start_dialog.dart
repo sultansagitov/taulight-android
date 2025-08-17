@@ -46,7 +46,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
       return;
     }
 
-    var client = _controller.client;
+    final client = _controller.client;
     if (client == null) {
       setState(() {
         _isLoading = false;
@@ -129,14 +129,14 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
   }
 
   Future<void> _startDialogPressed() async {
-    var result = await moveTo(context, QrScannerScreen());
+    final result = await moveTo(context, QrScannerScreen());
     if (result is String) {
-      var uri = Uri.parse(result);
+      final uri = Uri.parse(result);
 
-      var address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
-      var params = uri.queryParameters;
-      var nickname = params["nickname"]!;
-      var encryption = params["encryption"]!;
+      final address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
+      final params = uri.queryParameters;
+      final nickname = params["nickname"]!;
+      final encryption = params["encryption"]!;
 
       await KeyStorageService.ins.saveEncryptor(
         address: address,
@@ -153,16 +153,16 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
 
       Iterable<Client> authorized =
           ClientService.ins.clientsList.where((c) => c.authorized);
-      var length = authorized.length;
+      final length = authorized.length;
 
       if (length == 0) {
         return;
       } else if (length == 1) {
         client = authorized.first;
       } else if (length > 1) {
-        var controller = ClientDropdownController();
+        final controller = ClientDropdownController();
 
-        var screen = SafeArea(
+        final screen = SafeArea(
           child: Center(
             child: ClientDropdown(controller: controller),
           ),

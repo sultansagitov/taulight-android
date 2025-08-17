@@ -25,7 +25,7 @@ class MembersInviteScreen extends StatelessWidget {
         padding: EdgeInsets.zero,
         itemCount: chats.length,
         itemBuilder: (context, index) {
-          var chat = chats[index];
+          final chat = chats[index];
           final String nickname = (chat.record as DialogDTO).otherNickname;
           return _buildMember(nickname, chat, context);
         },

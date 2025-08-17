@@ -1,5 +1,6 @@
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/enums/permission.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/platform_service.dart';
@@ -24,7 +25,7 @@ class PlatformRoleService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is Map) {
         return RolesDTO.fromMap(obj);
       }
@@ -42,17 +43,16 @@ class RolesDTO {
   RolesDTO(this.allRoles, this.memberRoles, this.permissions);
 
   factory RolesDTO.fromMap(map) {
-    var allRoles = (map["all-roles"] as List)
-        .map((r) => RoleDTO.fromMap(r))
-        .toSet();
+    final rawAll = map["all-roles"] as List;
+    final rawMember = map["member-roles"] as List;
+    final rawPerm = map["permissions"] as List;
 
-    var memberRolesIds = (map["member-roles"] as List).cast<String>().toSet();
-    var memberRoles =
-    allRoles.where((r) => memberRolesIds.contains(r.id)).toSet();
+    final allRoles = rawAll.map((r) => RoleDTO.fromMap(r)).toSet();
 
-    var permissions = (map["permissions"] as List)
-        .map((p) => Permission.fromStr(p))
-        .toSet();
+    final memberId = rawMember.map((id) => UUID.fromString(id)).toSet();
+    final memberRoles = allRoles.where((r) => memberId.contains(r.id)).toSet();
+
+    final permissions = rawPerm.map((p) => Permission.fromStr(p)).toSet();
 
     return RolesDTO(allRoles, memberRoles, permissions);
   }

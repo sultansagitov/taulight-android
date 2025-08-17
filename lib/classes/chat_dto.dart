@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 
 abstract class ChatDTO {
-  final String id;
+  final UUID id;
   final ChatMessageWrapperDTO lastMessage;
-  final String? avatarID;
+  final UUID? avatarID;
 
   static ChatDTO fromMap(client, obj) {
     final map = Map<String, dynamic>.from(obj);
 
-    var type = map["chat"]["type"];
+    final String type = map["chat"]["type"]!;
     return switch (type) {
       "gr" => GroupDTO.fromMap(client, map),
       "dl" => DialogDTO.fromMap(client, map),
@@ -41,15 +42,16 @@ class GroupDTO extends ChatDTO {
   });
 
   factory GroupDTO.fromMap(Client client, Map<String, dynamic> obj) {
+    final chatMap = obj["chat"]!;
     return GroupDTO(
-      id: obj["chat"]["id"]!,
+      id: UUID.fromString(chatMap["id"]),
       lastMessage: ChatMessageWrapperDTO(
-        ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+        ChatMessageViewDTO.fromMap(client, chatMap["last-message"]),
         obj["decrypted-last-message"],
       ),
-      avatarID: obj["chat"]["avatar"],
-      title: obj["chat"]["group-title"]!,
-      owner: obj["chat"]["group-owner"]!,
+      avatarID: UUID.fromNullableString(chatMap["avatar"]),
+      title: chatMap["group-title"]!,
+      owner: chatMap["group-owner"]!,
     );
   }
 
@@ -77,14 +79,15 @@ class DialogDTO extends ChatDTO {
   });
 
   factory DialogDTO.fromMap(Client client, Map<String, dynamic> obj) {
-    var otherNickname = obj["chat"]["dialog-other"]!;
+    final chatMap = obj["chat"]!;
+    final String otherNickname = chatMap["dialog-other"]!;
     return DialogDTO(
-      id: obj["chat"]["id"]!,
+      id: UUID.fromString(chatMap["id"]),
       lastMessage: ChatMessageWrapperDTO(
-        ChatMessageViewDTO.fromMap(client, obj["chat"]['last-message']),
+        ChatMessageViewDTO.fromMap(client, chatMap['last-message']),
         obj["decrypted-last-message"],
       ),
-      avatarID: obj["chat"]["avatar"],
+      avatarID: UUID.fromNullableString(chatMap["avatar"]),
       otherNickname: otherNickname,
       isMonolog: client.user!.nickname == otherNickname,
     );

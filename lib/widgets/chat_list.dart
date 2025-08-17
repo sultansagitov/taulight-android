@@ -41,14 +41,14 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.ins.clientsList;
+    final clients = ClientService.ins.clientsList;
 
     // Collect all disconnected (but not hidden) hubs
-    var disconnectedHubs =
+    final disconnectedHubs =
         clients.where((c) => !c.connected && !c.hide).toList();
 
     // Collect all connected but unauthorized hubs
-    var unauthorizedHubs = clients
+    final unauthorizedHubs = clients
         .where((c) => c.connected && (c.user == null || !c.user!.authorized))
         .toList();
 
@@ -90,7 +90,7 @@ class _ChatListState extends State<ChatList> {
       ));
     }
 
-    var c = clients.where((c) => c.authorized);
+    final c = clients.where((c) => c.authorized);
     Iterable<Filter> clientFilter = c.length != 1 ? c.map((c) => c.filter) : [];
     resultFilters = [...filters, ...clientFilter];
     list.add(ChatsFilter(

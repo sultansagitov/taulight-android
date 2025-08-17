@@ -4,9 +4,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class ImageDTO {
-  final String? id;
+  final UUID? id;
   final MemoryImage image;
 
   ImageDTO(this.id, this.image);
@@ -20,12 +21,12 @@ class AvatarService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   final int _cacheSize = 20;
 
-  final LinkedHashMap<String, ImageDTO> _memoryCache = LinkedHashMap();
+  final LinkedHashMap<UUID, ImageDTO> _memoryCache = LinkedHashMap();
 
-  String _avatarKey(String avatarID) => 'avatar_$avatarID';
+  String _avatarKey(UUID avatarID) => 'avatar_$avatarID';
 
   Future<ImageDTO?> loadOrFetchAvatar(
-    String? avatarID,
+    UUID? avatarID,
     Future<Map<String, String>?> Function() fetchAvatar,
   ) async {
     if (avatarID != null) {
@@ -46,8 +47,9 @@ class AvatarService {
       final map = await fetchAvatar();
       if (map == null || map.isEmpty) return null;
 
-      final id = map["id"]!;
-      final base64Str = map["avatarBase64"]!;
+      final UUID id = UUID.fromString(map["id"]!);
+      final String base64Str = map["avatarBase64"]!;
+
       await _secureStorage.write(key: _avatarKey(id), value: base64Str);
 
       final bytes = base64Decode(base64Str);
@@ -61,25 +63,25 @@ class AvatarService {
     }
   }
 
-  Future<void> remove(String oldAvatarID) async {
+  Future<void> remove(UUID oldAvatarID) async {
     await _secureStorage.delete(key: _avatarKey(oldAvatarID));
     _memoryCache.remove(oldAvatarID);
   }
 
-  Future<bool> hasAvatarInStorage(String avatarID) async {
+  Future<bool> hasAvatarInStorage(UUID avatarID) async {
     if (_memoryCache.containsKey(avatarID)) return true;
     final avatarData = await _secureStorage.read(key: _avatarKey(avatarID));
     return avatarData != null;
   }
 
-  Future<void> updateAvatar(String avatarID, Uint8List newImageBytes) async {
+  Future<void> updateAvatar(UUID avatarID, Uint8List newImageBytes) async {
     final base64Str = base64Encode(newImageBytes);
     await _secureStorage.write(key: _avatarKey(avatarID), value: base64Str);
     final dto = ImageDTO(avatarID, MemoryImage(newImageBytes));
     _addToCache(avatarID, dto);
   }
 
-  void _addToCache(String key, ImageDTO dto) {
+  void _addToCache(UUID key, ImageDTO dto) {
     _memoryCache.remove(key);
     _memoryCache[key] = dto;
 

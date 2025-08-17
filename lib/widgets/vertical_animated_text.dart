@@ -43,12 +43,12 @@ class _VerticalAnimatedTextState extends State<VerticalAnimatedText> {
       transitionBuilder: (child, animation) {
         bool movingForward = animation.status != AnimationStatus.completed;
 
-        var slideAnim = Tween<Offset>(
+        final slideAnim = Tween<Offset>(
           begin: Offset(0, movingForward ? -0.5 : 0.5),
           end: Offset.zero,
         ).animate(animation);
 
-        var fadeAnim = Tween<double>(begin: -0.5, end: 1).animate(animation);
+        final fadeAnim = Tween<double>(begin: -0.5, end: 1).animate(animation);
 
         return Align(
           alignment: widget._alignment,

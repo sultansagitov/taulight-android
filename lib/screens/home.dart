@@ -40,11 +40,11 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    var methodCallHandler = MethodCallHandler();
+    final methodCallHandler = MethodCallHandler();
 
     PlatformService.ins.setMethodCallHandler((call) async {
       try {
-        var result = await methodCallHandler.handle(call);
+        final result = await methodCallHandler.handle(call);
         setState(() {});
         chatKey.currentState?.update();
         return result;
@@ -141,10 +141,10 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var isLight = Theme.of(context).brightness == Brightness.light;
-    var color = Config.primarySwatch[isLight ? 700 : 300];
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final color = Config.primarySwatch[isLight ? 700 : 300];
 
-    var names = ClientService.ins.clientsList
+    final names = ClientService.ins.clientsList
         .where((c) => c.user != null)
         .map((c) => c.user!.nickname)
         .toList();
@@ -164,7 +164,7 @@ class HomeScreenState extends State<HomeScreen> {
                     Icons.menu,
                     color: color,
                     onPressed: () async {
-                      var screen = MainMenuScreen();
+                      final screen = MainMenuScreen();
                       await moveTo(context, screen, fromLeft: true);
                       await _updateHome(animation: false);
                     },
@@ -182,18 +182,18 @@ class HomeScreenState extends State<HomeScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   const duration = Duration(seconds: 5);
-                  var clients = ClientService.ins.clientsList;
-                  for (var c in clients.where((c) => !c.connected)) {
+                  final clients = ClientService.ins.clientsList;
+                  for (final c in clients.where((c) => !c.connected)) {
                     await c.reload().timeout(duration);
                   }
                   await PlatformClientService.ins
                       .loadClients()
                       .timeout(duration);
-                  for (var c in clients.where((c) => c.realName == null)) {
+                  for (final c in clients.where((c) => c.realName == null)) {
                     await c.resetName().timeout(duration);
                   }
-                  for (var client in ClientService.ins.clientsList) {
-                    for (var chat in client.chats.values) {
+                  for (final client in ClientService.ins.clientsList) {
+                    for (final chat in client.chats.values) {
                       await chat.loadMessages(0, 1).timeout(duration);
                     }
                   }
@@ -246,10 +246,10 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    var clients = ClientService.ins.clientsList;
+    final clients = ClientService.ins.clientsList;
 
     // Collect all connected but unauthorized hubs
-    var unauthorizedHubs = clients
+    final unauthorizedHubs = clients
         .where((c) => c.connected && (c.user == null || !c.user!.authorized))
         .toList();
 
@@ -259,12 +259,12 @@ class HomeScreenState extends State<HomeScreen> {
       return HubsEmpty(connectUpdate: () => _updateHome(animation: true));
     }
 
-    var noChats = clients.expand((client) => client.chats.values).isEmpty;
+    final noChats = clients.expand((client) => client.chats.values).isEmpty;
 
     if (noChats) {
       // If the user is not logged in — suggest login
       if (unauthorizedHubs.isNotEmpty) {
-        var client = unauthorizedHubs.first;
+        final client = unauthorizedHubs.first;
         if (client.user == null || !client.user!.authorized) {
           return NotLoggedIn(client, onLogin: (result) async {
             if (result is String && result.contains("success")) {
@@ -283,14 +283,14 @@ class HomeScreenState extends State<HomeScreen> {
         _updateHome(animation: true);
       },
       onChatTap: (TauChat chat) async {
-        var screen = ChatScreen(chat, key: chatKey, updateHome: () {
+        final screen = ChatScreen(chat, key: chatKey, updateHome: () {
           _updateHome(animation: true);
         });
         await moveTo(context, screen);
         await _updateHome(animation: false);
       },
       onLoginTap: (Client client) async {
-        var result = await moveTo(context, LoginScreen(client: client));
+        final result = await moveTo(context, LoginScreen(client: client));
         if (result is String && result.contains("success")) {
           await _updateHome(animation: true);
         }

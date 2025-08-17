@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/uuid.dart';
 
 import 'message_dto_test.dart';
 
@@ -10,19 +11,19 @@ void main() {
       final map = {
         'chat': {
           'type': 'gr',
-          'id': '1',
+          'id': UUID.random().toString(),
           'group-title': 'General',
           'group-owner': 'admin',
-          'avatar': "0",
+          'avatar': UUID.random().toString(),
           'last-message': {
-            'id': 'msg-1',
+            'id': UUID.random().toString(),
             'creation-date': '2024-04-01T12:00:00Z',
             'message': {
-              'chat-id': 'chat-1',
+              'chat-id': UUID.random().toString(),
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
-              'replied-to-messages': ['msg-0']
+              'replied-to-messages': [UUID.random().toString()]
             },
             'reactions': {
               'taulight:fire': ['rizl'],
@@ -40,18 +41,18 @@ void main() {
       final map = {
         'chat': {
           'type': 'dl',
-          'id': '2',
+          'id': UUID.random().toString(),
           'dialog-other': 'user123',
-          'avatar': "0",
+          'avatar': UUID.random().toString(),
           'last-message': {
-            'id': 'msg-1',
+            'id': UUID.random().toString(),
             'creation-date': '2024-04-01T12:00:00Z',
             'message': {
-              'chat-id': 'chat-1',
+              'chat-id': UUID.random().toString(),
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
-              'replied-to-messages': ['msg-0']
+              'replied-to-messages': [UUID.random().toString()]
             },
             'reactions': {
               'taulight:fire': ['rizl'],
@@ -67,7 +68,7 @@ void main() {
 
     test('throws on unknown type', () {
       final map = {
-        'chat': {'type': 'xyz', 'id': '3'}
+        'chat': {'type': 'xyz', 'id': UUID.random().toString()}
       };
       expect(() => ChatDTO.fromMap(FakeClient(), map),
           throwsA(isA<ErrorDescription>()));

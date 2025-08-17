@@ -43,8 +43,8 @@ class LoginScreenState extends State<LoginScreen> {
 
     setState(() => _errorMessage = '');
 
-    var nickname = _nicknameController.text.trim();
-    var passwd = _passwordController.text.trim();
+    final nickname = _nicknameController.text.trim();
+    final passwd = _passwordController.text.trim();
     if (nickname.isEmpty) {
       setState(() => _errorMessage = "Please enter nickname");
       return;
@@ -74,7 +74,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _register() async {
-    var client = widget.client;
+    final client = widget.client;
 
     String nickname = _nicknameController.text.trim();
     String passwd = _passwordController.text.trim();
@@ -103,8 +103,8 @@ class LoginScreenState extends State<LoginScreen> {
     setState(() => _errorMessage = '');
     try {
       setState(() => _loading = true);
-      var token = await PlatformAgentService.ins.reg(client, nickname, passwd);
-      var userRecord = UserRecord(nickname, token);
+      final token = await PlatformAgentService.ins.reg(client, nickname, passwd);
+      final userRecord = UserRecord(nickname, token);
       await StorageService.ins.saveWithToken(client, userRecord);
       setState(() => _loading = false);
       if (mounted) {

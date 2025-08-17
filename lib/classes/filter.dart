@@ -28,7 +28,7 @@ class RadioFilter extends Filter {
 
   @override
   void enable() {
-    for (var filter in manager.filters) {
+    for (final filter in manager.filters) {
       filter.disable();
     }
 
@@ -41,7 +41,7 @@ class AnyFilter extends Filter {
 
   @override
   bool check(TauChat chat) {
-    for (var filter in manager.filters) {
+    for (final filter in manager.filters) {
       if (filter.isEnabled() && filter.condition(chat)) {
         return true;
       }

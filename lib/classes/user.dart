@@ -1,9 +1,10 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/platform/agent.dart';
 
 class User {
   Client client;
-  String? avatarID;
+  UUID? avatarID;
   String nickname;
   String token;
   bool authorized = true;

@@ -18,19 +18,19 @@ class CodeDTO {
   });
 
   factory CodeDTO.fromMap(map) {
-    var activationString = map["activation-date"];
+    final activationString = map["activation-date"];
     DateTime? activation;
 
     if (activationString != null) {
-      activation = DateTime.parse(activationString as String);
+      activation = DateTime.parse(activationString);
     }
 
     return CodeDTO(
-      title: map["title"] as String,
-      receiver: map["receiver-nickname"] as String?,
-      sender: map["sender-nickname"] as String,
-      creation: DateTime.parse(map["creation-date"] as String),
-      expires: DateTime.parse(map["expires-date"] as String),
+      title: map["title"]!,
+      receiver: map["receiver-nickname"],
+      sender: map["sender-nickname"]!,
+      creation: DateTime.parse(map["creation-date"]),
+      expires: DateTime.parse(map["expires-date"]),
       activation: activation,
     );
   }

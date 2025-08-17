@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 
 class PlatformService {
@@ -17,12 +18,12 @@ class PlatformService {
   Future<Result> method(String methodName, [Map<String, dynamic>? args]) async {
     print("Called on platform --- \"$methodName\"");
     Map result = (await platform.invokeMethod<Map>(methodName, args ?? {}))!;
-    var chainMethodName = methodName == "chain" ? args!["method"] : "";
+    final chainMethodName = methodName == "chain" ? args!["method"] : "";
     print("Result of \"$methodName\" - $chainMethodName - $result");
 
-    var error = result["error"];
-    if (error != null) {
-      return ExceptionResult(error["name"], error["message"]);
+    final errorMap = result["error"];
+    if (errorMap != null) {
+      return ExceptionResult(errorMap["name"]!, errorMap["message"]!);
     }
 
     return SuccessResult(result["success"]);
@@ -34,9 +35,10 @@ class PlatformService {
     List<dynamic>? params,
   }) async {
     return await method("chain", {
-      "uuid": client.uuid,
+      "uuid": client.uuid.toString(),
       "method": methodName,
-      if (params != null) "params": params,
+      if (params != null)
+        "params": params.map((p) => p is UUID ? p.toString() : p).toList(),
     });
   }
 }

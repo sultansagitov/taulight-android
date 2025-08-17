@@ -31,7 +31,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
       showDragHandle: true,
       builder: (context) => ListView(
         children: clients.map((client) {
-          var user = client.user;
+          final user = client.user;
           if (user == null) {
             return ListTile(
               title: Text("Unauthorized"),
@@ -39,7 +39,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
             );
           }
 
-          var nickname = user.nickname;
+          final nickname = user.nickname;
           return ListTile(
             leading: MemberAvatar(client: client, nickname: nickname, d: 44),
             title: Text(nickname),
@@ -59,8 +59,8 @@ class _ClientDropdownState extends State<ClientDropdown> {
   Widget build(BuildContext context) {
     if (clients.length <= 1) return const SizedBox.shrink();
 
-    var client = widget.controller.client;
-    var data = client != null
+    final client = widget.controller.client;
+    final data = client != null
         ? (client.user != null ? client.user!.nickname : "Incorrect hub")
         : 'No hubs';
     return GestureDetector(

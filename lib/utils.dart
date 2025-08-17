@@ -63,7 +63,7 @@ String getInitials(String title) {
   String initials = "";
 
   try {
-    var split = title.split(" ");
+    final split = title.split(" ");
     if (split.length >= 2) {
       initials = "";
       for (int i = 0; i < 2; i++) {
@@ -88,7 +88,7 @@ String getInitials(String title) {
 }
 
 Color grey(Color color) {
-  var avg = ((color.r + color.g + color.b) * 255 / 3).round();
+  final avg = ((color.r + color.g + color.b) * 255 / 3).round();
   return Color.fromRGBO(avg, avg, avg, 1.0);
 }
 
@@ -110,12 +110,12 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
     return "$nickname: $text";
   }
 
-  var type = split[0];
-  var act = split[1];
+  final type = split[0];
+  final act = split[1];
 
   switch (type) {
     case 'group':
-      var group = chat.record as GroupDTO;
+      final group = chat.record as GroupDTO;
       switch (act) {
         case 'new':
           return 'Group "${group.title}" created by $nickname';
@@ -125,7 +125,7 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
           return '$nickname left group "${group.title}"';
       }
     case 'dialog':
-      var dialog = chat.record as DialogDTO;
+      final dialog = chat.record as DialogDTO;
       if (!dialog.isMonolog) {
         switch (act) {
           case 'new':
@@ -143,7 +143,7 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
 }
 
 String link2address(String link) {
-  var uri = Uri.parse(link);
+  final uri = Uri.parse(link);
   var address = uri.host;
   if (uri.hasPort && uri.port == 52525) {
     address += ":${uri.port}";

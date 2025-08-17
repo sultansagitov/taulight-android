@@ -38,8 +38,8 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    var status = widget.client.status;
+    final size = MediaQuery.of(context).size;
+    final status = widget.client.status;
 
     return Scaffold(
       appBar: TauAppBar.empty(actions: [
@@ -91,7 +91,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
                       label: "Login",
                       width: double.infinity,
                       onPressed: () async {
-                        var screen = LoginScreen(client: widget.client);
+                        final screen = LoginScreen(client: widget.client);
                         await moveTo(context, screen);
                         setState(() {});
                       },

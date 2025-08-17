@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/platform/chats.dart';
 import 'package:taulight/services/platform/client.dart';
 
@@ -19,10 +20,10 @@ enum ClientStatus {
 }
 
 class Client {
-  final String uuid;
+  final UUID uuid;
   final String link;
   final String address;
-  final Map<String, TauChat> chats = {};
+  final Map<UUID, TauChat> chats = {};
 
   String? realName;
   String get name => realName ?? address;
@@ -60,15 +61,15 @@ class Client {
     return ClientStatus.connected;
   }
 
-  TauChat get(String id) => chats[id]!;
+  TauChat get(UUID id) => chats[id]!;
 
-  Future<TauChat> save(String id) async => chats[id] = await loadChat(id);
+  Future<TauChat> save(UUID id) async => chats[id] = await loadChat(id);
 
   /// Gets a chat with the given ID.
   ///
   /// Returns the chat.
   ///
-  Future<TauChat> getOrSaveChatByID(String chatID) async {
+  Future<TauChat> getOrSaveChatByID(UUID chatID) async {
     if (!chats.containsKey(chatID)) {
       await save(chatID);
     }
@@ -80,7 +81,7 @@ class Client {
   ///
   /// Returns the chat.
   ///
-  TauChat? getChatByID(String chatID) {
+  TauChat? getChatByID(UUID chatID) {
     return chats[chatID];
   }
 
@@ -91,7 +92,7 @@ class Client {
   /// Returns the loaded chats.
   ///
   Future<void> loadChats() async {
-    for (var dto in await PlatformChatsService.ins.loadChats(this)) {
+    for (final dto in await PlatformChatsService.ins.loadChats(this)) {
       chats[dto.id] ??= TauChat(this, dto);
       chats[dto.id]!.avatarID = dto.avatarID;
     }
@@ -109,7 +110,7 @@ class Client {
   ///
   /// Returns the loaded chat.
   ///
-  Future<TauChat> loadChat(String id) =>
+  Future<TauChat> loadChat(UUID id) =>
       PlatformChatsService.ins.loadChat(this, id);
 
   /// Reloads the client.

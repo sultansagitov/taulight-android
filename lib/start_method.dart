@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/services/client.dart';
@@ -17,14 +18,14 @@ Future<void> start(
 ) async {
   await PlatformClientService.ins.loadClients();
 
-  Map<String, ServerRecord> map = await StorageService.ins.getClients();
+  Map<UUID, ServerRecord> map = await StorageService.ins.getClients();
 
-  Set<String> connectedSet = ClientService.ins.keys;
-  Set<String> storageSet = map.keys.toSet();
+  Set<UUID> connectedSet = ClientService.ins.keys;
+  Set<UUID> storageSet = map.keys.toSet();
 
-  Set<String> notConnectedId = storageSet.difference(connectedSet);
+  Set<UUID> notConnectedId = storageSet.difference(connectedSet);
 
-  for (String uuid in notConnectedId) {
+  for (UUID uuid in notConnectedId) {
     ServerRecord sr = map[uuid]!;
     try {
       await PlatformClientService.ins.connectWithUUID(
@@ -49,7 +50,7 @@ Future<void> start(
     }
   }
 
-  for (var client in ClientService.ins.clientsList) {
+  for (final client in ClientService.ins.clientsList) {
     if (!client.connected) continue;
 
     if (client.user == null || !client.user!.authorized) {
@@ -58,7 +59,7 @@ Future<void> start(
         String? error;
 
         try {
-          var token = serverRecord.user!.token;
+          final token = serverRecord.user!.token;
           await PlatformAgentService.ins.authByToken(client, token);
         } on ExpiredTokenException {
           error = "Session expired. ${client.name}";

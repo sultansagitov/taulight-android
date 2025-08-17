@@ -5,7 +5,7 @@ class Config {
   static Color seedColor = Colors.deepOrangeAccent;
   static MaterialColor primarySwatch = Colors.deepOrange;
 
-  static var recommended = [
+  static final recommended = [
     ServerRecord(
       name: "Local Hub",
       link: "sandnode://hub@192.168.42.39?encryption=ECIES"

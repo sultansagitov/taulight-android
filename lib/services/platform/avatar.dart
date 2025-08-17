@@ -1,5 +1,6 @@
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/platform_service.dart';
 
@@ -8,8 +9,8 @@ class PlatformAvatarService {
   static PlatformAvatarService get ins => _instance;
   PlatformAvatarService._internal();
 
-  Future<String> setGroupAvatar(TauChat chat, String imagePath) async {
-    var result = await PlatformService.ins.chain(
+  Future<UUID> setGroupAvatar(TauChat chat, String imagePath) async {
+    final result = await PlatformService.ins.chain(
       "GroupClientChain.setAvatar",
       client: chat.client,
       params: [chat.record.id, imagePath],
@@ -23,9 +24,9 @@ class PlatformAvatarService {
     }
 
     if (result is SuccessResult) {
-      var avatarID = result.obj;
+      final avatarID = result.obj;
       if (avatarID is String) {
-        return avatarID;
+        return UUID.fromString(avatarID);
       }
     }
 
@@ -79,7 +80,7 @@ class PlatformAvatarService {
   }
 
   Future<Map<String, String>?> getMy(Client client) async {
-    var result = await PlatformService.ins.chain(
+    final result = await PlatformService.ins.chain(
       "AvatarClientChain.getMy",
       client: client,
     );
@@ -101,7 +102,7 @@ class PlatformAvatarService {
   }
 
   Future<Map<String, String>?> getOf(Client client, String nickname) async {
-    var result = await PlatformService.ins.chain(
+    final result = await PlatformService.ins.chain(
       "AvatarClientChain.getOf",
       client: client,
       params: [nickname],
@@ -123,8 +124,8 @@ class PlatformAvatarService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> setMy(Client client, String path) async {
-    var result = await PlatformService.ins.chain(
+  Future<UUID> setMy(Client client, String path) async {
+    final result = await PlatformService.ins.chain(
       "AvatarClientChain.set",
       client: client,
       params: [path],
@@ -138,9 +139,9 @@ class PlatformAvatarService {
     }
 
     if (result is SuccessResult) {
-      var id = result.obj;
+      final id = result.obj;
       if (id is String) {
-        return id;
+        return UUID.fromString(id);
       }
     }
 

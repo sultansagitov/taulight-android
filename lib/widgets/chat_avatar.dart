@@ -62,7 +62,7 @@ class _ChatAvatarState extends State<ChatAvatar> {
               d: widget.d,
             );
     } else if (isDialog(widget.chat)) {
-      var dialog = widget.chat.record as DialogDTO;
+      final dialog = widget.chat.record as DialogDTO;
       return !dialog.isMonolog
           ? isLoading || avatarImage == null
               ? DialogInitials(
@@ -228,11 +228,11 @@ class _MemberAvatarState extends State<MemberAvatar> {
     return FutureBuilder(
       future: future,
       builder: (context, snapshot) {
-        var d = widget.d;
+        final d = widget.d;
 
         if (!snapshot.hasData || snapshot.data == null) {
-          var initials = getInitials(widget.nickname);
-          var bg = getRandomColor(widget.nickname);
+          final initials = getInitials(widget.nickname);
+          final bg = getRandomColor(widget.nickname);
           return DialogInitials(initials: initials, bgColor: bg, d: d);
         }
 
@@ -310,11 +310,11 @@ class MyAvatar extends StatelessWidget {
           print(snapshot.stackTrace);
         }
 
-        var avatarBytes = snapshot.data?.bytes;
+        final avatarBytes = snapshot.data?.bytes;
 
         if (avatarBytes == null) {
-          var initials = getInitials(client.user!.nickname);
-          var bg = getRandomColor(client.user!.nickname);
+          final initials = getInitials(client.user!.nickname);
+          final bg = getRandomColor(client.user!.nickname);
           return DialogInitials(initials: initials, bgColor: bg, d: d);
         }
 

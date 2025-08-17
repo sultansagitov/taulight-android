@@ -3,6 +3,7 @@ import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/platform_service.dart';
 
@@ -13,7 +14,7 @@ class PlatformChatsService {
 
   Future<List<ChatDTO>> loadChats(Client client) async {
     Result result = await PlatformService.ins.method("get-chats", {
-      "uuid": client.uuid,
+      "uuid": client.uuid.toString(),
     });
 
     if (result is ExceptionResult) {
@@ -21,7 +22,7 @@ class PlatformChatsService {
     }
 
     if (result is SuccessResult) {
-      var list = result.obj;
+      final list = result.obj;
       if (list is List) {
         return list
             .where((obj) => ["gr", "dl"].contains(obj["chat"]["type"]!))
@@ -32,10 +33,10 @@ class PlatformChatsService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<TauChat> loadChat(Client client, String id) async {
-    var result = await PlatformService.ins.method("load-chat", {
-      "uuid": client.uuid,
-      "chat-id": id,
+  Future<TauChat> loadChat(Client client, UUID id) async {
+    final result = await PlatformService.ins.method("load-chat", {
+      "uuid": client.uuid.toString(),
+      "chat-id": id.toString(),
     });
 
     if (result is ExceptionResult) {
@@ -67,16 +68,16 @@ class PlatformChatsService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is String) {
-        return await client.loadChat(obj);
+        return await client.loadChat(UUID.fromString(obj));
       }
     }
 
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> createGroup(Client client, String title) async {
+  Future<UUID> createGroup(Client client, String title) async {
     Result result = await PlatformService.ins.chain(
       "GroupClientChain.sendNewGroupRequest",
       client: client,
@@ -88,9 +89,9 @@ class PlatformChatsService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is String) {
-        return obj;
+        return UUID.fromString(obj);
       }
     }
 
@@ -109,19 +110,20 @@ class PlatformChatsService {
     }
 
     if (result is SuccessResult) {
-      var map = Map<String, dynamic>.from(result.obj);
-      if (map["roles"] != null) {
-        for (var rMap in map["roles"]) {
-          if (!chat.roles.any((r) => r.id == rMap["id"])) {
-            chat.roles.add(RoleDTO.fromMap(rMap));
+      final map = Map<String, dynamic>.from(result.obj);
+      final rawRoles = map["roles"] as List?;
+      final rawMembers = result.obj["members"] as List;
+
+      if (rawRoles != null) {
+        for (var rMap in rawRoles) {
+          final dto = RoleDTO.fromMap(rMap);
+          if (!chat.roles.any((r) => r.id == dto.id)) {
+            chat.roles.add(dto);
           }
         }
       }
 
-      var members = result.obj["members"];
-      return members
-          .map<ChatMember>((m) => ChatMember.fromMap(chat.roles, m))
-          .toList();
+      return rawMembers.map((m) => ChatMember.fromMap(chat.roles, m)).toList();
     }
 
     throw IncorrectFormatChannelException();
@@ -129,7 +131,7 @@ class PlatformChatsService {
 
   Future<String> addMember(
       TauChat chat, String nickname, Duration expirationTime) async {
-    var client = chat.client;
+    final client = chat.client;
     Result result = await PlatformService.ins.chain(
       "GroupClientChain.createInviteCode",
       client: client,
@@ -150,7 +152,7 @@ class PlatformChatsService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is String) {
         return obj;
       }

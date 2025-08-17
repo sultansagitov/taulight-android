@@ -5,6 +5,7 @@ import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/platform_service.dart';
 
@@ -14,9 +15,9 @@ class PlatformMessagesService {
   PlatformMessagesService._internal();
 
   Future<int> loadMessages(TauChat chat, int i, int size) async {
-    var result = await PlatformService.ins.method("load-messages", {
-      "uuid": chat.client.uuid,
-      "chat-id": chat.record.id,
+    final result = await PlatformService.ins.method("load-messages", {
+      "uuid": chat.client.uuid.toString(),
+      "chat-id": chat.record.id.toString(),
       "index": i,
       "size": size,
     });
@@ -27,14 +28,14 @@ class PlatformMessagesService {
 
     if (result is SuccessResult) {
       print("Loading messages: $chat ${result.obj}");
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is Map) {
-        var messages = obj["messages"];
-        for (var json in messages) {
-          var message = ChatMessageWrapperDTO.fromMap(chat.client, json);
+        final messages = obj["messages"];
+        for (final json in messages) {
+          final message = ChatMessageWrapperDTO.fromMap(chat.client, json);
           chat.addMessage(message);
         }
-        return obj["count"];
+        return obj["count"]! as int;
       }
     }
 
@@ -45,12 +46,13 @@ class PlatformMessagesService {
     TauChat chat,
     ChatMessageViewDTO message,
   ) async {
-    var args = {
-      "uuid": chat.client.uuid,
-      "chat-id": chat.record.id,
+    final args = {
+      "uuid": chat.client.uuid.toString(),
+      "chat-id": chat.record.id.toString(),
       "content": message.text,
-      "replied-to-messages": message.repliedToMessages,
-      "file-id": message.files.map((f) => f.id).toList(),
+      "replied-to-messages":
+          message.repliedToMessages.map((u) => u.toString()).toList(),
+      "file-id": message.files.map((f) => f.id!.toString()).toList(),
     };
     Result result = await PlatformService.ins.method("send", args);
 
@@ -65,8 +67,8 @@ class PlatformMessagesService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<Uint8List> downloadFile(Client client, String fileId) async {
-    var result = await PlatformService.ins.chain(
+  Future<Uint8List> downloadFile(Client client, UUID fileId) async {
+    final result = await PlatformService.ins.chain(
       "MessageFileClientChain.download",
       client: client,
       params: [fileId],
@@ -81,15 +83,15 @@ class PlatformMessagesService {
 
     if (result is SuccessResult) {
       final map = Map<String, dynamic>.from(result.obj);
-      final base64Str = map["avatarBase64"]!;
+      final String base64Str = map["avatarBase64"]!;
       return base64Decode(base64Str);
     }
 
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> uploadFile(TauChat chat, String path, String filename) async {
-    var result = await PlatformService.ins.chain(
+  Future<UUID> uploadFile(TauChat chat, String path, String filename) async {
+    final result = await PlatformService.ins.chain(
       "MessageFileClientChain.upload",
       client: chat.client,
       params: [chat.record.id, path, filename],
@@ -103,9 +105,9 @@ class PlatformMessagesService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is String) {
-        return obj;
+        return UUID.fromString(obj);
       }
     }
 

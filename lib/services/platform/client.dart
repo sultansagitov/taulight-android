@@ -2,12 +2,12 @@ import 'dart:ui';
 
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/platform/platform_service.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/utils.dart';
-import 'package:uuid/uuid.dart';
 
 final invalidLinkExceptions = [
   "InvalidSandnodeLinkException",
@@ -24,9 +24,8 @@ class PlatformClientService {
     VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
-    String uuid = Uuid().v4();
     return await connectWithUUID(
-      uuid,
+      UUID.random(),
       link,
       connectUpdate: connectUpdate,
       keep: keep,
@@ -34,7 +33,7 @@ class PlatformClientService {
   }
 
   Future<Client> connectWithUUID(
-    String uuid,
+    UUID uuid,
     String link, {
     VoidCallback? connectUpdate,
     bool keep = false,
@@ -55,7 +54,7 @@ class PlatformClientService {
     connectUpdate?.call();
 
     Result result = await PlatformService.ins.method("connect", {
-      "uuid": uuid,
+      "uuid": uuid.toString(),
       "link": link,
     });
 
@@ -80,10 +79,10 @@ class PlatformClientService {
     client.connecting = true;
     callback?.call();
 
-    String uuid = client.uuid;
+    UUID uuid = client.uuid;
     String link = client.link;
     Result result = await PlatformService.ins.method("connect", {
-      "uuid": uuid,
+      "uuid": uuid.toString(),
       "link": link,
     });
 
@@ -101,7 +100,7 @@ class PlatformClientService {
   }
 
   Future<String> name(Client client) async {
-    var result = await PlatformService.ins.chain(
+    final result = await PlatformService.ins.chain(
       "NameClientChain.getName",
       client: client,
     );
@@ -111,7 +110,7 @@ class PlatformClientService {
     }
 
     if (result is SuccessResult) {
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is String) {
         return obj;
       }
@@ -123,7 +122,7 @@ class PlatformClientService {
   Future<void> disconnect(Client client) async {
     if (client.connected) {
       Result result = await PlatformService.ins.method("disconnect", {
-        "uuid": client.uuid,
+        "uuid": client.uuid.toString(),
       });
 
       if (result is ExceptionResult) {
@@ -140,19 +139,17 @@ class PlatformClientService {
     }
 
     if (result is SuccessResult) {
-      ClientService clientService = ClientService.ins;
-
-      var obj = result.obj;
+      final obj = result.obj;
       if (obj is List) {
-        for (var map in obj) {
-          String uuid = map["uuid"];
-          if (clientService.contains(uuid)) continue;
-          Client client = clientService.fromMap(map);
+        for (final map in obj) {
+          final uuid = UUID.fromString(map["uuid"]);
+          if (ClientService.ins.contains(uuid)) continue;
+          final client = ClientService.ins.fromMap(map);
           client.connected = true;
 
-          var nickname = map["nickname"];
+          final String? nickname = map["nickname"];
           if (nickname != null) {
-            var record = await StorageService.ins.getClient(uuid);
+            final record = await StorageService.ins.getClient(uuid);
             client.user = User(client, nickname, record!.user!.token);
           }
 

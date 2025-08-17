@@ -1,15 +1,16 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class ChatMessageViewDTO {
-  String id;
-  String? keyID;
-  final String chatID;
+  UUID id;
+  UUID? keyID;
+  final UUID chatID;
   final String nickname;
   final String text;
   final bool isMe;
   final DateTime dateTime;
   final bool sys;
-  final List<String> repliedToMessages;
+  final List<UUID> repliedToMessages;
   final Map<String, List<String>> reactions;
   final List<NamedFileDTO> files;
 
@@ -27,37 +28,68 @@ class ChatMessageViewDTO {
     required this.files,
   });
 
-  static ChatMessageViewDTO fromMap(Client client, json) {
-    var map = Map<String, dynamic>.from(json as Map);
+  get isLoading => id == UUID.nil;
 
-    String messageID = map["id"]!;
+  static loading({
+    required UUID chatID,
+    required keyID,
+    required String nickname,
+    required String text,
+    required bool isMe,
+    required DateTime dateTime,
+    required bool sys,
+    required List<UUID> repliedToMessages,
+    required Map<String, List<String>> reactions,
+    required List<NamedFileDTO> files,
+  }) {
+    return ChatMessageViewDTO(
+      id: UUID.nil,
+      chatID: chatID,
+      keyID: keyID,
+      nickname: nickname,
+      text: text,
+      isMe: isMe,
+      dateTime: dateTime,
+      sys: sys,
+      repliedToMessages: repliedToMessages,
+      reactions: reactions,
+      files: files,
+    );
+  }
+
+  factory ChatMessageViewDTO.fromMap(Client client, json) {
+    final map = Map<String, dynamic>.from(json as Map);
+
+    UUID messageID = UUID.fromString(map["id"]!);
     DateTime dateTime = DateTime.parse(map["creation-date"]!).toLocal();
-    var reactions = <String, List<String>>{};
+    final reactions = <String, List<String>>{};
 
-    var entries = map["reactions"].entries;
-    for (var entry in entries) {
-      var mapped = entry.value.map<String>((n) => n.toString());
+    final entries = map["reactions"]!.entries;
+    for (final entry in entries) {
+      final mapped = entry.value.map<String>((n) => n.toString());
       reactions[entry.key] = mapped.toList();
     }
 
     List<NamedFileDTO> files = map["files"] != null
-        ? (map["files"] as List).map((m) => NamedFileDTO.fromMap(m)).toList()
+        ? (map["files"] as List).map(NamedFileDTO.fromMap).toList()
         : <NamedFileDTO>[];
 
-    var message = map["message"]!;
-    String chatID = message["chat-id"]!;
-    String? keyId = message["key-id"];
-    String nickname = message["nickname"]!;
-    String content = message["content"]!;
-    bool sys = message["sys"];
-    var repliedToMessages = message["replied-to-messages"] != null
-        ? List<String>.from(message["replied-to-messages"])
-        : <String>[];
+    final message = map["message"]!;
+    final chatID = UUID.fromString(message["chat-id"]);
+    final keyID = UUID.fromNullableString(message["key-id"]);
+    final String nickname = message["nickname"]!;
+    final String content = message["content"]!;
+    final bool sys = message["sys"]!;
+    final r = message["replied-to-messages"];
+
+    List<UUID> repliedToMessages = r != null
+        ? List<String>.from(r).map(UUID.fromString).toList()
+        : <UUID>[];
 
     return ChatMessageViewDTO(
       id: messageID,
       chatID: chatID,
-      keyID: keyId,
+      keyID: keyID,
       nickname: nickname,
       isMe: client.user?.nickname == nickname,
       text: content,
@@ -76,12 +108,15 @@ class ChatMessageViewDTO {
 }
 
 class NamedFileDTO {
-  String? id;
+  UUID? id;
   final String contentType;
   final String filename;
 
   NamedFileDTO(this.id, this.contentType, this.filename);
 
   factory NamedFileDTO.fromMap(map) => NamedFileDTO(
-      map["id"], map["content-type"], map["filename"] ?? map["id"]);
+        UUID.fromString(map["id"]),
+        map["content-type"],
+        map["filename"] ?? map["id"]!,
+      );
 }

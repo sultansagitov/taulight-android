@@ -1,4 +1,5 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 
 abstract class ExceptionMessage implements Exception {
   final String? message;
@@ -33,7 +34,7 @@ class IncorrectUserDataException extends ExceptionMessage {
 }
 
 class ClientNotFoundException extends ExceptionMessage {
-  ClientNotFoundException([super.message]);
+  ClientNotFoundException([UUID? clientID]) : super(clientID?.toString());
 }
 
 class InvalidSandnodeLinkException extends ExceptionMessage {

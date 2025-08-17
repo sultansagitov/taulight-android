@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/avatar.dart';
 import 'package:taulight/services/platform/avatar.dart';
 
@@ -23,10 +24,13 @@ class ProfileAvatarService {
 
     ImageDTO? dto;
     try {
-      dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
-        if (!client.connected) return {};
-        return await PlatformAvatarService.ins.getMy(client);
-      });
+      dto = await AvatarService.ins.loadOrFetchAvatar(
+        UUID.fromNullableString(avatarID),
+        () async {
+          if (!client.connected) return {};
+          return await PlatformAvatarService.ins.getMy(client);
+        },
+      );
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);
@@ -35,7 +39,7 @@ class ProfileAvatarService {
 
     if (dto != null) {
       await _storage.write(
-          key: 'member_avatar_$address:$nickname', value: dto.id!);
+          key: 'member_avatar_$address:$nickname', value: dto.id!.toString());
     }
 
     return dto?.image;
@@ -48,15 +52,18 @@ class ProfileAvatarService {
         await _storage.read(key: 'member_avatar_$address:$nickname');
     if (avatarID == 'no_avatar') return null;
 
-    var dto = await AvatarService.ins.loadOrFetchAvatar(avatarID, () async {
-      if (!client.connected) return {};
-      return await PlatformAvatarService.ins.getOf(client, nickname);
-    });
+    final dto = await AvatarService.ins.loadOrFetchAvatar(
+      UUID.fromNullableString(avatarID),
+      () async {
+        if (!client.connected) return {};
+        return await PlatformAvatarService.ins.getOf(client, nickname);
+      },
+    );
 
     if (dto != null) {
       await _storage.write(
         key: 'member_avatar_$address:$nickname',
-        value: dto.id!,
+        value: dto.id!.toString(),
       );
     }
 
@@ -79,11 +86,11 @@ class ProfileAvatarService {
     final oldAvatarID =
         await _storage.read(key: 'member_avatar_$address:$nickname');
     if (oldAvatarID != null && oldAvatarID != 'no_avatar') {
-      await AvatarService.ins.remove(oldAvatarID);
+      await AvatarService.ins.remove(UUID.fromString(oldAvatarID));
     }
 
     await _storage.write(
-        key: 'member_avatar_$address:$nickname', value: avatarID);
+        key: 'member_avatar_$address:$nickname', value: avatarID.toString());
     await AvatarService.ins.updateAvatar(avatarID, bytes);
   }
 }

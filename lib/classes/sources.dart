@@ -6,14 +6,14 @@ abstract class Source {
       : datetime = datetime ?? DateTime.now();
 
   factory Source.fromMap(Map map) {
-    String type = map["type"];
-    DateTime datetime = DateTime.parse(map["datetime"]);
+    final String type = map["type"]!;
+    final DateTime datetime = DateTime.parse(map["datetime"]);
 
     switch (type) {
       case "qr":
         return QRSource(datetime: datetime);
       case "hub":
-        String address = map["address"];
+        final String address = map["address"]!;
         return HubSource(address: address, datetime: datetime);
       default:
         throw Exception("Unknown type \"$type\"");

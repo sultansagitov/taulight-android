@@ -42,10 +42,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showImagePreview(BuildContext context) async {
-    var memoryImage = await ProfileAvatarService.ins.getMy(widget.client);
+    final memoryImage = await ProfileAvatarService.ins.getMy(widget.client);
     if (memoryImage == null) return;
 
-    var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
+    final image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
     await previewImage(context, image);
   }

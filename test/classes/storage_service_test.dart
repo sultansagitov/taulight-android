@@ -22,7 +22,7 @@ void main() {
         'token': 'testToken',
       };
 
-      final user = UserRecord.fromJSON(json);
+      final user = UserRecord.fromMap(json);
 
       expect(user.nickname, equals('testUser'));
       expect(user.token, equals('testToken'));

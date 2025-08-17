@@ -1,4 +1,5 @@
 import 'package:taulight/classes/sources.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class ServerKey {
   final String address;
@@ -101,7 +102,7 @@ class EncryptorKey {
 }
 
 class DEK {
-  final String keyId;
+  final UUID keyId;
   final String encryption;
   final String? symKey;
   final String? publicKey;
@@ -117,20 +118,20 @@ class DEK {
     this.privateKey,
   });
 
-  factory DEK.fromMap(Map<String, dynamic> json) {
+  factory DEK.fromMap(Map<String, dynamic> map) {
     return DEK(
-      keyId: json['key-id']!,
-      encryption: json['encryption']!,
-      source: Source.fromMap(json['source']),
-      symKey: json['sym'],
-      publicKey: json['public'],
-      privateKey: json['private'],
+      keyId: UUID.fromString(map['key-id']),
+      encryption: map['encryption']!,
+      source: Source.fromMap(map['source']),
+      symKey: map['sym'],
+      publicKey: map['public'],
+      privateKey: map['private'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'key-id': keyId,
+      'key-id': keyId.toString(),
       'encryption': encryption,
       'source': source.toMap(),
       if (symKey != null) 'sym': symKey!,

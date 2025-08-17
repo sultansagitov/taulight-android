@@ -41,14 +41,14 @@ class MessageRepliesWidget extends StatelessWidget {
 
     String replyCountText;
     if (sysReplies > 0 && userReplies > 0) {
-      var r = userReplies == 1 ? 'reply' : 'replies';
-      var m = sysReplies == 1 ? 'system message' : 'system messages';
+      final r = userReplies == 1 ? 'reply' : 'replies';
+      final m = sysReplies == 1 ? 'system message' : 'system messages';
       replyCountText = "$userReplies $r • $sysReplies $m";
     } else if (sysReplies > 0) {
-      var m = sysReplies == 1 ? 'system message' : 'system messages';
+      final m = sysReplies == 1 ? 'system message' : 'system messages';
       replyCountText = "$sysReplies $m";
     } else if (userReplies > 0) {
-      var r = userReplies == 1 ? 'reply' : 'replies';
+      final r = userReplies == 1 ? 'reply' : 'replies';
       replyCountText = "$userReplies $r";
     } else {
       return const SizedBox.shrink();
@@ -104,7 +104,7 @@ class ReplyPreviewWidget extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final textColor = isLight ? Colors.black : Colors.white;
 
-    var message = reply.view;
+    final message = reply.view;
     if (message.sys) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -138,7 +138,7 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
-    var decrypted = reply.decrypted != null;
+    final decrypted = reply.decrypted != null;
     String previewText =
         reply.decrypted ?? "Cannot decrypt message - ${reply.view.text}";
     if (previewText.length > 50) {

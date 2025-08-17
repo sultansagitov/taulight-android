@@ -2,14 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/user.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class FakeClient extends Client {
-  FakeClient()
-      : super(
-          uuid: '1234',
-          address: 'example.com',
-          link: '',
-        );
+  FakeClient() : super(uuid: UUID.nil, address: 'example.com', link: '');
 
   @override
   get user => FakeUser(this);
@@ -26,15 +22,16 @@ void main() {
   test('ChatMessageViewDTO parses correctly', () {
     final client = FakeClient();
 
+    final repliedToMessages = UUID.random();
     final json = {
-      'id': 'msg-1',
+      'id': UUID.random().toString(),
       'creation-date': '2024-04-01T12:00:00Z',
       'message': {
-        'chat-id': 'chat-1',
+        'chat-id': UUID.random().toString(),
         'nickname': 'john',
         'content': 'Hello',
         'sys': false,
-        'replied-to-messages': ['msg-0']
+        'replied-to-messages': [repliedToMessages.toString()]
       },
       'reactions': {
         'taulight:fire': ['rizl'],
@@ -44,6 +41,7 @@ void main() {
     final dto = ChatMessageViewDTO.fromMap(client, json);
     expect(dto.isMe, isTrue);
     expect(dto.text, 'Hello');
-    expect(dto.repliedToMessages, equals(['msg-0']));
+    expect(dto.repliedToMessages.length, equals(1));
+    expect(dto.repliedToMessages.single, repliedToMessages);
   });
 }

@@ -38,8 +38,8 @@ class PlatformAgentService {
     }
 
     if (result is SuccessResult) {
-      var map = Map<String, String>.from(result.obj);
-      var token = map['token']!;
+      final map = Map<String, String>.from(result.obj);
+      final token = map['token']!;
       client.user = User(client, nickname, token);
       UserRecord userRecord = UserRecord(nickname, token);
       await StorageService.ins.saveWithToken(client, userRecord);
@@ -68,9 +68,9 @@ class PlatformAgentService {
     }
 
     if (result is SuccessResult) {
-      var map = Map<String, String>.from(result.obj);
+      final map = Map<String, String>.from(result.obj);
       print(map);
-      var token = map["token"]!;
+      final token = map["token"]!;
       client.user = User(client, nickname, token);
       return token;
     }
@@ -91,10 +91,10 @@ class PlatformAgentService {
     }
 
     if (result is SuccessResult) {
-      var obj = Map<String, String>.from(result.obj);
+      final obj = Map<String, String>.from(result.obj);
       String nickname = obj["nickname"]!.trim();
 
-      var record = UserRecord(nickname, token);
+      final record = UserRecord(nickname, token);
       StorageService.ins.saveWithToken(client, record);
       client.user = User(client, nickname, token);
       return nickname;
@@ -104,8 +104,8 @@ class PlatformAgentService {
   }
 
   Future<List<LoginHistoryDTO>> loginHistory(Client client) async {
-    var result = await PlatformService.ins.method("login-history", {
-      "uuid": client.uuid,
+    final result = await PlatformService.ins.method("login-history", {
+      "uuid": client.uuid.toString(),
     });
 
     if (result is ExceptionResult) {

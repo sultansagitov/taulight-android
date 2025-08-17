@@ -36,7 +36,7 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var view = message.view;
+    final view = message.view;
     if (view.sys) {
       return Padding(
         padding: const EdgeInsets.all(8),
@@ -54,7 +54,7 @@ class MessageWidget extends StatelessWidget {
       );
     }
 
-    var width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     final isLight = Theme.of(context).brightness == Brightness.light;
     final nickname = view.nickname.trim();
 
@@ -205,8 +205,8 @@ Widget _buildText(
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
               final Uri uri = Uri.parse(url);
-              var where = uri.path.split("/").where((s) => s.isNotEmpty);
-              var code = [...where][1];
+              final where = uri.path.split("/").where((s) => s.isNotEmpty);
+              final code = [...where][1];
 
               String? error;
 
@@ -269,11 +269,11 @@ Widget _buildText(
 }
 
 Row _buildFooter(BuildContext context, ChatMessageViewDTO view) {
-  var theme = Theme.of(context);
+  final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;
   final subTextColor = isLight ? Colors.black54 : Colors.white70;
 
-  final loading = view.id.startsWith("temp_");
+  final loading = view.isLoading;
   final currentIcon = loading ? Icons.access_time_rounded : Icons.done;
 
   return Row(

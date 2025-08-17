@@ -6,6 +6,7 @@ import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/screens/member_info.dart';
 import 'package:taulight/screens/members_invite.dart';
 import 'package:taulight/screens/profile.dart';
@@ -47,11 +48,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Future<void> _showImagePreview(BuildContext context) async {
-    var memoryImage =
+    final memoryImage =
         await ChatAvatarService.ins.loadOrFetchGroupAvatar(widget.chat);
     if (memoryImage == null) return;
 
-    var image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
+    final image = Image.memory(memoryImage.bytes, fit: BoxFit.contain);
 
     await previewImage(context, image);
   }
@@ -67,8 +68,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Future<void> _addMember(BuildContext context) async {
-    var dialogs = widget.chat.client.chats.values.where(isDialog).toList();
-    var screen = MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat);
+    final dialogs = widget.chat.client.chats.values.where(isDialog).toList();
+    final screen = MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat);
     await moveTo(context, screen);
     setState(() {});
   }
@@ -86,6 +87,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
+            print(snapshot.error);
+            print(snapshot.stackTrace);
             return const Center(
               child: Text(
                 'Failed to load data.',
@@ -236,14 +239,15 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     }
 
     for (final role in member.roles) {
-      roleChips.add(_buildRoleChip(role.name, getRandomColor(role.id)));
+      final randomColor = getRandomColor(role.id.toString());
+      roleChips.add(_buildRoleChip(role.name, randomColor));
     }
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       leading: MemberAvatar(client: client, nickname: nickname, d: 40),
       onTap: () {
-        var screen = client.user?.nickname == nickname
+        final screen = client.user?.nickname == nickname
             ? ProfileScreen(client)
             : MemberInfoScreen(client, nickname);
         moveTo(context, screen);
@@ -302,9 +306,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     final Set<RoleDTO> uniqueRoles = {};
     bool hasOwner = false;
 
-    for (var m in members) {
+    for (final m in members) {
       if (m.nickname == record.owner) hasOwner = true;
-      for (var role in m.roles) {
+      for (final role in m.roles) {
         uniqueRoles.add(role);
       }
     }
@@ -340,8 +344,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     Text("Copy ID"),
                   ]),
                   onTap: () async {
-                    String id = role.id;
-                    await Clipboard.setData(ClipboardData(text: id));
+                    UUID id = role.id;
+                    await Clipboard.setData(ClipboardData(text: id.toString()));
                     snackBar(context, 'Copied: $id');
                   },
                 ),
@@ -350,7 +354,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           },
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: getRandomColor(role.id),
+              backgroundColor: getRandomColor(role.id.toString()),
               child: Text(
                 role.name.characters.firstOrNull ?? "?",
                 style: const TextStyle(color: Colors.white),

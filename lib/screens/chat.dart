@@ -88,18 +88,18 @@ class ChatScreenState extends State<ChatScreen> {
 
     result.files;
     await Future.wait(result.files.map((file) async {
-      var path = file.path!;
+      final path = file.path!;
 
-      var chat = widget.chat;
-      var contentType = mimeFromExtension(path.split(".").last) ?? "text/plain";
-      var filename = path.split(Platform.pathSeparator).last;
+      final chat = widget.chat;
+      final contentType = mimeFromExtension(path.split(".").last) ?? "text/plain";
+      final filename = path.split(Platform.pathSeparator).last;
 
-      var dto = NamedFileDTO(null, contentType, filename);
-      var wrapper = NamedFileWrapper(dto);
+      final dto = NamedFileDTO(null, contentType, filename);
+      final wrapper = NamedFileWrapper(dto);
 
       setState(() => files.add(wrapper));
 
-      var id = await FileMessageService.ins.uploadFile(chat, path, filename);
+      final id = await FileMessageService.ins.uploadFile(chat, path, filename);
 
       setState(() {
         wrapper.loaded = true;
@@ -168,7 +168,7 @@ class ChatScreenState extends State<ChatScreen> {
                       );
                     }
 
-                    var rev = messages.reversed;
+                    final rev = messages.reversed;
                     ChatMessageWrapperDTO? prev =
                         rev.elementAtOrNull(index + 1);
                     ChatMessageWrapperDTO? next;
@@ -220,8 +220,8 @@ class ChatScreenState extends State<ChatScreen> {
               enabled: enabled,
               onFileAdd: _onFileAdd,
               sendMessage: (text) async {
-                var r = replies.map((r) => r.view.id).toList();
-                var f = files.map((w) => w.file).toList();
+                final r = replies.map((r) => r.view.id).toList();
+                final f = files.map((w) => w.file).toList();
 
                 replies.clear();
                 files.clear();
@@ -255,8 +255,8 @@ class ChatScreenState extends State<ChatScreen> {
       backgroundBuilder: (_, direction, progress) => AnimatedBuilder(
         animation: progress,
         builder: (_, __) {
-          var tween = Tween<double>(begin: 0.0, end: 1.2);
-          var curvedAnimation = CurvedAnimation(
+          final tween = Tween<double>(begin: 0.0, end: 1.2);
+          final curvedAnimation = CurvedAnimation(
             parent: progress,
             curve: Interval(0.5, 1.0, curve: Curves.linear),
           );

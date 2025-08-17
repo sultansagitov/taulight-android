@@ -18,14 +18,14 @@ class NoChats extends StatelessWidget {
           const Text("No chats", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 10),
           TauButton.text("Create group", onPressed: () async {
-            var result = await moveTo(context, CreateGroupScreen());
+            final result = await moveTo(context, CreateGroupScreen());
             if (result is String && result.contains("success")) {
               updateHome();
             }
           }),
           const SizedBox(height: 10),
           TauButton.text("Start dialog", onPressed: () async {
-            var result = await moveTo(context, StartDialogScreen());
+            final result = await moveTo(context, StartDialogScreen());
             if (result is String && result.contains("success")) {
               updateHome();
             }

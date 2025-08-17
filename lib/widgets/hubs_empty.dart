@@ -25,7 +25,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.ins.clientsList;
+    final clients = ClientService.ins.clientsList;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +51,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
         FlatRectButton(
             label: "Connect to hub",
             onPressed: () async {
-              var screen = ConnectionScreen(connectUpdate: _connectUpdate);
+              final screen = ConnectionScreen(connectUpdate: _connectUpdate);
               await moveTo(context, screen);
               _connectUpdate();
             },
@@ -63,7 +63,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
 
   Future<void> _loadChats(BuildContext context) async {
     setState(() => loadingChats = true);
-    for (var client in ClientService.ins.clientsList) {
+    for (final client in ClientService.ins.clientsList) {
       String? error;
 
       try {

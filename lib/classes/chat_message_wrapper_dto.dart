@@ -8,7 +8,7 @@ class ChatMessageWrapperDTO {
   const ChatMessageWrapperDTO(this.view, [this.decrypted]);
 
   factory ChatMessageWrapperDTO.fromMap(Client client, map) {
-    var view = ChatMessageViewDTO.fromMap(client, map["message"]);
+    final view = ChatMessageViewDTO.fromMap(client, map["message"]);
     return ChatMessageWrapperDTO(view, map["decrypted"]);
   }
 }

@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/platform/messages.dart';
 import 'package:taulight/widget_utils.dart';
 
@@ -21,17 +22,17 @@ class FileMessageService {
   final _storage = const FlutterSecureStorage();
 
   // Save local file path linked to file ID
-  Future<void> registerLocalFile(String fileId, String path) async {
+  Future<void> registerLocalFile(UUID fileId, String path) async {
     await _storage.write(key: 'file_$fileId', value: path);
   }
 
   // Get saved local file path for file ID
-  Future<String?> getLocalPathForFile(String fileId) async {
+  Future<String?> getLocalPathForFile(UUID fileId) async {
     return await _storage.read(key: 'file_$fileId');
   }
 
   // Upload file and register it locally
-  Future<String> uploadFile(TauChat chat, String path, String filename) async {
+  Future<UUID> uploadFile(TauChat chat, String path, String filename) async {
     final id =
         await PlatformMessagesService.ins.uploadFile(chat, path, filename);
     await registerLocalFile(id, path);
@@ -39,7 +40,7 @@ class FileMessageService {
   }
 
   // Download bytes from server
-  Future<Uint8List> downloadFile(Client client, String id) async {
+  Future<Uint8List> downloadFile(Client client, UUID id) async {
     return await PlatformMessagesService.ins.downloadFile(client, id);
   }
 

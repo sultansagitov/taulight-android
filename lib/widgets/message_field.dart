@@ -42,7 +42,7 @@ class _MessageFieldState extends State<MessageField> {
   final TextEditingController _messageController = TextEditingController();
 
   Future<void> _sendMessage([String? text]) async {
-    var t = (text ?? _messageController.text).trim();
+    final t = (text ?? _messageController.text).trim();
     _messageController.clear();
     if (t.isEmpty && widget.files.isEmpty && widget.replies.isEmpty) return;
     if (widget.enabled) widget.sendMessage(t);
@@ -74,7 +74,7 @@ class _MessageFieldState extends State<MessageField> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: widget.files.map((wrapper) {
-              var file = wrapper.file;
+              final file = wrapper.file;
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -86,7 +86,7 @@ class _MessageFieldState extends State<MessageField> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         color: file.id != null
-                            ? dark(getRandomColor(file.id!))
+                            ? dark(getRandomColor(file.id!.toString()))
                             : Colors.black12,
                         boxShadow: [
                           BoxShadow(

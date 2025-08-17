@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 
 class KeyStorageService {
@@ -48,7 +49,7 @@ class KeyStorageService {
     final json = jsonEncode(dek.toMap());
     await _storage.write(key: "dek:id:${dek.keyId}", value: json);
     final nicknameKey = "dek:address:$address:nickname:$nickname:id";
-    await _storage.write(key: nicknameKey, value: dek.keyId);
+    await _storage.write(key: nicknameKey, value: dek.keyId.toString());
   }
 
   Future<List<ServerKey>> loadAllServerKeys() async {
@@ -109,7 +110,7 @@ class KeyStorageService {
 
   Future<List<DEK>> loadAllDEKs() async {
     final all = await _storage.readAll();
-    final seen = <String>{};
+    final seen = <UUID>{};
     final deks = <DEK>[];
 
     for (final entry in all.entries) {
@@ -129,8 +130,8 @@ class KeyStorageService {
     required String address,
     required String nickname,
   }) async {
-    final id =
-        await _storage.read(key: "dek:address:$address:nickname:$nickname:id");
+    final String k = "dek:address:$address:nickname:$nickname:id";
+    final id = UUID.fromNullableString(await _storage.read(key: k));
     if (id == null) {
       throw KeyStorageNotFoundException("Address $address Nickname $nickname");
     }
@@ -143,7 +144,7 @@ class KeyStorageService {
     return DEK.fromMap(jsonDecode(data));
   }
 
-  Future<DEK> loadDEKByID(String keyID) async {
+  Future<DEK> loadDEKByID(UUID keyID) async {
     final data = await _storage.read(key: "dek:id:$keyID");
     if (data == null) {
       throw KeyStorageNotFoundException("ID $keyID");

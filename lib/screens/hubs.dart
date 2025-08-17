@@ -25,13 +25,13 @@ class HubsScreenState extends State<HubsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var clients = ClientService.ins.clientsList;
+    final clients = ClientService.ins.clientsList;
 
     return Scaffold(
       appBar: TauAppBar.text("Hubs", actions: [
         TauButton.icon(Icons.add, onPressed: () async {
-          var screen = ConnectionScreen(connectUpdate: _connectUpdate);
-          var result = await moveTo(context, screen);
+          final screen = ConnectionScreen(connectUpdate: _connectUpdate);
+          final result = await moveTo(context, screen);
           if (result != null) setState(() {});
         }),
       ]),

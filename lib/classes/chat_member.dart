@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/role_dto.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class ChatMember {
   final String nickname;
@@ -9,16 +10,14 @@ class ChatMember {
   const ChatMember(this.nickname, this.status, this.roles);
 
   factory ChatMember.fromMap(List<RoleDTO> roles, map) {
-    var rolesIds =
-        map["roles"] != null ? List<String>.from(map["roles"]) : null;
-    var result = rolesIds != null
-        ? roles.where((r) => rolesIds.contains(r.id)).toList()
-        : <RoleDTO>[];
-    return ChatMember(
-      map["nickname"],
-      Status.fromString(map["status"]),
-      result,
-    );
+    final String nickname = map["nickname"]!;
+    final Status status = Status.fromString(map["status"]);
+    final List? list = map["roles"];
+
+    final roleIds = list?.map((id) => UUID.fromString(id)).toSet() ?? {};
+    final matchedRoles = roles.where((r) => roleIds.contains(r.id)).toList();
+
+    return ChatMember(nickname, status, matchedRoles);
   }
 }
 
@@ -31,12 +30,8 @@ enum Status {
 
   const Status(this.color);
 
-  factory Status.fromString(String s) {
-    for (Status status in Status.values) {
-      if (status.name == s.toLowerCase()) {
-        return status;
-      }
-    }
-    return Status.hidden;
-  }
+  factory Status.fromString(String str) => Status.values.firstWhere(
+        (s) => s.name == str.toLowerCase(),
+        orElse: () => Status.hidden,
+      );
 }

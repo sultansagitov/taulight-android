@@ -11,7 +11,7 @@ class PlatformSettingsService {
   PlatformSettingsService._internal();
 
   Future<TauMemberSettingsResponseDTO> get(Client client) async {
-    var result = await PlatformService.ins.chain(
+    final result = await PlatformService.ins.chain(
       "TauMemberSettingsClientChain.get",
       client: client,
     );
@@ -28,7 +28,7 @@ class PlatformSettingsService {
   }
 
   Future<void> setShowStatus(Client client, bool value) async {
-    var result = await PlatformService.ins.chain(
+    final result = await PlatformService.ins.chain(
       "TauMemberSettingsClientChain.setShowStatus",
       client: client,
       params: [value],

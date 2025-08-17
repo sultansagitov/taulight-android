@@ -18,8 +18,8 @@ enum ChatMenuOptions {
 }
 
 Future<void> _copy(BuildContext context, TauChat chat) async {
-  var id = chat.record.id;
-  await Clipboard.setData(ClipboardData(text: id));
+  final id = chat.record.id;
+  await Clipboard.setData(ClipboardData(text: id.toString()));
   snackBar(context, 'Copied: $id');
 }
 
@@ -62,10 +62,10 @@ class ChatItem extends StatelessWidget {
     ChatMessageWrapperDTO? wrapper = chat.messages.lastOrNull;
 
     Color? nicknameColor;
-    var client = chat.client;
-    var user = client.user;
+    final client = chat.client;
+    final user = client.user;
 
-    var view = wrapper?.view;
+    final view = wrapper?.view;
     if (view != null) {
       nicknameColor = getRandomColor(view.nickname);
       if (!client.connected || user == null || !user.authorized) {
@@ -73,7 +73,7 @@ class ChatItem extends StatelessWidget {
       }
     }
 
-    var textColor = Colors.grey[isLight ? 600 : 400];
+    final textColor = Colors.grey[isLight ? 600 : 400];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

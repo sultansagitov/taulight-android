@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/utils.dart';
 
@@ -12,13 +13,13 @@ class StorageService {
 
   final _storage = FlutterSecureStorage();
 
-  Future<Map<String, ServerRecord>> getClients() async {
+  Future<Map<UUID, ServerRecord>> getClients() async {
     Map<String, String> all = await _storage.readAll();
-    Map<String, ServerRecord> clients = {};
+    Map<UUID, ServerRecord> clients = {};
 
-    for (var entry in all.entries) {
+    for (final entry in all.entries) {
       if (entry.key.startsWith('server.')) {
-        String uuid = entry.key.substring(7);
+        UUID uuid = UUID.fromString(entry.key.substring(7));
         clients[uuid] = ServerRecord.fromJSON(jsonDecode(entry.value));
       }
     }
@@ -26,7 +27,7 @@ class StorageService {
     return clients;
   }
 
-  Future<ServerRecord?> getClient(String uuid) async {
+  Future<ServerRecord?> getClient(UUID uuid) async {
     String? s = await _storage.read(key: "server.$uuid");
     return s != null ? ServerRecord.fromJSON(jsonDecode(s)) : null;
   }
@@ -121,14 +122,10 @@ class UserRecord {
 
   UserRecord(this.nickname, this.token);
 
-  factory UserRecord.fromJSON(dynamic json) {
-    var map = Map<String, String>.from(json);
-    return UserRecord(map["nickname"]!, map["token"]!);
-  }
+  factory UserRecord.fromMap(map) =>
+      UserRecord(map["nickname"]!, map["token"]!);
 
-  Map<String, String> toMap() {
-    return {"nickname": nickname, "token": token};
-  }
+  Map<String, String> toMap() => {"nickname": nickname, "token": token};
 }
 
 class ServerRecord {
@@ -141,24 +138,22 @@ class ServerRecord {
   ServerRecord({required this.name, required this.link, this.user});
 
   factory ServerRecord.fromJSON(dynamic json) {
-    Map<String, dynamic> map = Map<String, dynamic>.from(json);
-    String name = map["name"]! as String;
-    String link = map["link"]! as String;
-    dynamic userMap = map["user"];
+    final map = Map<String, dynamic>.from(json);
+    final String name = map["name"]!;
+    final String link = map["link"]!;
+    final userMap = map["user"];
 
     if (userMap == null) {
       return ServerRecord(name: name, link: link);
     }
 
-    UserRecord userRecord = UserRecord.fromJSON(userMap);
+    UserRecord userRecord = UserRecord.fromMap(userMap);
     return ServerRecord(name: name, link: link, user: userRecord);
   }
 
-  Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {"name": name, "link": link};
-    if (user != null) {
-      map["user"] = user!.toMap();
-    }
-    return map;
-  }
+  Map<String, dynamic> toMap() => {
+        "name": name,
+        "link": link,
+        if (user != null) "user": user!.toMap(),
+      };
 }

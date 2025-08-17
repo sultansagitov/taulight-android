@@ -13,7 +13,7 @@ class WarningUnauthorizedMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = TextStyle(color: Colors.black, fontSize: 16);
+    final textStyle = TextStyle(color: Colors.black, fontSize: 16);
     return Container(
       color: Colors.yellow[200],
       padding: const EdgeInsets.symmetric(horizontal: 16),

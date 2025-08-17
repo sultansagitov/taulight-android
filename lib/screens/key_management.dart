@@ -230,7 +230,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final dek = deks[index];
         return _buildKeyCard(
-          title: dek.keyId,
+          title: dek.keyId.toString(),
           subtitle: 'Encryption: ${dek.encryption}',
           details: [
             if (dek.symKey != null) 'Has Symmetric Key',
@@ -240,7 +240,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             'Added: ${formatTime(dek.source.datetime)}',
           ],
           onTap: () => _showKeyDetails('DEK', {
-            'Key ID': dek.keyId,
+            'Key ID': dek.keyId.toString(),
             'Encryption': dek.encryption,
             if (dek.symKey != null) 'Symmetric Key': dek.symKey!,
             if (dek.publicKey != null) 'Public Key': dek.publicKey!,

@@ -1,5 +1,6 @@
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/code_dto.dart';
+import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/platform/codes.dart';
 
 class InviteService {
@@ -7,7 +8,7 @@ class InviteService {
   static InviteService get ins => _instance;
   InviteService._internal();
 
-  Map<String, Map<String, CodeDTO>> codes = {};
+  Map<UUID, Map<String, CodeDTO>> codes = {};
 
   String? extractInviteCode(String url) {
     final RegExp inviteRegExp = RegExp(r'invite/([a-zA-Z0-9]+)');
