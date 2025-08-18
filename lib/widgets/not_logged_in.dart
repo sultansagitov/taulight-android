@@ -20,11 +20,14 @@ class NotLoggedIn extends StatelessWidget {
           const SizedBox(height: 10),
           const Text("Not logged in", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 10),
-          FlatRectButton(label: "Login", onPressed: () async {
-            final screen = LoginScreen(client: client);
-            final result = await moveTo(context, screen);
-            await onLogin?.call(result);
-          }),
+          FlatRectButton(
+            label: "Login",
+            onPressed: () async {
+              final screen = LoginScreen(client: client);
+              final result = await moveTo(context, screen);
+              await onLogin?.call(result);
+            },
+          ),
         ],
       ),
     );

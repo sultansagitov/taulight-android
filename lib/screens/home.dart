@@ -114,7 +114,6 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
               FlatRectButton(
                 label: "Start Dialog",
                 icon: Icons.chat_bubble_outline,

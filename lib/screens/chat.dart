@@ -91,7 +91,8 @@ class ChatScreenState extends State<ChatScreen> {
       final path = file.path!;
 
       final chat = widget.chat;
-      final contentType = mimeFromExtension(path.split(".").last) ?? "text/plain";
+      final contentType =
+          mimeFromExtension(path.split(".").last) ?? "text/plain";
       final filename = path.split(Platform.pathSeparator).last;
 
       final dto = NamedFileDTO(null, contentType, filename);

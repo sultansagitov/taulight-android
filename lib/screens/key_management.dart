@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:taulight/classes/keys.dart';
 import 'package:taulight/classes/sources.dart';
 import 'package:taulight/screens/key_details.dart';
 import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
+import 'package:taulight/widgets/key_card.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
 class KeyManagementScreen extends StatefulWidget {
@@ -69,11 +69,32 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     }
   }
 
+  String _truncateKey(String key) {
+    if (key.length <= 20) return key;
+    return '${key.substring(0, 10)}...${key.substring(key.length - 10)}';
+  }
+
+  Future<void> _showKeyDetails(String title, Map<String, String> det) async {
+    KeyDetailsScreen screen = KeyDetailsScreen(title: title, details: det);
+    await moveTo(context, screen, fromBottom: true);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final tabLabelColor = isDark ? Colors.grey[300]! : Colors.grey[800]!;
+    final tabUnselected = isDark ? Colors.grey[600]! : Colors.grey[500]!;
+    final indicatorColor = isDark ? Colors.grey[400]! : Colors.grey[700]!;
+
     return Scaffold(
       appBar: TauAppBar.text('Key Management', actions: [
-        IconButton(icon: const Icon(Icons.refresh), onPressed: _loadAllKeys),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          color: tabLabelColor,
+          onPressed: _loadAllKeys,
+        ),
       ]),
       body: SafeArea(
         child: Column(
@@ -81,8 +102,11 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             TabBar(
               controller: _tabController,
               isScrollable: true,
+              labelColor: tabLabelColor,
+              unselectedLabelColor: tabUnselected,
+              indicatorColor: indicatorColor,
               padding: EdgeInsets.zero,
-              tabAlignment: TabAlignment.start,
+              tabAlignment: TabAlignment.center,
               tabs: [
                 Tab(text: 'Server (${serverKeys.length})'),
                 Tab(text: 'Personal (${personalKeys.length})'),
@@ -92,16 +116,21 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             ),
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(
+                child: CircularProgressIndicator(
+                  color: indicatorColor,
+                  strokeWidth: 2,
+                ),
+              )
                   : TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildServerKeysTab(),
-                        _buildPersonalKeysTab(),
-                        _buildEncryptorKeysTab(),
-                        _buildDEKsTab(),
-                      ],
-                    ),
+                controller: _tabController,
+                children: [
+                  _buildServerKeysTab(),
+                  _buildPersonalKeysTab(),
+                  _buildEncryptorKeysTab(),
+                  _buildDEKsTab(),
+                ],
+              ),
             ),
           ],
         ),
@@ -124,7 +153,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemCount: serverKeys.length,
       itemBuilder: (context, index) {
         final key = serverKeys[index];
-        return _buildKeyCard(
+        return KeyCard(
           title: key.address,
           subtitle: 'Encryption: ${key.encryption}',
           details: [
@@ -158,7 +187,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemCount: personalKeys.length,
       itemBuilder: (context, index) {
         final key = personalKeys[index];
-        return _buildKeyCard(
+        return KeyCard(
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -194,7 +223,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemCount: encryptorKeys.length,
       itemBuilder: (context, index) {
         final key = encryptorKeys[index];
-        return _buildKeyCard(
+        return KeyCard(
           title: key.encryption, // TODO add nickname
           subtitle: 'Encryption: ${key.encryption}',
           details: [
@@ -229,7 +258,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemCount: deks.length,
       itemBuilder: (context, index) {
         final dek = deks[index];
-        return _buildKeyCard(
+        return KeyCard(
           title: dek.keyId.toString(),
           subtitle: 'Encryption: ${dek.encryption}',
           details: [
@@ -253,59 +282,5 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
         );
       },
     );
-  }
-
-  Widget _buildKeyCard({
-    String? title,
-    required String subtitle,
-    required List<String> details,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        title: title != null
-            ? Text(
-                title,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              )
-            : null,
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(subtitle),
-            const SizedBox(height: 8),
-            ...details.map((detail) => Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: Text(
-                    detail,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
-                  ),
-                )),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.visibility),
-          onPressed: onTap,
-          tooltip: 'View Details',
-        ),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  String _truncateKey(String key) {
-    if (key.length <= 20) return key;
-    return '${key.substring(0, 10)}...${key.substring(key.length - 10)}';
-  }
-
-  Future<void> _showKeyDetails(String title, Map<String, String> det) async {
-    KeyDetailsScreen screen = KeyDetailsScreen(title: title, details: det);
-    await moveTo(context, screen, fromBottom: true);
   }
 }

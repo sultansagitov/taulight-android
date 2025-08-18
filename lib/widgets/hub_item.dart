@@ -22,9 +22,9 @@ class HubItem extends StatelessWidget {
     final status = client.status;
 
     final Color cardBackground =
-    isDark ? const Color(0xFF1A1A1A) : Colors.white;
+        isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final Color innerCardBackground =
-    isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200;
+        isDark ? const Color(0xFF2F2F2F) : Colors.grey.shade200;
     final Color textColor = isDark ? Colors.white : Colors.black;
 
     return Container(
@@ -143,7 +143,7 @@ class HubItem extends StatelessWidget {
                       (client.user == null || !client.user!.authorized)),
                   onPressed: () async {
                     final result =
-                    await moveTo(context, LoginScreen(client: client));
+                        await moveTo(context, LoginScreen(client: client));
                     if (result is String && result.contains("success")) {
                       connectUpdate();
                     }

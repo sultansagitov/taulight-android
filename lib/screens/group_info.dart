@@ -69,8 +69,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   Future<void> _addMember(BuildContext context) async {
     final dialogs = widget.chat.client.chats.values.where(isDialog).toList();
-    final screen = MembersInviteScreen(chats: dialogs, chatToInvite: widget.chat);
-    await moveTo(context, screen);
+    await moveTo(context, MembersInviteScreen(
+      chats: dialogs,
+      chatToInvite: widget.chat,
+    ));
     setState(() {});
   }
 

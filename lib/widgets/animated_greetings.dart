@@ -13,7 +13,11 @@ class AnimatedGreeting extends StatelessWidget {
     final isLight = theme.brightness == Brightness.light;
     final color = Config.primarySwatch[isLight ? 700 : 300];
 
-    final s = TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 24);
+    final s = TextStyle(
+      color: color,
+      fontWeight: FontWeight.w500,
+      fontSize: 24,
+    );
 
     if (names.isEmpty) {
       return Text("Taulight", style: s);

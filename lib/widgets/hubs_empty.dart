@@ -48,7 +48,7 @@ class _HubsEmptyState extends State<HubsEmpty> {
             Text("Reconnect disconnected hubs (${clients.length})"),
           ],
           const SizedBox(height: 12),
-        FlatRectButton(
+          FlatRectButton(
             label: "Connect to hub",
             onPressed: () async {
               final screen = ConnectionScreen(connectUpdate: _connectUpdate);

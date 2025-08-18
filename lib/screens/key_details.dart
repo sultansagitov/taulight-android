@@ -29,6 +29,15 @@ class KeyDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildDetailRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final labelColor = isDark ? Colors.grey[300]! : Colors.grey[800]!;
+    final valueColor = isDark ? Colors.grey[200]! : Colors.grey[900]!;
+    final borderColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
+    final bgColor = isDark ? Colors.grey[850]! : Colors.grey[50]!;
+    final iconColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -36,34 +45,50 @@ class KeyDetailsScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
+              color: labelColor,
             ),
           ),
           const SizedBox(height: 4),
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: value));
-              snackBar(context, 'Copied to clipboard');
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: Theme.of(context).dividerColor,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: borderColor),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                      color: valueColor,
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
+                InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: value));
+                    snackBar(context, 'Copied: $value');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 16,
+                      color: iconColor,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
