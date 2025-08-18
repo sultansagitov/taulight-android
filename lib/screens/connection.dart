@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/client.dart';
@@ -7,7 +6,6 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/screens/hub_qr_scanner.dart';
 import 'package:taulight/services/storage.dart';
-import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
@@ -25,7 +23,15 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
   final _linkController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  int? _loading;
+  /// -1 = manual link connect, >=0 = recommended index
+  final ValueNotifier<int?> _loading = ValueNotifier(null);
+
+  @override
+  void dispose() {
+    _linkController.dispose();
+    _loading.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +42,13 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           onPressed: () async {
             final result = await moveTo(context, QrScannerScreen());
             if (result is String) {
-              _connect(context, result);
+              _connect(result, index: -1);
             }
           },
         ),
       ]),
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
@@ -60,47 +66,52 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       return "Enter sandnode link";
                     }
                     return null;
-                  } catch (e, stackTrace) {
-                    print(e);
-                    print(stackTrace);
+                  } catch (_) {
                     return "Link not valid";
                   }
                 },
               ),
             ),
             const SizedBox(height: 6),
-            FlatRectButton(
-              label: "Connect",
-              loading: _loading == -1,
-              disable: _loading != null,
-              onPressed: _connectPressed,
+            ValueListenableBuilder<int?>(
+              valueListenable: _loading,
+              builder: (_, loading, __) {
+                return FlatRectButton(
+                  label: "Connect",
+                  loading: loading == -1,
+                  disable: loading != null,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _connect(_linkController.text.trim(), index: -1);
+                    }
+                  },
+                );
+              },
             ),
             const SizedBox(height: 20),
             const Text(
               "Recommended hubs",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Column(
-              children: Config.recommended.asMap().entries.map((entry) {
-                ServerRecord recommended = entry.value;
-                int index = entry.key;
+            ValueListenableBuilder<int?>(
+              valueListenable: _loading,
+              builder: (_, loading, __) {
+                return Column(
+                  children: Config.recommended.asMap().entries.map((entry) {
+                    final recommended = entry.value;
+                    final index = entry.key;
 
-                return FlatRectButton(
-                  label: "${recommended.name} : ${recommended.address}",
-                  margin: const EdgeInsets.only(bottom: 8),
-                  loading: _loading == index,
-                  disable: _loading != null,
-                  width: double.infinity,
-                  onPressed: () async {
-                    try {
-                      setState(() => _loading ??= index);
-                      await _recommended(recommended.link);
-                    } finally {
-                      setState(() => _loading = null);
-                    }
-                  },
+                    return FlatRectButton(
+                      label: "${recommended.name} : ${recommended.address}",
+                      margin: const EdgeInsets.only(bottom: 8),
+                      loading: loading == index,
+                      disable: loading != null,
+                      width: double.infinity,
+                      onPressed: () => _connect(recommended.link, index: index),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              },
             ),
           ],
         ),
@@ -108,38 +119,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     );
   }
 
-  Future<void> _recommended(String link) async {
-    Client client;
+  Future<void> _connect(String link, {required int index}) async {
     try {
-      client = await PlatformClientService.ins.connect(
-        link,
-        connectUpdate: widget.connectUpdate,
-      );
-    } on ConnectionException {
-      if (mounted) {
-        snackBarError(context, "${link2address(link)} connection failed");
-      }
-      return;
-    }
-    await StorageService.ins.saveClient(client);
-
-    if (mounted) {
-      final result = await moveTo(context, LoginScreen(client: client));
-      if (result is String && result.contains("success")) {
-        Navigator.pop(context, result);
-      }
-    }
-  }
-
-  void _connectPressed() async {
-    if (_formKey.currentState!.validate()) {
-      _connect(context, _linkController.text.trim());
-    }
-  }
-
-  void _connect(BuildContext context, String link) async {
-    try {
-      setState(() => _loading ??= -1);
+      _loading.value = index;
       final client = await PlatformClientService.ins.connect(
         link,
         connectUpdate: widget.connectUpdate,
@@ -152,15 +134,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           Navigator.pop(context, result);
         }
       }
-    } on ConnectionException catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
+    } on ConnectionException catch (e) {
       if (mounted) {
         snackBarError(context, "Cannot connect to ${e.client.address}");
       }
-    } on InvalidSandnodeLinkException catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
+    } on InvalidSandnodeLinkException {
       if (mounted) {
         snackBarError(context, "Invalid link or changed key");
       }
@@ -171,7 +149,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
         snackBarError(context, "Unknown error");
       }
     } finally {
-      setState(() => _loading = null);
+      _loading.value = null;
     }
   }
 }

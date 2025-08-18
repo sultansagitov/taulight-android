@@ -18,55 +18,23 @@ class KeyManagementScreen extends StatefulWidget {
 class _KeyManagementScreenState extends State<KeyManagementScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-
-  List<ServerKey> serverKeys = [];
-  List<PersonalKey> personalKeys = [];
-  List<EncryptorKey> encryptorKeys = [];
-  List<DEK> deks = [];
-
-  bool isLoading = true;
+  late Future<List<List<dynamic>>> _keysFuture;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _loadAllKeys();
+    _keysFuture = _loadAllKeys();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadAllKeys() async {
-    setState(() => isLoading = true);
-
-    try {
-      final keyStorage = KeyStorageService.ins;
-
-      final results = await Future.wait([
-        keyStorage.loadAllServerKeys(),
-        keyStorage.loadAllPersonalKeys(),
-        keyStorage.loadAllEncryptors(),
-        keyStorage.loadAllDEKs(),
-      ]);
-
-      setState(() {
-        serverKeys = results[0] as List<ServerKey>;
-        personalKeys = results[1] as List<PersonalKey>;
-        encryptorKeys = results[2] as List<EncryptorKey>;
-        deks = results[3] as List<DEK>;
-        isLoading = false;
-      });
-    } catch (e, stackTrace) {
-      print(e);
-      print(stackTrace);
-      setState(() => isLoading = false);
-      if (mounted) {
-        snackBarError(context, 'Failed to load keys');
-      }
-    }
+  Future<List<List<dynamic>>> _loadAllKeys() async {
+    final keyStorage = KeyStorageService.ins;
+    return Future.wait([
+      keyStorage.loadAllServerKeys(),
+      keyStorage.loadAllPersonalKeys(),
+      keyStorage.loadAllEncryptors(),
+      keyStorage.loadAllDEKs(),
+    ]);
   }
 
   String _truncateKey(String key) {
@@ -93,52 +61,73 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
         IconButton(
           icon: const Icon(Icons.refresh),
           color: tabLabelColor,
-          onPressed: _loadAllKeys,
+          onPressed: () {
+            setState(() {
+              _keysFuture = _loadAllKeys();
+            });
+          },
         ),
       ]),
       body: SafeArea(
-        child: Column(
-          children: [
-            TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              labelColor: tabLabelColor,
-              unselectedLabelColor: tabUnselected,
-              indicatorColor: indicatorColor,
-              padding: EdgeInsets.zero,
-              tabAlignment: TabAlignment.center,
-              tabs: [
-                Tab(text: 'Server (${serverKeys.length})'),
-                Tab(text: 'Personal (${personalKeys.length})'),
-                Tab(text: 'Encryptor (${encryptorKeys.length})'),
-                Tab(text: 'DEK (${deks.length})'),
-              ],
-            ),
-            Expanded(
-              child: isLoading
-                  ? Center(
+        child: FutureBuilder<List<List<dynamic>>>(
+          future: _keysFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
                 child: CircularProgressIndicator(
                   color: indicatorColor,
                   strokeWidth: 2,
                 ),
-              )
-                  : TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildServerKeysTab(),
-                  _buildPersonalKeysTab(),
-                  _buildEncryptorKeysTab(),
-                  _buildDEKsTab(),
-                ],
-              ),
-            ),
-          ],
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Failed to load keys',
+                    style: TextStyle(color: Colors.red)),
+              );
+            }
+
+            final serverKeys = snapshot.data![0] as List<ServerKey>;
+            final personalKeys = snapshot.data![1] as List<PersonalKey>;
+            final encryptorKeys = snapshot.data![2] as List<EncryptorKey>;
+            final deks = snapshot.data![3] as List<DEK>;
+
+            return Column(
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  labelColor: tabLabelColor,
+                  unselectedLabelColor: tabUnselected,
+                  indicatorColor: indicatorColor,
+                  padding: EdgeInsets.zero,
+                  tabAlignment: TabAlignment.center,
+                  tabs: [
+                    Tab(text: 'Server (${serverKeys.length})'),
+                    Tab(text: 'Personal (${personalKeys.length})'),
+                    Tab(text: 'Encryptor (${encryptorKeys.length})'),
+                    Tab(text: 'DEK (${deks.length})'),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildServerKeysTab(serverKeys),
+                      _buildPersonalKeysTab(personalKeys),
+                      _buildEncryptorKeysTab(encryptorKeys),
+                      _buildDEKsTab(deks),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildServerKeysTab() {
+  Widget _buildServerKeysTab(List<ServerKey> serverKeys) {
     if (serverKeys.isEmpty) {
       return const Center(
         child: Text(
@@ -175,10 +164,13 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     );
   }
 
-  Widget _buildPersonalKeysTab() {
+  Widget _buildPersonalKeysTab(List<PersonalKey> personalKeys) {
     if (personalKeys.isEmpty) {
       return const Center(
-        child: Text('No personal keys found', style: TextStyle(fontSize: 16)),
+        child: Text(
+          'No personal keys found',
+          style: TextStyle(fontSize: 16),
+        ),
       );
     }
 
@@ -211,10 +203,13 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     );
   }
 
-  Widget _buildEncryptorKeysTab() {
+  Widget _buildEncryptorKeysTab(List<EncryptorKey> encryptorKeys) {
     if (encryptorKeys.isEmpty) {
       return const Center(
-        child: Text('No encryptor keys found', style: TextStyle(fontSize: 16)),
+        child: Text(
+          'No encryptor keys found',
+          style: TextStyle(fontSize: 16),
+        ),
       );
     }
 
@@ -246,7 +241,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
     );
   }
 
-  Widget _buildDEKsTab() {
+  Widget _buildDEKsTab(List<DEK> deks) {
     if (deks.isEmpty) {
       return const Center(
         child: Text('No DEK keys found', style: TextStyle(fontSize: 16)),
