@@ -23,6 +23,7 @@ class _ShowStatusSettingsState extends State<ShowStatusSettings> {
   }
 
   Future<void> _loadStatus() async {
+    if (!widget.client.connected) return;
     final val = await PlatformSettingsService.ins.get(widget.client);
     setState(() {
       showStatus = val.showStatus;

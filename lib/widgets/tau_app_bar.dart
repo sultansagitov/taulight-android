@@ -2,24 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class TauAppBar extends AppBar {
-  TauAppBar({super.key, super.title, super.actions}) : super(elevation: 2);
+class TauAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget? title;
+  final List<Widget>? actions;
 
-  factory TauAppBar.text(String? title, {Key? key, List<Widget>? actions}) {
-    if (title == null) {
-      return TauAppBar(key: key, actions: actions);
-    }
+  const TauAppBar({super.key, this.title, this.actions});
 
+  factory TauAppBar.text(String title, {Key? key, List<Widget>? actions}) {
     return TauAppBar(
       key: key,
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
+      title: Text(title),
       actions: actions,
     );
   }
@@ -35,21 +27,32 @@ class TauAppBar extends AppBar {
   }) {
     return TauAppBar(
       key: key,
-      title: Row(
-        children: [
-          chatAvatar,
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+      title: Row(children: [
+        chatAvatar,
+        const SizedBox(width: 12),
+        Text(title),
+      ]),
       actions: actions,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: title,
+      actions: actions,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Colors.white
+          : Colors.black,
+      elevation: 2,
+      titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
     );
   }
 }
