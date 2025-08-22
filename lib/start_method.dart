@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
-import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/services/client.dart';
@@ -17,60 +15,46 @@ Future<void> start(
   VoidCallback callback,
 ) async {
   await PlatformClientService.ins.loadClients();
+  final map = await StorageService.ins.getClients();
 
-  Map<UUID, ServerRecord> map = await StorageService.ins.getClients();
+  final notConnected = map.keys.toSet().difference(ClientService.ins.keys);
 
-  Set<UUID> connectedSet = ClientService.ins.keys;
-  Set<UUID> storageSet = map.keys.toSet();
-
-  Set<UUID> notConnectedId = storageSet.difference(connectedSet);
-
-  for (UUID uuid in notConnectedId) {
-    ServerRecord sr = map[uuid]!;
+  for (final uuid in notConnected) {
+    final sr = map[uuid]!;
     try {
-      await PlatformClientService.ins.connectWithUUID(
-        uuid,
-        sr.link,
-        keep: true,
-      );
+      final link = sr.link;
+      await PlatformClientService.ins.connectWithUUID(uuid, link, keep: true);
     } on ConnectionException {
       if (context.mounted) {
         snackBarError(context, "Connection error: ${sr.name}");
       }
     } finally {
-      Client? c = ClientService.ins.get(uuid);
-      if (c != null) {
-        UserRecord? userRecord = sr.user;
-        if (userRecord != null) {
-          String nickname = userRecord.nickname.trim();
-          String token = userRecord.token;
-          c.user = User.unauthorized(c, nickname, token);
-        }
+      final client = ClientService.ins.get(uuid);
+      final user = sr.user;
+      if (client != null && user != null) {
+        final nickname = user.nickname.trim();
+        client.user = User.unauthorized(client, nickname, user.token);
       }
     }
   }
 
-  for (final client in ClientService.ins.clientsList) {
-    if (!client.connected) continue;
+  final clients = ClientService.ins.clientsList.where((c) => c.connected);
+  for (final client in clients) {
+    final user = client.user;
+    if (user != null && user.authorized) continue;
 
-    if (client.user == null || !client.user!.authorized) {
-      ServerRecord? serverRecord = map[client.uuid];
-      if (serverRecord != null && serverRecord.user != null) {
-        String? error;
+    final sr = map[client.uuid];
+    if (sr?.user == null) continue;
 
-        try {
-          final token = serverRecord.user!.token;
-          await PlatformAgentService.ins.authByToken(client, token);
-        } on ExpiredTokenException {
-          error = "Session expired. ${client.name}";
-        } on InvalidArgumentException {
-          error = "Invalid token. ${client.name}";
-        }
-
-        if (error != null) {
-          if (context.mounted) snackBarError(context, error);
-          await StorageService.ins.removeToken(client);
-        }
+    try {
+      await PlatformAgentService.ins.authByToken(client, sr!.user!.token);
+    } on ExpiredTokenException {
+      if (context.mounted) {
+        snackBarError(context, "Session expired. ${client.name}");
+      }
+    } on InvalidArgumentException {
+      if (context.mounted) {
+        snackBarError(context, "Invalid token. ${client.name}");
       }
     }
   }
