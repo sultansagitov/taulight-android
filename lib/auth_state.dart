@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taulight/screens/hubs.dart';
+import 'package:taulight/main_screens/hubs.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 

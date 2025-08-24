@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/connection.dart';
+import 'package:taulight/main_screens/connection.dart';
 import 'package:taulight/widgets/hub_item.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class HubsScreen extends StatefulWidget {
+class HubsScreen extends StatefulWidget implements IMainScreen {
   final VoidCallback? connectUpdate;
 
   const HubsScreen({super.key, this.connectUpdate});
+
+  @override
+  IconData icon() => Icons.person_outlined;
+  @override
+  String title() => "Show hubs and profile";
 
   @override
   HubsScreenState createState() => HubsScreenState();

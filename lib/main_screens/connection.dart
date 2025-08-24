@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login.dart';
@@ -10,10 +11,15 @@ import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class ConnectionScreen extends StatefulWidget {
+class ConnectionScreen extends StatefulWidget implements IMainScreen {
   final VoidCallback? connectUpdate;
 
   const ConnectionScreen({super.key, this.connectUpdate});
+
+  @override
+  IconData icon() => Icons.link_outlined;
+  @override
+  String title() => "Connect";
 
   @override
   State<ConnectionScreen> createState() => _ConnectionScreenState();

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/screens/connection.dart';
+import 'package:taulight/main_screens/connection.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_button.dart';
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/config.dart';
-import 'package:taulight/enums/main_menu.dart';
 import 'package:taulight/exceptions.dart';
+import 'package:taulight/main_screens/create_group.dart';
+import 'package:taulight/main_screens/start_dialog.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/screens/main_menu.dart';
 import 'package:taulight/services/client.dart';
@@ -18,7 +19,6 @@ import 'package:taulight/widgets/chat_list.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
-
 import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
@@ -117,18 +117,20 @@ class HomeScreenState extends State<HomeScreen> {
               FlatRectButton(
                 label: "Start Dialog",
                 icon: Icons.chat_bubble_outline,
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  MainMenu.newDialogAction(context, update);
+                  final result = await moveTo(context, StartDialogScreen());
+                  if (result is String) update();
                 },
               ),
               const SizedBox(height: 12),
               FlatRectButton(
                 label: "Create Group",
                 icon: Icons.group_outlined,
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  MainMenu.newGroupAction(context, update);
+                  final result = await moveTo(context, CreateGroupScreen());
+                  if (result == "success") update();
                 },
               ),
             ],
@@ -163,9 +165,16 @@ class HomeScreenState extends State<HomeScreen> {
                     Icons.menu,
                     color: color,
                     onPressed: () async {
-                      final screen = MainMenuScreen();
-                      await moveTo(context, screen, fromLeft: true);
-                      await _updateHome(animation: false);
+                      final screen = await moveTo(
+                        context,
+                        MainMenuScreen(),
+                        fromLeft: true,
+                      );
+
+                      if (screen != null) {
+                        await moveTo(context, screen);
+                        await _updateHome(animation: false);
+                      }
                     },
                   ),
                   if (loadingChats)

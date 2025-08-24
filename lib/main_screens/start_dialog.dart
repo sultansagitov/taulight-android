@@ -4,6 +4,7 @@ import 'package:taulight/classes/keys.dart';
 import 'package:taulight/classes/sources.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/auth_state.dart';
+import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/screens/hub_qr_scanner.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/key_storages.dart';
@@ -14,8 +15,13 @@ import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class StartDialogScreen extends StatefulWidget {
+class StartDialogScreen extends StatefulWidget implements IMainScreen {
   const StartDialogScreen({super.key});
+
+  @override
+  IconData icon() => Icons.chat_outlined;
+  @override
+  String title() => "Start dialog";
 
   @override
   State<StartDialogScreen> createState() => _StartDialogScreenState();

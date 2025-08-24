@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/auth_state.dart';
+import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/services/platform/chats.dart';
 import 'package:taulight/widgets/client_dropdown.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
-class CreateGroupScreen extends StatefulWidget {
+class CreateGroupScreen extends StatefulWidget implements IMainScreen {
   const CreateGroupScreen({super.key});
+
+  @override
+  IconData icon() => Icons.add_box_outlined;
+  @override
+  String title() => "Create group";
 
   @override
   State<CreateGroupScreen> createState() => _CreateGroupScreenState();

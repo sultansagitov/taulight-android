@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/keys.dart';
 import 'package:taulight/classes/sources.dart';
+import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/screens/key_details.dart';
 import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/utils.dart';
@@ -8,8 +9,13 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/key_card.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
-class KeyManagementScreen extends StatefulWidget {
+class KeyManagementScreen extends StatefulWidget implements IMainScreen {
   const KeyManagementScreen({super.key});
+
+  @override
+  IconData icon() => Icons.key_outlined;
+  @override
+  String title() => "Keys";
 
   @override
   State<KeyManagementScreen> createState() => _KeyManagementScreenState();
