@@ -6,25 +6,27 @@ Future moveTo(
   Widget screen, {
   bool fromLeft = false,
   bool fromBottom = false,
+  bool canReturn = true,
 }) {
-  return Navigator.push(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (_, __, ___) => screen,
-      transitionDuration: const Duration(milliseconds: 300),
-      transitionsBuilder: (_, animation, __, child) {
-        final begin = fromBottom
-            ? Offset(0, 1)
-            : fromLeft
-                ? Offset(-1, 0)
-                : Offset(1, 0);
-        const end = Offset.zero;
-        final parent = CurveTween(curve: Curves.easeOutCubic);
-        final chain = Tween(begin: begin, end: end).chain(parent);
-        return SlideTransition(position: animation.drive(chain), child: child);
-      },
-    ),
+  final route = PageRouteBuilder(
+    pageBuilder: (_, __, ___) => screen,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (_, animation, __, child) {
+      final begin = fromBottom
+          ? const Offset(0, 1)
+          : fromLeft
+              ? const Offset(-1, 0)
+              : const Offset(1, 0);
+      const end = Offset.zero;
+      final parent = CurveTween(curve: Curves.easeOutCubic);
+      final chain = Tween(begin: begin, end: end).chain(parent);
+      return SlideTransition(position: animation.drive(chain), child: child);
+    },
   );
+
+  return canReturn
+      ? Navigator.push(context, route)
+      : Navigator.pushReplacement(context, route);
 }
 
 void snackBar(BuildContext context, String message) {
@@ -33,7 +35,7 @@ void snackBar(BuildContext context, String message) {
   messenger.removeCurrentSnackBar();
   messenger.showSnackBar(SnackBar(
     content: Text(message),
-    duration: Duration(seconds: 1, milliseconds: 500),
+    duration: const Duration(seconds: 1, milliseconds: 500),
   ));
 }
 
@@ -42,9 +44,9 @@ void snackBarError(BuildContext context, String message) {
   ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
   messenger.removeCurrentSnackBar();
   messenger.showSnackBar(SnackBar(
-    content: Text(message, style: TextStyle(color: Colors.white)),
+    content: Text(message, style: const TextStyle(color: Colors.white)),
     backgroundColor: Colors.red,
-    duration: Duration(seconds: 1, milliseconds: 500),
+    duration: const Duration(seconds: 1, milliseconds: 500),
   ));
 }
 
