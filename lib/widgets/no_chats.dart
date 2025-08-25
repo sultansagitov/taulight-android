@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:taulight/main_screens/create_group.dart';
 import 'package:taulight/main_screens/start_dialog.dart';
 import 'package:taulight/widget_utils.dart';
-import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/flat_rect_button.dart';
 
 class NoChats extends StatelessWidget {
   final VoidCallback updateHome;
@@ -17,19 +17,27 @@ class NoChats extends StatelessWidget {
         children: [
           const Text("No chats", style: TextStyle(fontSize: 18)),
           const SizedBox(height: 10),
-          TauButton.text("Create group", onPressed: () async {
-            final result = await moveTo(context, CreateGroupScreen());
-            if (result is String && result.contains("success")) {
-              updateHome();
-            }
-          }),
+          FlatRectButton(
+            icon: Icons.group_outlined,
+            label: "Create group",
+            onPressed: () async {
+              final result = await moveTo(context, CreateGroupScreen());
+              if (result is String && result.contains("success")) {
+                updateHome();
+              }
+            },
+          ),
           const SizedBox(height: 10),
-          TauButton.text("Start dialog", onPressed: () async {
-            final result = await moveTo(context, StartDialogScreen());
-            if (result is String && result.contains("success")) {
-              updateHome();
-            }
-          }),
+          FlatRectButton(
+            icon: Icons.messenger_outline,
+            label: "Start dialog",
+            onPressed: () async {
+              final result = await moveTo(context, StartDialogScreen());
+              if (result is String && result.contains("success")) {
+                updateHome();
+              }
+            },
+          ),
         ],
       ),
     );
