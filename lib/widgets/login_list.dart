@@ -3,6 +3,7 @@ import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
 import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/utils.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class LoginList extends StatefulWidget {
   final Client client;
@@ -28,7 +29,7 @@ class _LoginListState extends State<LoginList> {
       future: _loginHistory,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: TauLoading());
         } else if (snapshot.hasError) {
           print(snapshot.error);
           print(snapshot.stackTrace);

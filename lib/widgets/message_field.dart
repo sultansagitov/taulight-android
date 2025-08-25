@@ -8,6 +8,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class NamedFileWrapper {
   final NamedFileDTO file;
@@ -122,9 +123,8 @@ class _MessageFieldState extends State<MessageField> {
                               ],
                             )
                           : Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.white),
-                            ),
+                              child: const TauLoading(color: Colors.white),
+                      ),
                     ),
                     if (wrapper.loaded)
                       Positioned(

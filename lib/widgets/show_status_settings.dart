@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/services/platform/settings.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 import 'package:taulight/widgets/tip.dart';
 
 class ShowStatusSettings extends StatefulWidget {
@@ -81,7 +82,7 @@ class _ShowStatusSettingsState extends State<ShowStatusSettings> {
                 onChanged: loading ? null : _setValue,
               )
             else
-              const CircularProgressIndicator(strokeWidth: 2),
+              const TauLoading(),
           ],
         ),
       ],

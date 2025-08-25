@@ -21,6 +21,7 @@ import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -178,9 +179,9 @@ class HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   if (loadingChats)
-                    CircularProgressIndicator(
-                      color: color,
+                    const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: TauLoading(),
                     ),
                   Expanded(child: AnimatedGreeting(names: names)),
                 ],
@@ -227,7 +228,7 @@ class HomeScreenState extends State<HomeScreen> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          const TauLoading(),
           ...ClientService.ins.clientsList.map((client) {
             return Padding(
               padding: const EdgeInsets.only(top: 20.0),

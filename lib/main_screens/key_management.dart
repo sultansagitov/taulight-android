@@ -8,6 +8,7 @@ import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/key_card.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class KeyManagementScreen extends StatefulWidget implements IMainScreen {
   const KeyManagementScreen({super.key});
@@ -79,12 +80,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
           future: _keysFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: indicatorColor,
-                  strokeWidth: 2,
-                ),
-              );
+              return const Center(child: TauLoading());
             } else if (snapshot.hasError) {
               return Center(
                 child: Text('Failed to load keys',

@@ -6,6 +6,7 @@ import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class ProfileQRScreen extends StatelessWidget {
   final Client client;
@@ -35,7 +36,7 @@ class ProfileQRScreen extends StatelessWidget {
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: TauLoading());
           }
 
           PersonalKey personalKey = snapshot.data!;

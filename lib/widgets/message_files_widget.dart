@@ -5,6 +5,7 @@ import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/file_messages.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class MessageFilesWidget extends StatelessWidget {
   final TauChat chat;
@@ -158,7 +159,7 @@ class _ImageGridState extends State<_ImageGrid> {
                         child: SizedBox(
                           width: 32,
                           height: 32,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: TauLoading(),
                         ),
                       ),
                     ),
@@ -316,7 +317,7 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
             const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: TauLoading(),
             )
           else if (isDownloaded)
             TauButton.icon(

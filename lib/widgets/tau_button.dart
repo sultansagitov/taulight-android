@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 enum BtnStyle { text, button }
 
@@ -70,8 +71,7 @@ class TauButton extends StatelessWidget {
         ? SizedBox(
             height: 16,
             width: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
+            child: TauLoading(
               color: icon != null || style == BtnStyle.text
                   ? Theme.of(context).colorScheme.primary
                   : Colors.white,

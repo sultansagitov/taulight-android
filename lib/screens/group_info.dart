@@ -17,6 +17,7 @@ import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class GroupInfoScreen extends StatefulWidget {
   final TauChat chat;
@@ -86,7 +87,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: TauLoading());
           }
           if (snapshot.hasError) {
             print(snapshot.error);

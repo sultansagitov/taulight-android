@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class FlatRectButton extends StatelessWidget {
   final String label;
@@ -61,10 +62,7 @@ class FlatRectButton extends StatelessWidget {
                 SizedBox(
                   height: 18,
                   width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(fgColor),
-                  ),
+                  child: TauLoading(color: fgColor),
                 ),
                 const SizedBox(width: 8),
               ] else if (icon != null) ...[

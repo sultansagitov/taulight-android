@@ -4,6 +4,7 @@ import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/hub_info.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class WarningDisconnectMessage extends StatefulWidget {
   final Client client;
@@ -89,9 +90,9 @@ class _WarningDisconnectMessageState extends State<WarningDisconnectMessage> {
               onPressed: _visibilityOff,
             ),
           ] else ...[
-            Padding(
-              padding: const EdgeInsets.all(4),
-              child: CircularProgressIndicator(color: Colors.black),
+            const Padding(
+              padding: EdgeInsets.all(4),
+              child: TauLoading(color: Colors.black),
             ),
           ]
         ],

@@ -20,6 +20,7 @@ import 'package:taulight/widgets/message.dart';
 import 'package:taulight/widgets/message_field.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
+import 'package:taulight/widgets/tau_loading.dart';
 
 class ChatScreen extends StatefulWidget {
   final TauChat chat;
@@ -165,7 +166,7 @@ class ChatScreenState extends State<ChatScreen> {
                       // Show loading indicator at the end of the list
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(child: TauLoading()),
                       );
                     }
 
@@ -201,9 +202,7 @@ class ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ] else if (_loadingMessages) ...[
-              Expanded(
-                child: Center(child: CircularProgressIndicator()),
-              ),
+              const Expanded(child: Center(child: TauLoading())),
             ] else ...[
               Expanded(
                 child: Center(
