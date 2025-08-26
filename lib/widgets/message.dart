@@ -1,24 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:taulight/chat_filters.dart';
+import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
-import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/exceptions.dart';
-import 'package:taulight/services/platform/codes.dart';
-import 'package:taulight/widgets/invite.dart';
+import 'package:taulight/message_helpers.dart';
 import 'package:taulight/widgets/message_files_widget.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
+import 'package:taulight/widgets/invite.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/utils.dart';
-import 'package:taulight/widget_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-final RegExp urlRegExp = RegExp(
-  r'(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))|'
-  r'(sandnode:\/\/[^\/\s]+\/[a-zA-Z0-9/]+)',
-  caseSensitive: false,
-);
 
 class MessageWidget extends StatelessWidget {
   final TauChat chat;
@@ -74,7 +65,7 @@ class MessageWidget extends StatelessWidget {
     final textColor = isLight ? Colors.black : Colors.white;
 
     final url = message.decrypted != null
-        ? _extractSandnodeUrl(message.decrypted!)
+        ? extractSandnodeUrl(message.decrypted!)
         : null;
     final hasInvite = url != null;
 
@@ -121,11 +112,21 @@ class MessageWidget extends StatelessWidget {
                     style: TextStyle(fontStyle: FontStyle.italic),
                   )
                 else if (message.decrypted!.isNotEmpty)
-                  _buildText(
-                    context,
-                    chat.client,
-                    message.decrypted!,
-                    textColor,
+                  RichText(
+                    text: TextSpan(
+                      children: parseMessage(
+                        text: message.decrypted!,
+                        regular: (text) {
+                          return _buildRegular(text, textColor);
+                        },
+                        sandnodeLink: (url) {
+                          return _buildSandnodeLink(context, url);
+                        },
+                        link: (url) {
+                          return _buildLink(url);
+                        },
+                      ),
+                    ),
                   ),
                 if (hasInvite) InviteWidget(chat, url),
                 _buildFooter(context, view),
@@ -134,6 +135,45 @@ class MessageWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  TextSpan _buildRegular(String substring, Color textColor) {
+    return TextSpan(
+      text: substring,
+      style: TextStyle(fontSize: 12, color: textColor),
+    );
+  }
+
+  TextSpan _buildSandnodeLink(BuildContext context, String url) {
+    return TextSpan(
+      text: url,
+      style: TextStyle(
+        fontSize: 12,
+        color: Colors.green,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.underline,
+      ),
+      recognizer: TapGestureRecognizer()
+        ..onTap = () => sandnodeLinkPressed(context, chat.client, url),
+    );
+  }
+
+  TextSpan _buildLink(String url) {
+    return TextSpan(
+      text: url,
+      style: TextStyle(
+        fontSize: 12,
+        color: Colors.blue,
+        decoration: TextDecoration.underline,
+      ),
+      recognizer: TapGestureRecognizer()
+        ..onTap = () async {
+          final Uri uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
     );
   }
 }
@@ -157,118 +197,7 @@ Widget _name(BuildContext context, String nickname) {
   );
 }
 
-String? _extractSandnodeUrl(String text) {
-  final RegExp sandnodeRegExp = RegExp(
-    r'sandnode://[^/\s]+/invite/[a-zA-Z0-9]+',
-    caseSensitive: false,
-  );
-
-  final match = sandnodeRegExp.firstMatch(text);
-  return match?.group(0);
-}
-
-Widget _buildText(
-  BuildContext context,
-  Client client,
-  String text,
-  Color textColor,
-) {
-  final List<InlineSpan> spans = [];
-  int lastMatchEnd = 0;
-
-  for (final match in urlRegExp.allMatches(text)) {
-    final String url = match.group(0)!;
-    final int start = match.start;
-    final int end = match.end;
-
-    if (start > lastMatchEnd) {
-      spans.add(
-        TextSpan(
-          text: text.substring(lastMatchEnd, start),
-          style: TextStyle(
-            color: textColor,
-          ),
-        ),
-      );
-    }
-
-    if (url.startsWith('sandnode://')) {
-      spans.add(
-        TextSpan(
-          text: url,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline,
-          ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () async {
-              final Uri uri = Uri.parse(url);
-              final where = uri.path.split("/").where((s) => s.isNotEmpty);
-              final code = [...where][1];
-
-              String? error;
-
-              try {
-                await PlatformCodesService.ins.useCode(client, code);
-              } on NotFoundException {
-                error = "Code not found or not for you";
-              } on NoEffectException {
-                error = "Code used or expired";
-              } on UnauthorizedException {
-                error = "Code not for you";
-              }
-
-              if (context.mounted) {
-                if (error != null) {
-                  snackBarError(context, error);
-                } else {
-                  Navigator.pop(context);
-                }
-              }
-            },
-        ),
-      );
-    } else {
-      spans.add(
-        TextSpan(
-          text: url,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () async {
-              final Uri uri = Uri.parse(url);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
-            },
-        ),
-      );
-    }
-
-    lastMatchEnd = end;
-  }
-
-  if (lastMatchEnd < text.length) {
-    spans.add(
-      TextSpan(
-        text: text.substring(lastMatchEnd),
-        style: TextStyle(
-          fontSize: 12,
-          color: textColor,
-        ),
-      ),
-    );
-  }
-
-  return RichText(text: TextSpan(children: spans));
-}
-
-Row _buildFooter(BuildContext context, ChatMessageViewDTO view) {
+Widget _buildFooter(BuildContext context, ChatMessageViewDTO view) {
   final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;
   final subTextColor = isLight ? Colors.black54 : Colors.white70;
