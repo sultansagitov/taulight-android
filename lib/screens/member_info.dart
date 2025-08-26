@@ -3,6 +3,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/chat.dart';
+import 'package:taulight/screens/member_qr.dart';
 import 'package:taulight/services/platform/chats.dart';
 import 'package:taulight/services/profile_avatar.dart';
 import 'package:taulight/widget_utils.dart';
@@ -41,6 +42,10 @@ class MemberInfoScreen extends StatelessWidget {
     await moveTo(context, ChatScreen(chat));
   }
 
+  Future<void> _qr(BuildContext context) async {
+    await moveTo(context, MemberQRScreen(client: client, nickname: nickname));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +65,13 @@ class MemberInfoScreen extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          TauButton.icon(Icons.message, onPressed: () => _message(context)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TauButton.icon(Icons.message, onPressed: () => _message(context)),
+              TauButton.icon(Icons.qr_code, onPressed: () => _qr(context)),
+            ],
+          ),
         ],
       ),
     );
