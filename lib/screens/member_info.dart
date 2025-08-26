@@ -14,13 +14,13 @@ import 'package:taulight/widgets/tau_app_bar.dart';
 class MemberInfoScreen extends StatelessWidget {
   final Client client;
   final String nickname;
-  final bool fromMessage;
+  final bool fromDialog;
 
   const MemberInfoScreen({
     super.key,
     required this.client,
     required this.nickname,
-    this.fromMessage = true,
+    this.fromDialog = true,
   });
 
   Future<void> _previewImage(BuildContext context) async {
@@ -58,6 +58,7 @@ class MemberInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: TauAppBar.empty(),
       body: Column(
@@ -78,11 +79,31 @@ class MemberInfoScreen extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (fromMessage)
+              if (fromDialog)
                 _buildButton(
                   icon: Icons.message,
                   title: "Message",
                   onPressed: () => _message(context),
+                )
+              else
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.message,
+                        color: theme.iconTheme.color?.withValues(alpha: .5),
+                      ),
+                      SizedBox(width: 16),
+                      Text(
+                        "Go back to message",
+                        style: TextStyle(
+                          color: theme.textTheme.titleMedium?.color
+                              ?.withValues(alpha: .5),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               _buildButton(
                 icon: Icons.qr_code,

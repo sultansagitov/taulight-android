@@ -140,7 +140,7 @@ class ChatScreenState extends State<ChatScreen> {
                   screen = MemberInfoScreen(
                     client: client,
                     nickname: otherNickname,
-                    fromMessage: false,
+                    fromDialog: false,
                   );
                 }
               } else {
