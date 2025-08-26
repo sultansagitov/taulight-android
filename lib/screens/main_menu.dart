@@ -8,14 +8,9 @@ import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/main_screens/start_dialog.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
-class MainMenuScreen extends StatefulWidget {
+class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
 
-  @override
-  State<MainMenuScreen> createState() => _MainMenuScreenState();
-}
-
-class _MainMenuScreenState extends State<MainMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -28,21 +23,21 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           _section(
               "MAIN SCREENS",
               [
-                _fromScreen(ConnectionScreen()),
-                _fromScreen(HubsScreen()),
+                _fromScreen(context, ConnectionScreen()),
+                _fromScreen(context, HubsScreen()),
               ],
               colorScheme),
           _section(
               "GROUPS & DIALOGS",
               [
-                _fromScreen(CreateGroupScreen()),
-                _fromScreen(StartDialogScreen()),
+                _fromScreen(context, CreateGroupScreen()),
+                _fromScreen(context, StartDialogScreen()),
               ],
               colorScheme),
           _section(
               "KEY MANAGEMENT",
               [
-                _fromScreen(KeyManagementScreen()),
+                _fromScreen(context, KeyManagementScreen()),
               ],
               colorScheme),
           _section(
@@ -51,7 +46,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 return _compactTile(
                   icon: option.icon,
                   text: option.text,
-                  onTap: () => option.action(context, () => setState(() {})),
+                  onTap: () => option.action(),
                   colorScheme: colorScheme,
                 );
               }).toList(),
@@ -84,16 +79,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 
-  Widget _fromScreen(IMainScreen screen) {
-    return Builder(builder: (context) {
-      final scheme = Theme.of(context).colorScheme;
-      return _compactTile(
-        icon: screen.icon(),
-        text: screen.title(),
-        onTap: () => Navigator.pop(context, screen),
-        colorScheme: scheme,
-      );
-    });
+  Widget _fromScreen(BuildContext context, IMainScreen screen) {
+    final scheme = Theme.of(context).colorScheme;
+    return _compactTile(
+      icon: screen.icon(),
+      text: screen.title(),
+      onTap: () => Navigator.pop(context, screen),
+      colorScheme: scheme,
+    );
   }
 
   Widget _compactTile({

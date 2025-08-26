@@ -137,7 +137,11 @@ class ChatScreenState extends State<ChatScreen> {
                 if (client.user!.nickname == otherNickname) {
                   screen = ProfileScreen(client);
                 } else {
-                  screen = MemberInfoScreen(client, otherNickname);
+                  screen = MemberInfoScreen(
+                    client: client,
+                    nickname: otherNickname,
+                    fromMessage: false,
+                  );
                 }
               } else {
                 screen = GroupInfoScreen(chat, updateHome: () {

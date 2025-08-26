@@ -20,7 +20,7 @@ enum MainMenu {
   );
 
   final String text;
-  final Future<void> Function(BuildContext, VoidCallback) action;
+  final Future<void> Function() action;
   final IconData icon;
 
   const MainMenu({
@@ -29,19 +29,18 @@ enum MainMenu {
     required this.icon,
   });
 
-  static Future<void> _clearStorageAction(_, __) async {
+  static Future<void> _clearStorageAction() async {
     return StorageService.ins.clear();
   }
 
-  static Future<void> _clearMessagesAction(_, VoidCallback callback) async {
+  static Future<void> _clearMessagesAction() async {
     for (final client in ClientService.ins.clientsList) {
       for (final chat in client.chats.values) {
         chat.messages.clear();
       }
     }
-    callback();
   }
 
-  static Future<void> _printClientsAction(_, __) async =>
+  static Future<void> _printClientsAction() async =>
       print("Clients: ${ClientService.ins.clientsList}");
 }

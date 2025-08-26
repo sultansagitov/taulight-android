@@ -70,10 +70,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   Future<void> _addMember(BuildContext context) async {
     final dialogs = widget.chat.client.chats.values.where(isDialog).toList();
-    await moveTo(context, MembersInviteScreen(
-      chats: dialogs,
-      chatToInvite: widget.chat,
-    ));
+    await moveTo(
+        context,
+        MembersInviteScreen(
+          chats: dialogs,
+          chatToInvite: widget.chat,
+        ));
     setState(() {});
   }
 
@@ -252,7 +254,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       onTap: () {
         final screen = client.user?.nickname == nickname
             ? ProfileScreen(client)
-            : MemberInfoScreen(client, nickname);
+            : MemberInfoScreen(client: client, nickname: nickname);
         moveTo(context, screen);
       },
       title: Text(

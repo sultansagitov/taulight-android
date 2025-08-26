@@ -10,13 +10,18 @@ import 'package:taulight/services/profile_avatar.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
-import 'package:taulight/widgets/tau_button.dart';
 
 class MemberInfoScreen extends StatelessWidget {
   final Client client;
   final String nickname;
+  final bool fromMessage;
 
-  const MemberInfoScreen(this.client, this.nickname, {super.key});
+  const MemberInfoScreen({
+    super.key,
+    required this.client,
+    required this.nickname,
+    this.fromMessage = true,
+  });
 
   Future<void> _previewImage(BuildContext context) async {
     final memoryImage = await ProfileAvatarService.ins.getOf(client, nickname);
@@ -70,15 +75,49 @@ class MemberInfoScreen extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TauButton.icon(Icons.message, onPressed: () => _message(context)),
-              TauButton.icon(Icons.qr_code, onPressed: () => _qr(context)),
-              TauButton.icon(Icons.key_outlined, onPressed: () => _exchange(context)),
+              if (fromMessage)
+                _buildButton(
+                  icon: Icons.message,
+                  title: "Message",
+                  onPressed: () => _message(context),
+                ),
+              _buildButton(
+                icon: Icons.qr_code,
+                title: "Show QR for third person",
+                onPressed: () => _qr(context),
+              ),
+              _buildButton(
+                icon: Icons.key_outlined,
+                title: "Check encryption",
+                onPressed: () => _exchange(context),
+              ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required IconData icon,
+    required String title,
+    required Future<void> Function() onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon),
+            const SizedBox(width: 16),
+            Text(title),
+          ],
+        ),
       ),
     );
   }
