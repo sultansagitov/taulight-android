@@ -5,7 +5,7 @@ import 'package:taulight/classes/sources.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/auth_state.dart';
 import 'package:taulight/main_screens/main_screen.dart';
-import 'package:taulight/screens/hub_qr_scanner.dart';
+import 'package:taulight/screens/qr_scanner.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/services/platform/chats.dart';

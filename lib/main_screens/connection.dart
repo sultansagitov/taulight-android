@@ -5,7 +5,7 @@ import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login.dart';
-import 'package:taulight/screens/hub_qr_scanner.dart';
+import 'package:taulight/screens/qr_scanner.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';

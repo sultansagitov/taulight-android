@@ -27,7 +27,7 @@ class QRExchangeScreen extends StatefulWidget {
 
 class _QRExchangeScreenState extends State<QRExchangeScreen> {
   final MobileScannerController _controller =
-  MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
+      MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
 
   String? _myQR;
   String? _result;
@@ -58,7 +58,6 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
     if (mounted) setState(() {});
   }
 
-  // -------------------- IMPORTANT: async and stop camera --------------------
   Future<void> _onDetect(BarcodeCapture cap) async {
     if (_locked) return;
     final raw = cap.barcodes.isNotEmpty ? cap.barcodes.first.rawValue : null;
@@ -86,7 +85,12 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
               ? "✅ $nick matches stored key"
               : "❌ $nick does not match stored key";
         } catch (_) {
-          final ek = EncryptorKey(encryption: enc, publicKey: pub, symKey: sym, source: QRSource(),);
+          final ek = EncryptorKey(
+            encryption: enc,
+            publicKey: pub,
+            symKey: sym,
+            source: QRSource(),
+          );
           await KeyStorageService.ins.saveEncryptor(
             address: widget.client.address,
             nickname: nick,
@@ -106,23 +110,18 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
     _locked = true;
     if (mounted) setState(() {});
 
-    // stop camera to clear internal duplicate buffer / prevent stuck state
     try {
       await _controller.stop();
-    } catch (_) {
-      // ignore stop errors
-    }
+    } catch (_) {}
   }
 
-  // -------------------- restart scanner --------------------
   Future<void> _reset() async {
     _locked = false;
     _result = null;
     if (mounted) setState(() {});
 
-    // restart camera to ensure onDetect will fire again
     try {
-      await _controller.stop(); // safe to call even if already stopped (catch)
+      await _controller.stop();
     } catch (_) {}
     await Future.delayed(const Duration(milliseconds: 250));
     try {
@@ -137,7 +136,7 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
     final myNick = widget.client.user!.nickname;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = constraints.maxHeight * 0.78; // maximize within half-screen
+        final size = constraints.maxHeight * 0.78;
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
