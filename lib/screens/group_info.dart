@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/screens/member_info.dart';
 import 'package:taulight/screens/members_invite.dart';
 import 'package:taulight/screens/profile.dart';
@@ -348,11 +346,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     SizedBox(width: 4),
                     Text("Copy ID"),
                   ]),
-                  onTap: () async {
-                    UUID id = role.id;
-                    await Clipboard.setData(ClipboardData(text: id.toString()));
-                    snackBar(context, 'Copied: $id');
-                  },
+                  onTap: () => copy(context, role.id),
                 ),
               ],
             );

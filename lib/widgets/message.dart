@@ -80,7 +80,10 @@ class MessageWidget extends StatelessWidget {
         mainAxisAlignment: align,
         children: [
           Container(
-            constraints: BoxConstraints(maxWidth: width * 0.85, minWidth: 100),
+            constraints: BoxConstraints(
+              maxWidth: width * 0.85,
+              minWidth: 100,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: bgColor,

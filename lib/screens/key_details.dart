@@ -75,10 +75,7 @@ class KeyDetailsScreen extends StatelessWidget {
                 ),
                 InkWell(
                   borderRadius: BorderRadius.circular(4),
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: value));
-                    snackBar(context, 'Copied: $value');
-                  },
+                  onTap: () => copy(context, value),
                   child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Icon(

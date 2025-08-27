@@ -18,9 +18,7 @@ enum ChatMenuOptions {
 }
 
 Future<void> _copy(BuildContext context, TauChat chat) async {
-  final id = chat.record.id;
-  await Clipboard.setData(ClipboardData(text: id.toString()));
-  snackBar(context, 'Copied: $id');
+  await copy(context, chat.record.id);
 }
 
 Future<void> _onLongPressStart(

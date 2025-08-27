@@ -10,6 +10,7 @@ import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/message_helpers.dart';
 import 'package:taulight/screens/profile.dart';
 import 'package:taulight/services/file_messages.dart';
 import 'package:taulight/widget_utils.dart';
@@ -114,9 +115,8 @@ class ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final lightMode = Theme.of(context).brightness == Brightness.light;
     final messages = widget.chat.messages;
-    final messagesTotalCount = widget.chat.totalCount;
-
     final enabled = widget.chat.client.authorized;
+
     return Scaffold(
       appBar: TauAppBar.icon(
         ChatAvatar(widget.chat, d: 48),
@@ -165,44 +165,7 @@ class ChatScreenState extends State<ChatScreen> {
                   controller: _scrollController,
                   reverse: true,
                   itemCount: messages.length + (_loadingMessages ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (_loadingMessages && index == messages.length) {
-                      // Show loading indicator at the end of the list
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: TauLoading()),
-                      );
-                    }
-
-                    final rev = messages.reversed;
-                    ChatMessageWrapperDTO? prev =
-                        rev.elementAtOrNull(index + 1);
-                    ChatMessageWrapperDTO? next;
-                    if (index != 0) {
-                      next = rev.elementAtOrNull(index - 1);
-                    }
-
-                    ChatMessageWrapperDTO message = rev.elementAt(index);
-
-                    if (messages.length < (messagesTotalCount ?? 0)) {
-                      if (index + 1 >= messages.length) {
-                        Future.microtask(() async {
-                          await _loadMessages(messages.length - 1);
-                        });
-                      }
-                    }
-
-                    if (!enabled) {
-                      return MessageWidget(
-                        chat: widget.chat,
-                        message: message,
-                        prev: prev,
-                        next: next,
-                      );
-                    }
-
-                    return buildMessage(message, prev, next);
-                  },
+                  itemBuilder: _builder,
                 ),
               ),
             ] else if (_loadingMessages) ...[
@@ -239,7 +202,52 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget buildMessage(
+  Widget _builder(BuildContext context, int index) {
+    final messages = widget.chat.messages;
+    final messagesTotalCount = widget.chat.totalCount;
+    final enabled = widget.chat.client.authorized;
+
+    if (_loadingMessages && index == messages.length) {
+      // Show loading indicator at the end of the list
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: TauLoading()),
+      );
+    }
+
+    final rev = messages.reversed;
+    ChatMessageWrapperDTO? prev = rev.elementAtOrNull(index + 1);
+    ChatMessageWrapperDTO? next;
+    if (index != 0) {
+      next = rev.elementAtOrNull(index - 1);
+    }
+
+    ChatMessageWrapperDTO message = rev.elementAt(index);
+
+    if (messages.length < (messagesTotalCount ?? 0)) {
+      if (index + 1 >= messages.length) {
+        Future.microtask(() async {
+          await _loadMessages(messages.length - 1);
+        });
+      }
+    }
+
+    return GestureDetector(
+      onLongPressStart: (LongPressStartDetails details) {
+        messageLongPress(context, widget.chat.client, details, message);
+      },
+      child: enabled
+          ? _buildMessage(message, prev, next)
+          : MessageWidget(
+              chat: widget.chat,
+              message: message,
+              prev: prev,
+              next: next,
+            ),
+    );
+  }
+
+  Widget _buildMessage(
     ChatMessageWrapperDTO message,
     ChatMessageWrapperDTO? prev,
     ChatMessageWrapperDTO? next,

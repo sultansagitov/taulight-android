@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:taulight/widgets/preview_image.dart';
 
 Future moveTo(
@@ -54,4 +55,9 @@ Future<void> previewImage(BuildContext context, Image image) async {
   if (context.mounted) {
     await moveTo(context, PreviewImage(image), fromBottom: true);
   }
+}
+
+Future<void> copy(context, text) async {
+  await Clipboard.setData(ClipboardData(text: text.toString()));
+  snackBar(context, 'Copied to clipboard');
 }

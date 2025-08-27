@@ -116,10 +116,7 @@ Widget _info(BuildContext context, String key, String value) {
   final secondaryTextColor = isDark ? Colors.white54 : Colors.black54;
 
   return GestureDetector(
-    onLongPress: () {
-      Clipboard.setData(ClipboardData(text: value));
-      snackBar(context, "$key copied");
-    },
+    onLongPress: () => copy(context, value),
     child: Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
