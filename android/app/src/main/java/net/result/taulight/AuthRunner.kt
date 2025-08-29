@@ -6,6 +6,7 @@ import net.result.sandnode.chain.sender.RegistrationClientChain
 import net.result.sandnode.dto.RegistrationResponseDTO
 import net.result.sandnode.encryption.AsymmetricEncryptions
 import net.result.sandnode.serverclient.SandnodeClient
+import net.result.sandnode.util.Member
 
 fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
     val chain = LoginClientChain(client)
@@ -16,7 +17,7 @@ fun loginHistory(client: SandnodeClient): List<Map<String, Any>> {
     val agent = client.node().agent()
 
     return response.map {
-        val personalKey = agent.config.loadPersonalKey(client.address, client.nickname)
+        val personalKey = agent.config.loadPersonalKey(Member(client))
 
         mapOf(
             "time" to it.time.toString(),

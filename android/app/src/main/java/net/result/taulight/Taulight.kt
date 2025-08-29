@@ -6,16 +6,18 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.flutter.plugin.common.MethodChannel
+import net.result.sandnode.chain.BaseClientChainManager
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.hubagent.AgentProtocol
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
-import net.result.taulight.chain.AndroidClientChainManager
+import net.result.taulight.chain.sender.AndroidForwardClientChain
 import net.result.taulight.config.AndroidAgentConfig
 import net.result.taulight.config.AndroidClientConfig
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.exception.ClientNotFoundException
+import net.result.taulight.message.TauMessageTypes
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -88,7 +90,11 @@ class Taulight(val methodChannel: MethodChannel) {
         LOGGER.info("Saving client of {} with uuid {}", client.address, uuid)
         val mc = MemberClient(uuid, client, link)
 
-        client.start(AndroidClientChainManager(mc, this))
+        val chainManager = BaseClientChainManager()
+        chainManager.addHandler(TauMessageTypes.FWD) {
+            AndroidForwardClientChain(client, this, mc.uuid)
+        }
+        client.start(chainManager)
 
         val serverKey = AgentProtocol.loadOrFetchServerKey(client, link)
         client.io().setServerKey(serverKey)

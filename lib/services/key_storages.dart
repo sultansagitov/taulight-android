@@ -42,14 +42,24 @@ class KeyStorageService {
   }
 
   Future<void> saveDEK({
-    required String address,
-    required String nickname,
+    required String firstAddress,
+    required String firstNickname,
+    required String secondAddress,
+    required String secondNickname,
     required DEK dek,
   }) async {
-    final json = jsonEncode(dek.toMap());
-    await _storage.write(key: "dek:id:${dek.keyId}", value: json);
-    final nicknameKey = "dek:address:$address:nickname:$nickname:id";
-    await _storage.write(key: nicknameKey, value: dek.keyId.toString());
+    await _storage.write(
+      key: "dek:id:${dek.keyId}",
+      value: jsonEncode(dek.toMap()),
+    );
+
+    final pair1 = "$firstAddress:$firstNickname";
+    final pair2 = "$secondAddress:$secondNickname";
+    final sorted = [pair1, pair2]..sort();
+
+    final key = "dek:${sorted[0]}:${sorted[1]}:id";
+
+    await _storage.write(key: key, value: dek.keyId.toString());
   }
 
   Future<List<ServerKey>> loadAllServerKeys() async {
@@ -127,13 +137,21 @@ class KeyStorageService {
   }
 
   Future<DEK> loadDEK({
-    required String address,
-    required String nickname,
+    required String firstAddress,
+    required String firstNickname,
+    required String secondAddress,
+    required String secondNickname,
   }) async {
-    final String k = "dek:address:$address:nickname:$nickname:id";
+    final pair1 = "$firstAddress:$firstNickname";
+    final pair2 = "$secondAddress:$secondNickname";
+
+    final sorted = [pair1, pair2]..sort();
+
+    final k = "dek:${sorted[0]}:${sorted[1]}:id";
     final id = UUID.fromNullableString(await _storage.read(key: k));
     if (id == null) {
-      throw KeyStorageNotFoundException("Address $address Nickname $nickname");
+      throw KeyStorageNotFoundException(
+          "$firstNickname@$firstAddress $secondNickname@$secondAddress");
     }
 
     final data = await _storage.read(key: "dek:id:$id");

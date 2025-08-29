@@ -145,7 +145,7 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
                 val input: ChatMessageInputDTO = it.message
                 if (input.keyID != null) {
                     val agent = client.node().agent()
-                    val keyStorage = agent.config.loadDEK(client.address, input.keyID)
+                    val keyStorage = agent.config.loadDEK(input.keyID)
                     val decoded = Base64.decode(input.content, Base64.NO_WRAP)
                     decrypted = keyStorage.encryption().decrypt(decoded, keyStorage)
                 } else {

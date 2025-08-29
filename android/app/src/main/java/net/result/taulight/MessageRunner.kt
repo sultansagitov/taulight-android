@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.SymmetricEncryptions
 import net.result.sandnode.encryption.interfaces.KeyStorage
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.serverclient.SandnodeClient
+import net.result.sandnode.util.Member
 import net.result.taulight.chain.sender.ForwardRequestClientChain
 import net.result.taulight.chain.sender.MessageClientChain
 import net.result.taulight.dto.ChatInfoDTO
@@ -31,11 +32,11 @@ fun send(
         val receiver = chat.otherNickname
 
         try {
-            agent.config.loadDEK(client.address, receiver)
+            agent.config.loadDEK(Member(client), Member(receiver, client.address))
         } catch (_: KeyStorageNotFoundException) {
             val key = SymmetricEncryptions.AES.generate()
             val encryptor: KeyStorage = try {
-                agent.config.loadEncryptor(client.address, receiver)
+                agent.config.loadEncryptor(Member(receiver, client.address))
             } catch (_: KeyStorageNotFoundException) {
                 // Load key if agent have no it
                 val chain = DEKClientChain(client)
@@ -49,7 +50,7 @@ fun send(
             val uuid = chain.sendDEK(receiver, encryptor, key)
             client.io().chainManager.removeChain(chain)
 
-            agent.config.saveDEK(client.address, receiver, uuid, key)
+            agent.config.saveDEK(Member(client), Member(receiver, client.address), uuid, key)
         }
     }
 
