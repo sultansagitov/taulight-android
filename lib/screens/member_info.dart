@@ -70,10 +70,13 @@ class MemberInfoScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            nickname,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              nickname,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(height: 12),
           Column(

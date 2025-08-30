@@ -42,7 +42,7 @@ class _ClientDropdownState extends State<ClientDropdown> {
           final nickname = user.nickname;
           return ListTile(
             leading: MemberAvatar(client: client, nickname: nickname, d: 44),
-            title: Text(nickname),
+            title: Text(nickname, maxLines: 1, overflow: TextOverflow.ellipsis),
             subtitle: Text(client.name),
             onTap: () => Navigator.pop(context, client),
           );
@@ -76,6 +76,8 @@ class _ClientDropdownState extends State<ClientDropdown> {
             Expanded(
               child: Text(
                 data,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14),
               ),
             ),

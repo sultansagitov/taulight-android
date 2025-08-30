@@ -55,11 +55,16 @@ class _ChatsFilterState extends State<ChatsFilter> {
             color: filter.isEnabled() ? selectedColor : unselectedColor,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            filter.label(),
-            style: TextStyle(
-              color:
-                  filter.isEnabled() ? selectedTextColor : unselectedTextColor,
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 180),
+            child: Text(
+              filter.label(),
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: filter.isEnabled()
+                    ? selectedTextColor
+                    : unselectedTextColor,
+              ),
             ),
           ),
         ),

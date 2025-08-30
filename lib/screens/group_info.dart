@@ -130,11 +130,16 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                record.title,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  record.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(height: 16),
               _buildTabs(),

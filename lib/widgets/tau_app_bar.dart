@@ -30,7 +30,13 @@ class TauAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(children: [
         chatAvatar,
         const SizedBox(width: 12),
-        Text(title),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ]),
       actions: actions,
     );

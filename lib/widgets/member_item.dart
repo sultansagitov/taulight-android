@@ -43,9 +43,10 @@ class MemberItem extends StatelessWidget {
             Expanded(
               child: Text(
                 client.user!.nickname,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 24,
                   fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
