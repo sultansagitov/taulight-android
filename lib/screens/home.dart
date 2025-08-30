@@ -20,6 +20,7 @@ import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
+import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/tau_loading.dart';
 
@@ -152,66 +153,54 @@ class HomeScreenState extends State<HomeScreen> {
         .toList();
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
+      appBar: TauAppBar(
+        title: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              child: Row(
-                children: [
-                  TauButton.icon(
-                    Icons.menu,
-                    color: color,
-                    onPressed: () async {
-                      final screen = await moveTo(
-                        context,
-                        MainMenuScreen(),
-                        fromLeft: true,
-                      );
+            TauButton.icon(
+              Icons.menu,
+              color: color,
+              onPressed: () async {
+                final screen = await moveTo(
+                  context,
+                  MainMenuScreen(),
+                  fromLeft: true,
+                );
 
-                      if (screen != null) {
-                        await moveTo(context, screen);
-                        await _updateHome(animation: false);
-                      }
-                    },
-                  ),
-                  if (loadingChats)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: TauLoading(),
-                    ),
-                  Expanded(child: AnimatedGreeting(names: names)),
-                ],
-              ),
+                if (screen != null) {
+                  await moveTo(context, screen);
+                  await _updateHome(animation: false);
+                }
+              },
             ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  const duration = Duration(seconds: 5);
-                  final clients = ClientService.ins.clientsList;
-                  for (final c in clients.where((c) => !c.connected)) {
-                    await c.reload().timeout(duration);
-                  }
-                  await PlatformClientService.ins
-                      .loadClients()
-                      .timeout(duration);
-                  for (final c in clients.where((c) => c.realName == null)) {
-                    await c.resetName().timeout(duration);
-                  }
-                  for (final client in ClientService.ins.clientsList) {
-                    for (final chat in client.chats.values) {
-                      await chat.loadMessages(0, 1).timeout(duration);
-                    }
-                  }
-                  await _updateHome(animation: false).timeout(duration);
-                },
-                child: _buildChatList(),
+            if (loadingChats)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TauLoading(),
               ),
-            ),
+            Expanded(child: AnimatedGreeting(names: names)),
           ],
+        ),
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            const duration = Duration(seconds: 5);
+            final clients = ClientService.ins.clientsList;
+            for (final c in clients.where((c) => !c.connected)) {
+              await c.reload().timeout(duration);
+            }
+            await PlatformClientService.ins.loadClients().timeout(duration);
+            for (final c in clients.where((c) => c.realName == null)) {
+              await c.resetName().timeout(duration);
+            }
+            for (final client in ClientService.ins.clientsList) {
+              for (final chat in client.chats.values) {
+                await chat.loadMessages(0, 1).timeout(duration);
+              }
+            }
+            await _updateHome(animation: false).timeout(duration);
+          },
+          child: _buildChatList(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -228,7 +217,10 @@ class HomeScreenState extends State<HomeScreen> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const TauLoading(),
+          const Align(
+            alignment: Alignment.center,
+            child: TauLoading(color: Colors.purple),
+          ),
           ...ClientService.ins.clientsList.map((client) {
             return Padding(
               padding: const EdgeInsets.only(top: 20.0),
