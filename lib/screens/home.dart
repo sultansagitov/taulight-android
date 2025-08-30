@@ -219,7 +219,7 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           const Align(
             alignment: Alignment.center,
-            child: TauLoading(color: Colors.purple),
+            child: TauLoading(),
           ),
           ...ClientService.ins.clientsList.map((client) {
             return Padding(
