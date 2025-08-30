@@ -19,9 +19,8 @@ import 'package:taulight/widgets/tau_loading.dart';
 
 class GroupInfoScreen extends StatefulWidget {
   final TauChat chat;
-  final VoidCallback? updateHome;
 
-  const GroupInfoScreen(this.chat, {super.key, this.updateHome});
+  const GroupInfoScreen(this.chat, {super.key});
 
   @override
   State<GroupInfoScreen> createState() => _GroupInfoScreenState();
@@ -63,7 +62,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     await ChatAvatarService.ins.setGroupAvatar(widget.chat, pickedFile.path);
     if (mounted) setState(() {});
-    widget.updateHome?.call();
   }
 
   Future<void> _addMember(BuildContext context) async {

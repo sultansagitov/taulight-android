@@ -144,10 +144,7 @@ class ChatScreenState extends State<ChatScreen> {
                   );
                 }
               } else {
-                screen = GroupInfoScreen(chat, updateHome: () {
-                  setState(() {});
-                  widget.updateHome?.call();
-                });
+                screen = GroupInfoScreen(chat);
               }
 
               await moveTo(context, screen);

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
-import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/main_screens/create_group.dart';
 import 'package:taulight/main_screens/start_dialog.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/screens/main_menu.dart';
+import 'package:taulight/screens/search_screen.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/start_method.dart';
@@ -13,15 +13,13 @@ import 'package:taulight/widget_utils.dart';
 import 'package:taulight/method_call_handler.dart';
 import 'package:taulight/screens/chat.dart';
 import 'package:taulight/services/platform/platform_service.dart';
-import 'package:taulight/widgets/animated_greetings.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/widgets/chat_list.dart';
 import 'package:taulight/widgets/flat_rect_button.dart';
+import 'package:taulight/widgets/home_app_bar.dart';
 import 'package:taulight/widgets/no_chats.dart';
 import 'package:taulight/widgets/not_logged_in.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
-import 'package:taulight/widgets/tau_app_bar.dart';
-import 'package:taulight/widgets/tau_button.dart';
 import 'package:taulight/widgets/tau_loading.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -144,42 +142,30 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final color = Config.primarySwatch[isLight ? 700 : 300];
-
-    final names = ClientService.ins.clientsList
-        .where((c) => c.user != null)
-        .map((c) => c.user!.nickname)
-        .toList();
-
     return Scaffold(
-      appBar: TauAppBar(
-        title: Row(
-          children: [
-            TauButton.icon(
-              Icons.menu,
-              color: color,
-              onPressed: () async {
-                final screen = await moveTo(
-                  context,
-                  MainMenuScreen(),
-                  fromLeft: true,
-                );
+      appBar: HomeAppBar(
+        loadingChats: loadingChats,
+        menuPressed: () async {
+          final screen = await moveTo(
+            context,
+            MainMenuScreen(),
+            fromLeft: true,
+          );
 
-                if (screen != null) {
-                  await moveTo(context, screen);
-                  await _updateHome(animation: false);
-                }
-              },
-            ),
-            if (loadingChats)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: TauLoading(),
-              ),
-            Expanded(child: AnimatedGreeting(names: names)),
-          ],
-        ),
+          if (screen != null) {
+            await moveTo(context, screen);
+            await _updateHome(animation: false);
+          }
+        },
+        searchPressed: () async {
+          final result = await moveTo(context, SearchScreen(chatKey: chatKey));
+
+          if (result is TauChat) {
+            final screen = ChatScreen(result, key: chatKey);
+            await moveTo(context, screen);
+            await _updateHome(animation: false);
+          }
+        },
       ),
       body: SafeArea(
         child: RefreshIndicator(

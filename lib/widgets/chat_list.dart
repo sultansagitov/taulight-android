@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
@@ -10,15 +12,17 @@ import 'package:taulight/widgets/warning_disconnect_message.dart';
 import 'package:taulight/widgets/warning_unauthorized_message.dart';
 
 class ChatList extends StatefulWidget {
-  final VoidCallback updateHome;
-  final Future<void> Function(TauChat chat) onChatTap;
-  final Future<void> Function(Client client) onLoginTap;
+  final VoidCallback? updateHome;
+  final bool Function(TauChat)? filter;
+  final FutureOr<void> Function(TauChat chat) onChatTap;
+  final FutureOr<void> Function(Client client)? onLoginTap;
 
   const ChatList({
     super.key,
-    required this.updateHome,
     required this.onChatTap,
-    required this.onLoginTap,
+    this.filter,
+    this.updateHome,
+    this.onLoginTap,
   });
 
   @override
@@ -83,11 +87,13 @@ class _ChatListState extends State<ChatList> {
       ));
     }
 
-    for (Client client in unauthorizedHubs) {
-      list.add(WarningUnauthorizedMessage(
-        name: client.name,
-        onLoginTap: () => widget.onLoginTap(client),
-      ));
+    if (widget.onLoginTap != null) {
+      for (Client client in unauthorizedHubs) {
+        list.add(WarningUnauthorizedMessage(
+          name: client.name,
+          onLoginTap: () => widget.onLoginTap!(client),
+        ));
+      }
     }
 
     final c = clients.where((c) => c.authorized);
@@ -99,7 +105,7 @@ class _ChatListState extends State<ChatList> {
     ));
 
     if (chats.isNotEmpty) {
-      list.addAll(chats.map((chat) {
+      list.addAll(chats.where(widget.filter ?? (_) => true).map((chat) {
         return ChatItem(
           key: ValueKey(chat.record.id),
           chat: chat,
