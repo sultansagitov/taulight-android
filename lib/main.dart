@@ -1,11 +1,21 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:taulight/config.dart';
+import 'package:taulight/providers/message_time.dart';
+import 'package:taulight/providers/theme.dart';
 import 'package:taulight/screens/pin.dart';
 
 void main() {
-  runApp(const TaulightApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => MessageTimeProvider()),
+      ],
+      child: const TaulightApp(),
+    ),
+  );
 }
 
 class TaulightApp extends StatefulWidget {
@@ -39,6 +49,8 @@ class _TaulightAppState extends State<TaulightApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       title: 'Taulight Agent',
       debugShowCheckedModeBanner: false,
@@ -47,7 +59,7 @@ class _TaulightAppState extends State<TaulightApp> {
         useMaterial3: true,
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyMedium: TextStyle(fontSize: 12),
           bodyLarge: TextStyle(fontSize: 14),
           titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -61,14 +73,15 @@ class _TaulightAppState extends State<TaulightApp> {
         primarySwatch: Config.primarySwatch,
         useMaterial3: true,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color(0xFF121212),
-        textTheme: TextTheme(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        textTheme: const TextTheme(
           bodyMedium: TextStyle(fontSize: 12),
           bodyLarge: TextStyle(fontSize: 14),
           titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      home: PinScreen(),
+      themeMode: themeProvider.themeMode,
+      home: const PinScreen(),
     );
   }
 }

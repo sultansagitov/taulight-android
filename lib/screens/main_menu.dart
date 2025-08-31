@@ -5,6 +5,7 @@ import 'package:taulight/main_screens/create_group.dart';
 import 'package:taulight/main_screens/hubs.dart';
 import 'package:taulight/main_screens/key_management.dart';
 import 'package:taulight/main_screens/main_screen.dart';
+import 'package:taulight/main_screens/settings.dart';
 import 'package:taulight/main_screens/start_dialog.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
@@ -21,42 +22,49 @@ class MainMenuScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         children: [
           _section(
-              "MAIN SCREENS",
-              [
-                _fromScreen(context, ConnectionScreen()),
-                _fromScreen(context, HubsScreen()),
-              ],
-              colorScheme),
+            "MAIN SCREENS",
+            colorScheme,
+            [
+              _fromScreen(context, ConnectionScreen()),
+              _fromScreen(context, HubsScreen()),
+            ],
+          ),
           _section(
-              "GROUPS & DIALOGS",
-              [
-                _fromScreen(context, CreateGroupScreen()),
-                _fromScreen(context, StartDialogScreen()),
-              ],
-              colorScheme),
+            "GROUPS & DIALOGS",
+            colorScheme,
+            [
+              _fromScreen(context, CreateGroupScreen()),
+              _fromScreen(context, StartDialogScreen()),
+            ],
+          ),
           _section(
-              "KEY MANAGEMENT",
-              [
-                _fromScreen(context, KeyManagementScreen()),
-              ],
-              colorScheme),
+            "KEY MANAGEMENT",
+            colorScheme,
+            [
+              _fromScreen(context, KeyManagementScreen()),
+            ],
+          ),
           _section(
-              "ADDITIONAL",
-              MainMenu.values.map((option) {
+            "ADDITIONAL",
+            colorScheme,
+            [
+              _fromScreen(context, SettingsScreen()),
+              ...MainMenu.values.map((option) {
                 return _compactTile(
                   icon: option.icon,
                   text: option.text,
                   onTap: () => option.action(),
                   colorScheme: colorScheme,
                 );
-              }).toList(),
-              colorScheme),
+              })
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _section(String title, List<Widget> items, ColorScheme scheme) {
+  Widget _section(String title, ColorScheme scheme, List<Widget> items) {
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 2),
       child: Column(
