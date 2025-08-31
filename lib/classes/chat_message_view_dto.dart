@@ -29,9 +29,7 @@ class ChatMessageViewDTO {
     required this.files,
   });
 
-  get isLoading => id == UUID.nil;
-
-  static loading({
+  factory ChatMessageViewDTO.loading({
     required UUID chatID,
     required keyID,
     required Nickname nickname,

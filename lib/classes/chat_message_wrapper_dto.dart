@@ -4,11 +4,18 @@ import 'package:taulight/classes/client.dart';
 class ChatMessageWrapperDTO {
   final String? decrypted;
   final ChatMessageViewDTO view;
+  bool isLoading = false;
 
-  const ChatMessageWrapperDTO(this.view, [this.decrypted]);
+  ChatMessageWrapperDTO(this.view, [this.decrypted]);
 
   factory ChatMessageWrapperDTO.fromMap(Client client, map) {
     final view = ChatMessageViewDTO.fromMap(client, map["message"]);
     return ChatMessageWrapperDTO(view, map["decrypted"]);
   }
+
+  factory ChatMessageWrapperDTO.loading(
+    ChatMessageViewDTO message, [
+    String? decrypted,
+  ]) =>
+      ChatMessageWrapperDTO(message, decrypted)..isLoading = true;
 }

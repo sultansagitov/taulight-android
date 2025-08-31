@@ -23,7 +23,7 @@ class TauChat {
 
   int? totalCount;
   List<ChatMessageWrapperDTO> get realMsg {
-    return messages.where((m) => m.view.isLoading).toList();
+    return messages.where((m) => m.isLoading).toList();
   }
 
   TauChat(this.client, this.record) : messages = [record.lastMessage];
@@ -72,12 +72,13 @@ class TauChat {
       files: files,
     );
 
-    final wrapper = ChatMessageWrapperDTO(message, text);
+    final wrapper = ChatMessageWrapperDTO.loading(message, text);
 
     addMessage(wrapper);
     callback();
 
     final map = await PlatformMessagesService.ins.sendMessage(this, message);
+    wrapper.isLoading = false;
     message.id = UUID.fromString(map["message"]!);
     message.keyID = UUID.fromNullableString(map["key"]);
     callback();

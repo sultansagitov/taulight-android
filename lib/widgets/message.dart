@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
@@ -133,7 +132,7 @@ class MessageWidget extends StatelessWidget {
                     ),
                   ),
                 if (hasInvite) InviteWidget(chat, url),
-                _buildFooter(context, view),
+                _buildFooter(context, message),
               ],
             ),
           ),
@@ -201,12 +200,12 @@ Widget _name(BuildContext context, Nickname nickname) {
   );
 }
 
-Widget _buildFooter(BuildContext context, ChatMessageViewDTO view) {
+Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
   final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;
   final subTextColor = isLight ? Colors.black54 : Colors.white70;
 
-  final loading = view.isLoading;
+  final loading = message.isLoading;
   final currentIcon = loading ? Icons.access_time_rounded : Icons.done;
 
   return Row(
@@ -214,12 +213,12 @@ Widget _buildFooter(BuildContext context, ChatMessageViewDTO view) {
     children: [
       Icon(currentIcon, size: 10, color: subTextColor),
       const SizedBox(width: 4),
-      if (view.keyID != null) ...[
+      if (message.view.keyID != null) ...[
         Icon(Icons.lock, size: 10, color: subTextColor),
         const SizedBox(width: 4),
       ],
       Text(
-        formatOnlyTime(view.dateTime),
+        formatOnlyTime(message.view.dateTime),
         style: TextStyle(fontSize: 10, color: subTextColor),
       ),
     ],
