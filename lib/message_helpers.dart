@@ -3,7 +3,6 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/tau_chat.dart';
-import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/member_info.dart';
 import 'package:taulight/screens/profile.dart';
@@ -90,68 +89,30 @@ Future<void> sandnodeLinkPressed(
   }
 }
 
-void messageLongPress({
+Future<void> messageLongPress({
   required BuildContext context,
   required TauChat chat,
   required LongPressStartDetails details,
   required ChatMessageWrapperDTO message,
   required VoidCallback reply,
-}) {
-  final client = chat.client;
-
-  final sent = message.view.id != UUID.nil;
+}) async {
   final hasDecryption = message.view.keyID == null;
 
-  showModalBottomSheet(
+  await showModalBottomSheet(
     context: context,
     showDragHandle: true,
     builder: (ctx) {
+      final view = message.view;
       return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
           children: [
-            ListTile(
-              leading: MemberAvatar(
-                client: client,
-                nickname: message.view.nickname,
-                d: 36,
-              ),
-              title: Text.rich(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  TextSpan(children: [
-                    TextSpan(text: message.decrypted ?? message.view.text),
-                    if (message.view.sys)
-                      TextSpan(
-                        text: "  System message",
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.color
-                              ?.withValues(alpha: 0.5),
-                        ),
-                      ),
-                  ])),
-              onTap: () async {
-                Navigator.pop(context);
-                final sender = message.view.nickname;
-                final screen = client.user?.nickname == sender
-                    ? ProfileScreen(client)
-                    : MemberInfoScreen(
-                        client: client,
-                        nickname: sender,
-                        fromDialog: isDialog(chat),
-                      );
-                await moveTo(context, screen, fromBottom: true);
-              },
-            ),
+            _buildHeader(message, context, chat),
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.copy),
               title: const Text("Copy text"),
               onTap: () {
-                copy(context, message.decrypted ?? message.view.text);
+                copy(context, message.decrypted ?? view.text);
                 Navigator.pop(context);
               },
             ),
@@ -165,42 +126,107 @@ void messageLongPress({
             ),
             const Divider(height: 1),
             ListTile(
-              leading: Icon(sent ? Icons.check_circle : Icons.access_time),
-              title: Text(sent ? "Sent" : "Pending"),
+              leading: Icon(
+                message.isLoading ? Icons.access_time : Icons.check_circle,
+              ),
+              title: Text(message.isLoading ? "Pending" : "Sent"),
             ),
             ListTile(
               leading: Icon(hasDecryption ? Icons.lock_open : Icons.lock),
               title: Text(hasDecryption ? "Decrypted" : "Encrypted"),
             ),
-            ListTile(
-              leading: const Icon(Icons.schedule),
-              title: Text("${message.view.dateTime.toLocal()}".split('.')[0]),
-            ),
-            const Divider(height: 1),
-            if (sent)
+            if (view.creationDate == view.sentDate) ...[
               ListTile(
-                leading: const Icon(Icons.numbers),
-                title: Text.rich(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  TextSpan(
-                    children: [
-                      const TextSpan(text: "Copy ID  "),
-                      TextSpan(
-                        text: message.view.id.toString(),
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                leading: const Icon(Icons.schedule),
+                title: Text(
+                  "Sent and creation time: ${_withoutMillis(view.dateTime)}",
                 ),
-                onTap: () {
-                  copy(context, message.view.id);
-                  Navigator.pop(context);
-                },
               ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.schedule),
+                title: Text("Sent time: ${_withoutMillis(view.sentDate)}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.schedule),
+                title: Text(
+                  "Creation time: ${_withoutMillis(view.creationDate)}",
+                ),
+              ),
+            ],
+            const Divider(height: 1),
+            if (!message.isLoading) _buildFooter(message, context),
           ],
         ),
       );
+    },
+  );
+}
+
+String _withoutMillis(DateTime dt) => dt.toLocal().toString().split('.')[0];
+
+Widget _buildHeader(
+  ChatMessageWrapperDTO message,
+  BuildContext context,
+  TauChat chat,
+) {
+  final theme = Theme.of(context);
+  final secondary = theme.textTheme.labelMedium?.color?.withValues(alpha: 0.6);
+
+  return ListTile(
+    leading: MemberAvatar(
+      client: chat.client,
+      nickname: message.view.nickname,
+      d: 36,
+    ),
+    title: Text.rich(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      TextSpan(
+        children: [
+          TextSpan(text: message.decrypted ?? message.view.text),
+          if (message.view.sys)
+            TextSpan(
+              text: "  System message",
+              style: TextStyle(color: secondary),
+            ),
+        ],
+      ),
+    ),
+    onTap: () async {
+      Navigator.pop(context);
+      final sender = message.view.nickname;
+      final screen = chat.client.user?.nickname == sender
+          ? ProfileScreen(chat.client)
+          : MemberInfoScreen(
+              client: chat.client,
+              nickname: sender,
+              fromDialog: isDialog(chat),
+            );
+      await moveTo(context, screen, fromBottom: true);
+    },
+  );
+}
+
+ListTile _buildFooter(ChatMessageWrapperDTO message, BuildContext context) {
+  return ListTile(
+    leading: const Icon(Icons.numbers),
+    title: Text.rich(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      TextSpan(
+        children: [
+          const TextSpan(text: "Copy ID  "),
+          TextSpan(
+            text: message.view.id.toString(),
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    ),
+    onTap: () {
+      copy(context, message.view.id);
+      Navigator.pop(context);
     },
   );
 }

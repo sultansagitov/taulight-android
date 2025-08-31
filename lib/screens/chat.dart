@@ -230,8 +230,8 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     return GestureDetector(
-      onLongPressStart: (details) {
-        messageLongPress(
+      onLongPressStart: (details) async {
+        await messageLongPress(
           context: context,
           chat: widget.chat,
           details: details,

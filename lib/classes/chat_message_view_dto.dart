@@ -9,11 +9,14 @@ class ChatMessageViewDTO {
   final Nickname nickname;
   final String text;
   final bool isMe;
-  final DateTime dateTime;
+  final DateTime creationDate;
+  final DateTime sentDate;
   final bool sys;
   final List<UUID> repliedToMessages;
   final Map<String, List<String>> reactions;
   final List<NamedFileDTO> files;
+
+  DateTime get dateTime => creationDate;
 
   ChatMessageViewDTO({
     required this.id,
@@ -22,7 +25,8 @@ class ChatMessageViewDTO {
     required this.nickname,
     required this.text,
     required this.isMe,
-    required this.dateTime,
+    required this.creationDate,
+    required this.sentDate,
     required this.sys,
     required this.repliedToMessages,
     required this.reactions,
@@ -34,8 +38,8 @@ class ChatMessageViewDTO {
     required keyID,
     required Nickname nickname,
     required String text,
-    required bool isMe,
-    required DateTime dateTime,
+    required DateTime creationDate,
+    required DateTime sentDate,
     required bool sys,
     required List<UUID> repliedToMessages,
     required Map<String, List<String>> reactions,
@@ -47,8 +51,9 @@ class ChatMessageViewDTO {
       keyID: keyID,
       nickname: nickname,
       text: text,
-      isMe: isMe,
-      dateTime: dateTime,
+      isMe: true,
+      creationDate: creationDate, // TODO get from hub
+      sentDate: sentDate,
       sys: sys,
       repliedToMessages: repliedToMessages,
       reactions: reactions,
@@ -59,8 +64,8 @@ class ChatMessageViewDTO {
   factory ChatMessageViewDTO.fromMap(Client client, json) {
     final map = Map<String, dynamic>.from(json as Map);
 
-    UUID messageID = UUID.fromString(map["id"]!);
-    DateTime dateTime = DateTime.parse(map["creation-date"]!).toLocal();
+    final messageID = UUID.fromString(map["id"]!);
+    final creationDate = DateTime.parse(map["creation-date"]!).toLocal();
     final reactions = <String, List<String>>{};
 
     final entries = map["reactions"]!.entries;
@@ -78,6 +83,8 @@ class ChatMessageViewDTO {
     final keyID = UUID.fromNullableString(message["key-id"]);
     final nickname = Nickname.checked(message["nickname"]);
 
+    final sentDate = DateTime.parse(message["sent-datetime"]!).toLocal();
+
     final String content = message["content"]!;
     final bool sys = message["sys"]!;
 
@@ -94,7 +101,8 @@ class ChatMessageViewDTO {
       nickname: nickname,
       isMe: client.user?.nickname == nickname,
       text: content,
-      dateTime: dateTime,
+      creationDate: creationDate,
+      sentDate: sentDate,
       sys: sys,
       repliedToMessages: repliedToMessages,
       files: files,

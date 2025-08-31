@@ -59,13 +59,14 @@ class TauChat {
     List<NamedFileDTO> files,
     VoidCallback callback,
   ) async {
+    final dateTime = DateTime.now();
     final message = ChatMessageViewDTO.loading(
       chatID: record.id,
       keyID: null,
       nickname: client.user!.nickname,
       text: text,
-      isMe: true,
-      dateTime: DateTime.now(),
+      creationDate: dateTime,
+      sentDate: dateTime,
       sys: false,
       repliedToMessages: repliedToMessages,
       reactions: {},

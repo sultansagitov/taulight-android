@@ -29,13 +29,4 @@ class Config {
           "G3R0MK%2BBg%3D%3D",
     ),
   ];
-
-  static Map<String, String> reactions = {
-    "taulight:fire": "🔥",
-    "taulight:wow": "🤩",
-    "taulight:sad": "😔",
-    "taulight:angry": "😡",
-    "taulight:like": "👍",
-    "taulight:laugh": "🤣",
-  };
 }

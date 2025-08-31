@@ -20,6 +20,7 @@ void main() {
             'creation-date': '2024-04-01T12:00:00Z',
             'message': {
               'chat-id': UUID.random().toString(),
+              'sent-datetime': '2024-04-01T12:00:00Z',
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
@@ -49,6 +50,7 @@ void main() {
             'creation-date': '2024-04-01T12:00:00Z',
             'message': {
               'chat-id': UUID.random().toString(),
+              'sent-datetime': '2024-04-01T12:00:00Z',
               'nickname': 'john',
               'content': 'Hello',
               'sys': false,
