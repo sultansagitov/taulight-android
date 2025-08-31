@@ -94,7 +94,7 @@ class KeyStorageService {
     final data = await _storage.read(
         key: "personal:address:$address:nickname:$nickname");
     if (data == null) {
-      throw KeyStorageNotFoundException("Nickname $nickname");
+      throw KeyStorageNotFoundException("$nickname@$address");
     }
     return PersonalKey.fromMap(jsonDecode(data));
   }

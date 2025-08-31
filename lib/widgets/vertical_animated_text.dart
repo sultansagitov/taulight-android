@@ -62,8 +62,8 @@ class _VerticalAnimatedTextState extends State<VerticalAnimatedText> {
         );
       },
       child: Text(
-        widget.texts[_index],
-        key: ValueKey<int>(_index),
+        widget.texts[_index % widget.texts.length],
+        key: ValueKey<int>(_index % widget.texts.length),
         style: widget.textStyle,
         overflow: TextOverflow.ellipsis,
       ),

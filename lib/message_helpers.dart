@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/screens/member_info.dart';
@@ -88,12 +90,15 @@ Future<void> sandnodeLinkPressed(
   }
 }
 
-void messageLongPress(
-  BuildContext context,
-  Client client,
-  LongPressStartDetails details,
-  ChatMessageWrapperDTO message,
-) {
+void messageLongPress({
+  required BuildContext context,
+  required TauChat chat,
+  required LongPressStartDetails details,
+  required ChatMessageWrapperDTO message,
+  required VoidCallback reply,
+}) {
+  final client = chat.client;
+
   final sent = message.view.id != UUID.nil;
   final hasDecryption = message.view.keyID == null;
 
@@ -111,11 +116,23 @@ void messageLongPress(
                 nickname: message.view.nickname,
                 d: 36,
               ),
-              title: Text(
-                message.decrypted ?? message.view.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              title: Text.rich(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  TextSpan(children: [
+                    TextSpan(text: message.decrypted ?? message.view.text),
+                    if (message.view.sys)
+                      TextSpan(
+                        text: "  System message",
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.color
+                              ?.withValues(alpha: 0.5),
+                        ),
+                      ),
+                  ])),
               onTap: () async {
                 Navigator.pop(context);
                 final sender = message.view.nickname;
@@ -124,7 +141,7 @@ void messageLongPress(
                     : MemberInfoScreen(
                         client: client,
                         nickname: sender,
-                        // TODO add fromDialog
+                        fromDialog: isDialog(chat),
                       );
                 await moveTo(context, screen, fromBottom: true);
               },
@@ -135,6 +152,14 @@ void messageLongPress(
               title: const Text("Copy text"),
               onTap: () {
                 copy(context, message.decrypted ?? message.view.text);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.reply),
+              title: const Text("Reply"),
+              onTap: () {
+                reply();
                 Navigator.pop(context);
               },
             ),

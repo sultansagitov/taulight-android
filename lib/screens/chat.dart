@@ -230,8 +230,14 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     return GestureDetector(
-      onLongPressStart: (LongPressStartDetails details) {
-        messageLongPress(context, widget.chat.client, details, message);
+      onLongPressStart: (details) {
+        messageLongPress(
+          context: context,
+          chat: widget.chat,
+          details: details,
+          message: message,
+          reply: () => _onReply(message)
+        );
       },
       child: enabled
           ? _buildMessage(message, prev, next)
@@ -256,11 +262,7 @@ class ChatScreenState extends State<ChatScreen> {
       color: Colors.transparent,
       swipeThreshold: 0.2,
       direction: SwipeDirection.endToStart,
-      onSwiped: (_) {
-        if (!replies.contains(message)) {
-          setState(() => replies.add(message));
-        }
-      },
+      onSwiped: (_) => _onReply(message),
       backgroundBuilder: (_, direction, progress) => AnimatedBuilder(
         animation: progress,
         builder: (_, __) {
@@ -288,5 +290,11 @@ class ChatScreenState extends State<ChatScreen> {
         next: next,
       ),
     );
+  }
+
+  void _onReply(ChatMessageWrapperDTO message) {
+    if (!replies.contains(message)) {
+      setState(() => replies.add(message));
+    }
   }
 }
