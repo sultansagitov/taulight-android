@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -10,7 +11,7 @@ import 'package:taulight/widgets/tau_loading.dart';
 
 class MemberQRScreen extends StatelessWidget {
   final Client client;
-  final String nickname;
+  final Nickname nickname;
 
   const MemberQRScreen({
     super.key,
@@ -51,7 +52,7 @@ class MemberQRScreen extends StatelessWidget {
 
           final encryptor = snapshot.data!;
           final Map<String, String> data = {
-            'nickname': nickname,
+            'nickname': nickname.toString(),
             'encryption': encryptor.encryption,
             if (encryptor.symKey != null) 'sym': encryptor.symKey!,
             if (encryptor.publicKey != null) 'public': encryptor.publicKey!,
@@ -101,12 +102,12 @@ class MemberQRScreen extends StatelessWidget {
                           const SizedBox(width: 16),
                           Flexible(
                             child: Text(
-                              nickname,
+                              nickname.toString(),
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: getRandomColor(nickname),
+                                color: getRandomColor(nickname.toString()),
                               ),
                             ),
                           ),

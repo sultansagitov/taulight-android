@@ -32,8 +32,7 @@ Future<void> start(
       final client = ClientService.ins.get(uuid);
       final user = sr.user;
       if (client != null && user != null) {
-        final nickname = user.nickname.trim();
-        client.user = User.unauthorized(client, nickname, user.token);
+        client.user = User.unauthorized(client, user.nickname, user.token);
       }
     }
   }

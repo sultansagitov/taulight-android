@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/sources.dart';
 import 'package:taulight/services/key_storages.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -13,7 +14,7 @@ import 'package:taulight/widgets/tau_button.dart';
 
 class QRExchangeScreen extends StatefulWidget {
   final Client client;
-  final String other;
+  final Nickname other;
 
   const QRExchangeScreen({
     super.key,
@@ -73,17 +74,18 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
       if (nick == null || enc == null || (pub == null && sym == null)) {
         _result = "Invalid QR";
       } else {
+        final nickname = Nickname.checked(nick);
         try {
           final stored = await KeyStorageService.ins.loadEncryptor(
             address: widget.client.address,
-            nickname: nick,
+            nickname: nickname,
           );
           final match = (stored.encryption == enc) &&
               ((stored.publicKey ?? "") == (pub ?? "")) &&
               ((stored.symKey ?? "") == (sym ?? ""));
           _result = match
-              ? "✅ $nick matches stored key"
-              : "❌ $nick does not match stored key";
+              ? "✅ $nickname matches stored key"
+              : "❌ $nickname does not match stored key";
         } catch (_) {
           final ek = EncryptorKey(
             encryption: enc,
@@ -93,13 +95,13 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
           );
           await KeyStorageService.ins.saveEncryptor(
             address: widget.client.address,
-            nickname: nick,
+            nickname: nickname,
             key: ek,
           );
-          _result = "ℹ Saved new encryptor for $nick";
+          _result = "ℹ Saved new encryptor for $nickname";
         }
 
-        if (nick == widget.other) {
+        if (nickname == widget.other) {
           _result = "[Profile: ${widget.other}]\n$_result";
         }
       }
@@ -148,11 +150,14 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
             ),
             const SizedBox(height: 8),
             MemberAvatar(client: widget.client, nickname: myNick, d: 40),
-            Text(myNick,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: getRandomColor(myNick))),
+            Text(
+              myNick.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: getRandomColor(myNick.toString()),
+              ),
+            ),
           ],
         );
       },

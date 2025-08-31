@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/widgets/vertical_animated_text.dart';
 
 class AnimatedGreeting extends StatelessWidget {
-  final List<String> names;
+  final List<Nickname> names;
 
   const AnimatedGreeting({super.key, required this.names});
 
@@ -26,7 +27,12 @@ class AnimatedGreeting extends StatelessWidget {
     return Row(
       children: [
         Text("Hi, ", style: s),
-        Expanded(child: VerticalAnimatedText(texts: names, textStyle: s)),
+        Expanded(
+          child: VerticalAnimatedText(
+            texts: names.map((n) => n.toString()).toList(),
+            textStyle: s,
+          ),
+        ),
       ],
     );
   }

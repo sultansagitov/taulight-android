@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 
 abstract class ChatDTO {
@@ -31,7 +32,7 @@ abstract class ChatDTO {
 
 class GroupDTO extends ChatDTO {
   final String title;
-  final String owner;
+  final Nickname owner;
 
   GroupDTO({
     required super.id,
@@ -51,7 +52,7 @@ class GroupDTO extends ChatDTO {
       ),
       avatarID: UUID.fromNullableString(chatMap["avatar"]),
       title: chatMap["group-title"]!,
-      owner: chatMap["group-owner"]!,
+      owner: Nickname.checked(chatMap["group-owner"]),
     );
   }
 
@@ -67,7 +68,7 @@ class GroupDTO extends ChatDTO {
 }
 
 class DialogDTO extends ChatDTO {
-  final String otherNickname;
+  final Nickname otherNickname;
   final bool isMonolog;
 
   DialogDTO({
@@ -80,7 +81,7 @@ class DialogDTO extends ChatDTO {
 
   factory DialogDTO.fromMap(Client client, Map<String, dynamic> obj) {
     final chatMap = obj["chat"]!;
-    final String otherNickname = chatMap["dialog-other"]!;
+    final otherNickname = Nickname.checked(chatMap["dialog-other"]);
     return DialogDTO(
       id: UUID.fromString(chatMap["id"]),
       lastMessage: ChatMessageWrapperDTO(
@@ -95,7 +96,7 @@ class DialogDTO extends ChatDTO {
 
   @override
   String getTitle() {
-    return isMonolog ? "Monolog" : otherNickname;
+    return isMonolog ? "Monolog" : otherNickname.toString();
   }
 
   @override

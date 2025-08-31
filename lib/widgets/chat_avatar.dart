@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/services/chat_avatar.dart';
 import 'package:taulight/services/profile_avatar.dart';
@@ -198,7 +199,7 @@ class DialogAvatar extends StatelessWidget {
 
 class MemberAvatar extends StatefulWidget {
   final Client client;
-  final String nickname;
+  final Nickname nickname;
   final int d;
 
   MemberAvatar({
@@ -231,8 +232,8 @@ class _MemberAvatarState extends State<MemberAvatar> {
         final d = widget.d;
 
         if (!snapshot.hasData || snapshot.data == null) {
-          final initials = getInitials(widget.nickname);
-          final bg = getRandomColor(widget.nickname);
+          final initials = getInitials(widget.nickname.toString());
+          final bg = getRandomColor(widget.nickname.toString());
           return DialogInitials(initials: initials, bgColor: bg, d: d);
         }
 
@@ -313,8 +314,8 @@ class MyAvatar extends StatelessWidget {
         final avatarBytes = snapshot.data?.bytes;
 
         if (avatarBytes == null) {
-          final initials = getInitials(client.user!.nickname);
-          final bg = getRandomColor(client.user!.nickname);
+          final initials = getInitials(client.user!.nickname.toString());
+          final bg = getRandomColor(client.user!.nickname.toString());
           return DialogInitials(initials: initials, bgColor: bg, d: d);
         }
 

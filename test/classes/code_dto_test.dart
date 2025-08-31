@@ -14,8 +14,8 @@ void main() {
 
     final dto = CodeDTO.fromMap(map);
     expect(dto.title, 'Invite');
-    expect(dto.receiver, 'user1');
-    expect(dto.sender, 'admin');
+    expect(dto.receiver?.toString(), 'user1');
+    expect(dto.sender.toString(), 'admin');
     expect(dto.activation, isNotNull);
     expect(dto.isExpired, false);
   });

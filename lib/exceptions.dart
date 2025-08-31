@@ -1,4 +1,5 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 
 abstract class ExceptionMessage implements Exception {
@@ -21,7 +22,7 @@ abstract class ClientException implements Exception {
 }
 
 class AddressedMemberNotFoundException extends ClientException {
-  final String nickname;
+  final Nickname nickname;
   const AddressedMemberNotFoundException(super.client, this.nickname);
 }
 

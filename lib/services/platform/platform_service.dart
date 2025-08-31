@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 
@@ -23,7 +24,7 @@ class PlatformService {
 
     final errorMap = result["error"];
     if (errorMap != null) {
-      return ExceptionResult(errorMap["name"]!, errorMap["message"]!);
+      return ExceptionResult(errorMap["name"]!, errorMap["message"]);
     }
 
     return SuccessResult(result["success"]);
@@ -38,7 +39,17 @@ class PlatformService {
       "uuid": client.uuid.toString(),
       "method": methodName,
       if (params != null)
-        "params": params.map((p) => p is UUID ? p.toString() : p).toList(),
+        "params": params.map((p) {
+          if (p is UUID) {
+            return p.toString();
+          }
+
+          if (p is Nickname) {
+            return p.toString();
+          }
+
+          return p;
+        }).toList(),
     });
   }
 }

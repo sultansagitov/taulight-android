@@ -1,6 +1,7 @@
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/chat_member.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/uuid.dart';
@@ -53,7 +54,7 @@ class PlatformChatsService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<TauChat> createDialog(Client client, String nickname) async {
+  Future<TauChat> createDialog(Client client, Nickname nickname) async {
     Result result = await PlatformService.ins.chain(
       "DialogClientChain.getDialogID",
       client: client,
@@ -130,7 +131,7 @@ class PlatformChatsService {
   }
 
   Future<String> addMember(
-      TauChat chat, String nickname, Duration expirationTime) async {
+      TauChat chat, Nickname nickname, Duration expirationTime) async {
     final client = chat.client;
     Result result = await PlatformService.ins.chain(
       "GroupClientChain.createInviteCode",

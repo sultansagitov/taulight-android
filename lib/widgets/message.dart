@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/message_helpers.dart';
 import 'package:taulight/widgets/message_files_widget.dart';
@@ -47,7 +48,7 @@ class MessageWidget extends StatelessWidget {
 
     final width = MediaQuery.of(context).size.width;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final nickname = view.nickname.trim();
+    final nickname = view.nickname;
 
     final first = prev?.view.sys == true || nickname != prev?.view.nickname;
     final last = next?.view.sys == true || nickname != next?.view.nickname;
@@ -181,16 +182,16 @@ class MessageWidget extends StatelessWidget {
   }
 }
 
-Widget _name(BuildContext context, String nickname) {
+Widget _name(BuildContext context, Nickname nickname) {
   final isLight = Theme.of(context).brightness == Brightness.light;
 
-  Color color = getRandomColor(nickname);
+  Color color = getRandomColor(nickname.toString());
   if (isLight) color = dark(color);
 
   return Padding(
     padding: const EdgeInsets.only(bottom: 4),
     child: Text(
-      nickname,
+      nickname.toString(),
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 12,

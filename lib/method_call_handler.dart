@@ -3,6 +3,7 @@ import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/sources.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/client.dart';
@@ -72,7 +73,7 @@ Future<void> _savePersonalKey(MethodCall call) async {
   String address = args["address"]!;
   await KeyStorageService.ins.savePersonalKey(
     address: address,
-    nickname: args["nickname"]!,
+    nickname: Nickname.checked(args["nickname"]),
     key: PersonalKey(
         encryption: args["encryption"]!,
         symKey: args["sym"],
@@ -86,7 +87,7 @@ Future<void> _saveEncryptor(MethodCall call) async {
   String address = call.arguments["address"]!;
   await KeyStorageService.ins.saveEncryptor(
     address: address,
-    nickname: call.arguments["nickname"]!,
+    nickname: Nickname.checked(call.arguments["nickname"]),
     key: EncryptorKey(
       encryption: call.arguments["encryption"]!,
       symKey: call.arguments["sym"],
@@ -97,12 +98,12 @@ Future<void> _saveEncryptor(MethodCall call) async {
 }
 
 Future<void> _saveDEK(MethodCall call) async {
-  var firstAddress = call.arguments["m1"]["address"]!;
+  final firstAddress = call.arguments["m1"]["address"]!;
   await KeyStorageService.ins.saveDEK(
     firstAddress: firstAddress,
-    firstNickname: call.arguments["m1"]["nickname"]!,
+    firstNickname: Nickname.checked(call.arguments["m1"]["nickname"]),
     secondAddress: call.arguments["m2"]["address"]!,
-    secondNickname: call.arguments["m2"]["nickname"]!,
+    secondNickname: Nickname.checked(call.arguments["m2"]["nickname"]),
     dek: DEK(
       keyId: UUID.fromString(call.arguments["key-id"]),
       encryption: call.arguments["encryption"]!,
@@ -123,7 +124,7 @@ Future<Map<String, dynamic>> _loadServerKey(MethodCall call) async {
 Future<Map<String, dynamic>> _loadPersonalKey(MethodCall call) async {
   final personalKey = await KeyStorageService.ins.loadPersonalKey(
     address: call.arguments["address"]!,
-    nickname: call.arguments["nickname"]!,
+    nickname: Nickname.checked(call.arguments["nickname"]),
   );
   return personalKey.toMap();
 }
@@ -131,7 +132,7 @@ Future<Map<String, dynamic>> _loadPersonalKey(MethodCall call) async {
 Future<Map<String, dynamic>> _loadEncryptor(MethodCall call) async {
   final encryptor = await KeyStorageService.ins.loadEncryptor(
     address: call.arguments["address"]!,
-    nickname: call.arguments["nickname"]!,
+    nickname: Nickname.checked(call.arguments["nickname"]),
   );
   return encryptor.toMap();
 }
@@ -139,9 +140,9 @@ Future<Map<String, dynamic>> _loadEncryptor(MethodCall call) async {
 Future<Map<String, dynamic>> _loadDEK(MethodCall call) async {
   final dek = await KeyStorageService.ins.loadDEK(
     firstAddress: call.arguments["m1"]["address"]!,
-    firstNickname: call.arguments["m1"]["nickname"]!,
+    firstNickname: Nickname.checked(call.arguments["m1"]["nickname"]),
     secondAddress: call.arguments["m2"]["address"]!,
-    secondNickname: call.arguments["m2"]["nickname"]!,
+    secondNickname: Nickname.checked(call.arguments["m2"]["nickname"]),
   );
   return dek.toMap();
 }

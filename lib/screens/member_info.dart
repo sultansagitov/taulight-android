@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/screens/chat.dart';
 import 'package:taulight/screens/member_qr.dart';
@@ -13,7 +14,7 @@ import 'package:taulight/widgets/tau_app_bar.dart';
 
 class MemberInfoScreen extends StatelessWidget {
   final Client client;
-  final String nickname;
+  final Nickname nickname;
   final bool fromDialog;
 
   const MemberInfoScreen({
@@ -73,7 +74,7 @@ class MemberInfoScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              nickname,
+              nickname.toString(),
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),

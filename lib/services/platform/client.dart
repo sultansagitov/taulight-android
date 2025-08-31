@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
@@ -147,8 +148,9 @@ class PlatformClientService {
           final client = ClientService.ins.fromMap(map);
           client.connected = true;
 
-          final String? nickname = map["nickname"];
-          if (nickname != null) {
+          final String? n = map["nickname"];
+          if (n != null) {
+            final nickname = Nickname.checked(n);
             final record = await StorageService.ins.getClient(uuid);
             client.user = User(client, nickname, record!.user!.token);
           }

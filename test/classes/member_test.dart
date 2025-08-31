@@ -5,7 +5,7 @@ void main() {
   test('Member is parsed correctly from map', () {
     final map = {'nickname': 'testuser', 'status': 'offline'};
     final member = ChatMember.fromMap([], map);
-    expect(member.nickname, 'testuser');
+    expect(member.nickname.toString(), 'testuser');
     expect(member.status, Status.offline);
   });
 }

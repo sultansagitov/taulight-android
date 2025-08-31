@@ -42,7 +42,11 @@ class _ClientDropdownState extends State<ClientDropdown> {
           final nickname = user.nickname;
           return ListTile(
             leading: MemberAvatar(client: client, nickname: nickname, d: 44),
-            title: Text(nickname, maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              nickname.toString(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             subtitle: Text(client.name),
             onTap: () => Navigator.pop(context, client),
           );
@@ -60,9 +64,11 @@ class _ClientDropdownState extends State<ClientDropdown> {
     if (clients.length <= 1) return const SizedBox.shrink();
 
     final client = widget.controller.client;
-    final data = client != null
-        ? (client.user != null ? client.user!.nickname : "Incorrect hub")
-        : 'No hubs';
+    final data = client == null
+        ? 'No hubs'
+        : client.user != null
+            ? client.user!.nickname.toString()
+            : "Incorrect hub";
     return GestureDetector(
       onTap: _showClientPicker,
       child: Container(

@@ -1,4 +1,5 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
@@ -101,7 +102,7 @@ class PlatformAvatarService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<Map<String, String>?> getOf(Client client, String nickname) async {
+  Future<Map<String, String>?> getOf(Client client, Nickname nickname) async {
     final result = await PlatformService.ins.chain(
       "AvatarClientChain.getOf",
       client: client,

@@ -153,7 +153,7 @@ class ReplyPreviewWidget extends StatelessWidget {
           Container(
             width: 2,
             height: 20,
-            color: getRandomColor(message.nickname),
+            color: getRandomColor(message.nickname.toString()),
             margin: const EdgeInsets.only(left: 4, right: 8, top: 2),
           ),
           Expanded(
@@ -163,11 +163,11 @@ class ReplyPreviewWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      message.nickname,
+                      message.nickname.toString(),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: getRandomColor(message.nickname),
+                        color: getRandomColor(message.nickname.toString()),
                       ),
                     ),
                     const SizedBox(width: 4),

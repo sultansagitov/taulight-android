@@ -41,7 +41,7 @@ class ProfileQRScreen extends StatelessWidget {
 
           PersonalKey personalKey = snapshot.data!;
           final Map<String, String> data = {
-            'nickname': nickname,
+            'nickname': nickname.toString(),
             'encryption': personalKey.encryption,
             if (personalKey.symKey != null) 'sym': personalKey.symKey!,
             if (personalKey.publicKey != null) 'public': personalKey.publicKey!,
@@ -90,12 +90,12 @@ class ProfileQRScreen extends StatelessWidget {
                           const SizedBox(width: 16),
                           Flexible(
                             child: Text(
-                              nickname,
+                              nickname.toString(),
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: getRandomColor(nickname),
+                                color: getRandomColor(nickname.toString()),
                               ),
                             ),
                           ),

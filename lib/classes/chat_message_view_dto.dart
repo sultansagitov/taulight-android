@@ -1,11 +1,12 @@
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 
 class ChatMessageViewDTO {
   UUID id;
   UUID? keyID;
   final UUID chatID;
-  final String nickname;
+  final Nickname nickname;
   final String text;
   final bool isMe;
   final DateTime dateTime;
@@ -33,7 +34,7 @@ class ChatMessageViewDTO {
   static loading({
     required UUID chatID,
     required keyID,
-    required String nickname,
+    required Nickname nickname,
     required String text,
     required bool isMe,
     required DateTime dateTime,
@@ -65,7 +66,7 @@ class ChatMessageViewDTO {
     final reactions = <String, List<String>>{};
 
     final entries = map["reactions"]!.entries;
-    for (final entry in entries) {
+    for (final MapEntry<String, dynamic> entry in entries) {
       final mapped = entry.value.map<String>((n) => n.toString());
       reactions[entry.key] = mapped.toList();
     }
@@ -77,9 +78,11 @@ class ChatMessageViewDTO {
     final message = map["message"]!;
     final chatID = UUID.fromString(message["chat-id"]);
     final keyID = UUID.fromNullableString(message["key-id"]);
-    final String nickname = message["nickname"]!;
+    final nickname = Nickname.checked(message["nickname"]);
+
     final String content = message["content"]!;
     final bool sys = message["sys"]!;
+
     final r = message["replied-to-messages"];
 
     List<UUID> repliedToMessages = r != null

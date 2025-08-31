@@ -1,6 +1,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/login_history_dto.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/platform_service.dart';
@@ -18,7 +19,7 @@ class PlatformAgentService {
 
   String? _device;
 
-  Future<String> log(Client client, String nickname, String password) async {
+  Future<String> log(Client client, Nickname nickname, String password) async {
     client.user?.expiredToken = false;
 
     _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
@@ -49,7 +50,7 @@ class PlatformAgentService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> reg(Client client, String nickname, String password) async {
+  Future<String> reg(Client client, Nickname nickname, String password) async {
     client.user?.expiredToken = false;
 
     _device ??= (await DeviceInfoPlugin().deviceInfo).data['name'];
@@ -78,7 +79,7 @@ class PlatformAgentService {
     throw IncorrectFormatChannelException();
   }
 
-  Future<String> authByToken(Client client, String token) async {
+  Future<Nickname> authByToken(Client client, String token) async {
     client.user?.expiredToken = false;
     Result result = await PlatformService.ins.chain(
       "LoginClientChain.login",
@@ -92,7 +93,7 @@ class PlatformAgentService {
 
     if (result is SuccessResult) {
       final obj = Map<String, String>.from(result.obj);
-      String nickname = obj["nickname"]!.trim();
+      Nickname nickname = Nickname.checked(obj["nickname"]!.trim());
 
       final record = UserRecord(nickname, token);
       StorageService.ins.saveWithToken(client, record);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/storage.dart';
@@ -31,7 +32,7 @@ class LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _nicknameController = TextEditingController(
-      text: widget.client.user?.nickname,
+      text: widget.client.user?.nickname.toString(),
     );
   }
 
@@ -40,10 +41,14 @@ class LoginScreenState extends State<LoginScreen> {
 
     setState(() => _errorMessage = '');
 
-    final nickname = _nicknameController.text.trim();
+    final n = _nicknameController.text.trim();
     final passwd = _passwordController.text.trim();
-    if (nickname.isEmpty) {
-      setState(() => _errorMessage = "Please enter nickname");
+
+    final Nickname nickname;
+    try {
+      nickname = Nickname.checked(n);
+    } on ArgumentError catch (e) {
+      setState(() => _errorMessage = e.message);
       return;
     }
 
@@ -73,12 +78,15 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> _register() async {
     final client = widget.client;
 
-    String nickname = _nicknameController.text.trim();
+    String n = _nicknameController.text.trim();
     String passwd = _passwordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
 
-    if (nickname.isEmpty) {
-      setState(() => _errorMessage = "Please enter nickname");
+    final Nickname nickname;
+    try {
+      nickname = Nickname.checked(n);
+    } on ArgumentError catch (e) {
+      setState(() => _errorMessage = e.message);
       return;
     }
 

@@ -1,12 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/services/storage.dart';
 
 void main() {
   group('UserRecord', () {
     test('creation and conversion to Map', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord(Nickname('testUser'), 'testToken');
 
-      expect(user.nickname, equals('testUser'));
+      expect(user.nickname.toString(), equals('testUser'));
       expect(user.token, equals('testToken'));
 
       final map = user.toMap();
@@ -24,7 +25,7 @@ void main() {
 
       final user = UserRecord.fromMap(json);
 
-      expect(user.nickname, equals('testUser'));
+      expect(user.nickname.toString(), equals('testUser'));
       expect(user.token, equals('testToken'));
     });
   });
@@ -42,7 +43,7 @@ void main() {
     });
 
     test('creation with user', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord(Nickname('testUser'), 'testToken');
       final server = ServerRecord(
         name: 'TestServer',
         link: 'sandnode://test.com',
@@ -52,7 +53,7 @@ void main() {
       expect(server.name, equals('TestServer'));
       expect(server.link, equals('sandnode://test.com'));
       expect(server.user, isNotNull);
-      expect(server.user?.nickname, equals('testUser'));
+      expect(server.user?.nickname.toString(), equals('testUser'));
       expect(server.user?.token, equals('testToken'));
     });
 
@@ -70,7 +71,7 @@ void main() {
     });
 
     test('conversion to Map with user', () {
-      final user = UserRecord('testUser', 'testToken');
+      final user = UserRecord(Nickname('testUser'), 'testToken');
       final server = ServerRecord(
         name: 'TestServer',
         link: 'sandnode://test.com',
@@ -116,7 +117,7 @@ void main() {
       expect(server.name, equals('TestServer'));
       expect(server.link, equals('sandnode://test.com'));
       expect(server.user, isNotNull);
-      expect(server.user?.nickname, equals('testUser'));
+      expect(server.user?.nickname.toString(), equals('testUser'));
       expect(server.user?.token, equals('testToken'));
     });
   });

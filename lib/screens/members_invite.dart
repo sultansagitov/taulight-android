@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/chats.dart';
@@ -26,32 +27,30 @@ class MembersInviteScreen extends StatelessWidget {
         itemCount: chats.length,
         itemBuilder: (context, index) {
           final chat = chats[index];
-          final String nickname = (chat.record as DialogDTO).otherNickname;
+          final nickname = (chat.record as DialogDTO).otherNickname;
           return _buildMember(nickname, chat, context);
         },
       ),
     );
   }
 
-  Widget _buildMember(String nickname, TauChat chat, BuildContext context) {
+  Widget _buildMember(Nickname nickname, TauChat chat, BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (nickname.isNotEmpty) {
-          try {
-            String code = await PlatformChatsService.ins
-                .addMember(chatToInvite, nickname, Duration(days: 1));
+        try {
+          String code = await PlatformChatsService.ins
+              .addMember(chatToInvite, nickname, Duration(days: 1));
 
-            String address = chatToInvite.client.address;
-            String text = "sandnode://$address/invite/$code";
-            await chat.sendMessage(text, [], [], () {});
+          String address = chatToInvite.client.address;
+          String text = "sandnode://$address/invite/$code";
+          await chat.sendMessage(text, [], [], () {});
 
-            if (context.mounted) {
-              Navigator.pop(context);
-            }
-          } on NoEffectException {
-            if (context.mounted) {
-              snackBarError(context, "$nickname already in or have code");
-            }
+          if (context.mounted) {
+            Navigator.pop(context);
+          }
+        } on NoEffectException {
+          if (context.mounted) {
+            snackBarError(context, "$nickname already in or have code");
           }
         }
       },

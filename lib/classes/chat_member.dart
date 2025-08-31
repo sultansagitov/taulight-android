@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/role_dto.dart';
 import 'package:taulight/classes/uuid.dart';
 
 class ChatMember {
-  final String nickname;
+  final Nickname nickname;
   final Status status;
   final List<RoleDTO> roles;
 
   const ChatMember(this.nickname, this.status, this.roles);
 
   factory ChatMember.fromMap(List<RoleDTO> roles, map) {
-    final String nickname = map["nickname"]!;
-    final Status status = Status.fromString(map["status"]);
+    final nickname = Nickname.checked(map["nickname"]);
+    final status = Status.fromString(map["status"]);
     final List? list = map["roles"];
 
     final roleIds = list?.map((id) => UUID.fromString(id)).toSet() ?? {};

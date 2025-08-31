@@ -65,7 +65,7 @@ class ChatItem extends StatelessWidget {
 
     final view = wrapper?.view;
     if (view != null) {
-      nicknameColor = getRandomColor(view.nickname);
+      nicknameColor = getRandomColor(view.nickname.toString());
       if (!client.connected || user == null || !user.authorized) {
         nicknameColor = grey(nicknameColor);
       }
@@ -112,7 +112,7 @@ class ChatItem extends StatelessWidget {
                         children: [
                           if (isGroup(chat)) ...[
                             TextSpan(
-                              text: view.nickname,
+                              text: view.nickname.toString(),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: nicknameColor,

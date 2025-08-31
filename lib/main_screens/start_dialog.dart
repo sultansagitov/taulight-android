@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/sources.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/auth_state.dart';
@@ -63,7 +64,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
     }
 
     setState(() => _fieldEnabled = false);
-    final nickname = _titleController.text.trim();
+    final nickname = Nickname.checked(_titleController.text.trim());
 
     try {
       await PlatformChatsService.ins
@@ -142,7 +143,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
 
       final address = uri.host + (uri.hasPort ? (":${uri.port}") : "");
       final params = uri.queryParameters;
-      final nickname = params["nickname"]!;
+      final nickname = Nickname.checked(params["nickname"]);
       final encryption = params["encryption"]!;
 
       await KeyStorageService.ins.saveEncryptor(

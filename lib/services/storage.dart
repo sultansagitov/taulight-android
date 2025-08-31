@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/utils.dart';
@@ -117,15 +118,18 @@ class StorageService {
 }
 
 class UserRecord {
-  String nickname;
+  Nickname nickname;
   String token;
 
   UserRecord(this.nickname, this.token);
 
   factory UserRecord.fromMap(map) =>
-      UserRecord(map["nickname"]!, map["token"]!);
+      UserRecord(Nickname.checked(map["nickname"]), map["token"]!);
 
-  Map<String, String> toMap() => {"nickname": nickname, "token": token};
+  Map<String, String> toMap() => {
+        "nickname": nickname.toString(),
+        "token": token,
+      };
 }
 
 class ServerRecord {

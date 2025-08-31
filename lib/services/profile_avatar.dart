@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/services/avatar.dart';
 import 'package:taulight/services/platform/avatar.dart';
@@ -45,7 +46,7 @@ class ProfileAvatarService {
     return dto?.image;
   }
 
-  Future<MemoryImage?> getOf(Client client, String nickname) async {
+  Future<MemoryImage?> getOf(Client client, Nickname nickname) async {
     final address = client.address;
 
     final avatarID =

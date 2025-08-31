@@ -42,7 +42,7 @@ class MemberItem extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                client.user!.nickname,
+                client.user!.nickname.toString(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

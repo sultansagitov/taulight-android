@@ -259,7 +259,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         moveTo(context, screen);
       },
       title: Text(
-        nickname,
+        nickname.toString(),
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Column(

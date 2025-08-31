@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:taulight/classes/keys.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/uuid.dart';
 import 'package:taulight/exceptions.dart';
 
@@ -21,7 +22,7 @@ class KeyStorageService {
 
   Future<void> savePersonalKey({
     required String address,
-    required String nickname,
+    required Nickname nickname,
     required PersonalKey key,
   }) async {
     await _storage.write(
@@ -32,7 +33,7 @@ class KeyStorageService {
 
   Future<void> saveEncryptor({
     required String address,
-    required String nickname,
+    required Nickname nickname,
     required EncryptorKey key,
   }) async {
     await _storage.write(
@@ -43,9 +44,9 @@ class KeyStorageService {
 
   Future<void> saveDEK({
     required String firstAddress,
-    required String firstNickname,
+    required Nickname firstNickname,
     required String secondAddress,
-    required String secondNickname,
+    required Nickname secondNickname,
     required DEK dek,
   }) async {
     await _storage.write(
@@ -88,7 +89,7 @@ class KeyStorageService {
 
   Future<PersonalKey> loadPersonalKey({
     required String address,
-    required String nickname,
+    required Nickname nickname,
   }) async {
     final data = await _storage.read(
         key: "personal:address:$address:nickname:$nickname");
@@ -108,7 +109,7 @@ class KeyStorageService {
 
   Future<EncryptorKey> loadEncryptor({
     required String address,
-    required String nickname,
+    required Nickname nickname,
   }) async {
     final data = await _storage.read(
         key: "encryptor:address:$address:nickname:$nickname");
@@ -138,9 +139,9 @@ class KeyStorageService {
 
   Future<DEK> loadDEK({
     required String firstAddress,
-    required String firstNickname,
+    required Nickname firstNickname,
     required String secondAddress,
-    required String secondNickname,
+    required Nickname secondNickname,
   }) async {
     final pair1 = "$firstAddress:$firstNickname";
     final pair2 = "$secondAddress:$secondNickname";

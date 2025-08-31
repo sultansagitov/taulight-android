@@ -118,7 +118,7 @@ void messageLongPress(
               ),
               onTap: () async {
                 Navigator.pop(context);
-                var sender = message.view.nickname;
+                final sender = message.view.nickname;
                 final screen = client.user?.nickname == sender
                     ? ProfileScreen(client)
                     : MemberInfoScreen(

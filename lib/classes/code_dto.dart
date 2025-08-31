@@ -1,7 +1,9 @@
+import 'package:taulight/classes/nickname.dart';
+
 class CodeDTO {
   final String title;
-  final String? receiver;
-  final String sender;
+  final Nickname? receiver;
+  final Nickname sender;
   final DateTime creation;
   final DateTime? activation;
   final DateTime expires;
@@ -27,8 +29,8 @@ class CodeDTO {
 
     return CodeDTO(
       title: map["title"]!,
-      receiver: map["receiver-nickname"],
-      sender: map["sender-nickname"]!,
+      receiver: Nickname.checkedNullable(map["receiver-nickname"]),
+      sender: Nickname.checked(map["sender-nickname"]),
       creation: DateTime.parse(map["creation-date"]),
       expires: DateTime.parse(map["expires-date"]),
       activation: activation,

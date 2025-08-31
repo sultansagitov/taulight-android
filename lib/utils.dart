@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:taulight/classes/chat_dto.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 
 import 'classes/chat_message_wrapper_dto.dart';
@@ -102,7 +103,7 @@ Color dark(Color color) {
 }
 
 String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
-  String nickname = message.view.nickname.trim();
+  Nickname nickname = message.view.nickname;
   String text = message.decrypted!.trim();
   List<String> split = text.split(".");
 

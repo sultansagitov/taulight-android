@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/classes/uuid.dart';
 
@@ -12,10 +13,10 @@ class FakeClient extends Client {
 }
 
 class FakeUser extends User {
-  FakeUser(Client client) : super(client, "", "");
+  FakeUser(Client client) : super(client, Nickname("a"), "");
 
   @override
-  String get nickname => 'john';
+  Nickname get nickname => Nickname('john');
 }
 
 void main() {
