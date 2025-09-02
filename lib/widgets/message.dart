@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/message_helpers.dart';
+import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/widgets/message_files_widget.dart';
 import 'package:taulight/widgets/message_replies_widget.dart';
 import 'package:taulight/widgets/invite.dart';
@@ -201,6 +203,8 @@ Widget _name(BuildContext context, Nickname nickname) {
 }
 
 Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
+  final provider  = context.watch<MessageTimeProvider>();
+
   final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;
   final subTextColor = isLight ? Colors.black54 : Colors.white70;
@@ -218,7 +222,7 @@ Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
         const SizedBox(width: 4),
       ],
       Text(
-        formatOnlyTime(message.view.dateTime),
+        formatOnlyTime(provider.getDate(message.view)),
         style: TextStyle(fontSize: 10, color: subTextColor),
       ),
     ],

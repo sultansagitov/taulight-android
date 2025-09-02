@@ -16,8 +16,6 @@ class ChatMessageViewDTO {
   final Map<String, List<String>> reactions;
   final List<NamedFileDTO> files;
 
-  DateTime get dateTime => creationDate;
-
   ChatMessageViewDTO({
     required this.id,
     required this.chatID,

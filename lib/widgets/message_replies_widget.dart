@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/utils.dart';
 
 class MessageRepliesWidget extends StatelessWidget {
@@ -138,6 +140,8 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
+    final provider  = context.watch<MessageTimeProvider>();
+
     final decrypted = reply.decrypted != null;
     String previewText =
         reply.decrypted ?? "Cannot decrypt message - ${reply.view.text}";
@@ -172,7 +176,7 @@ class ReplyPreviewWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      formatOnlyTime(message.dateTime),
+                      formatOnlyTime(provider.getDate(message)),
                       style: TextStyle(
                         fontSize: 8,
                         color: textColor.withAlpha(128),

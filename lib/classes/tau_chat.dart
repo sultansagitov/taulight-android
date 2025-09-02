@@ -30,10 +30,9 @@ class TauChat {
 
   void addMessage(ChatMessageWrapperDTO message) {
     if (!messages.any((m) => m.view.id == message.view.id)) {
-      int index = messages.lowerBound(
-        message,
-        (a, b) => a.view.dateTime.compareTo(b.view.dateTime),
-      );
+      int index = messages.lowerBound(message, (a, b) {
+        return a.view.creationDate.compareTo(b.view.creationDate);
+      });
       totalCount = totalCount != null ? totalCount! + 1 : null;
       messages.insert(index, message);
     }
@@ -66,7 +65,7 @@ class TauChat {
       nickname: client.user!.nickname,
       text: text,
       creationDate: dateTime,
-      sentDate: dateTime,
+      sentDate: DateTime.now().add(Duration(hours: 1)),
       sys: false,
       repliedToMessages: repliedToMessages,
       reactions: {},

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/utils.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -56,6 +58,8 @@ class ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
+
+    final provider  = context.watch<MessageTimeProvider>();
 
     ChatMessageWrapperDTO? wrapper = chat.messages.lastOrNull;
 
@@ -159,7 +163,7 @@ class ChatItem extends StatelessWidget {
             ),
             if (view != null) ...[
               Text(
-                "  ${formatTime(view.dateTime)}",
+                "  ${formatTime(provider.getDate(view))}",
                 style: TextStyle(color: textColor, fontSize: 12),
               ),
             ],

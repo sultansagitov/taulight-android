@@ -139,7 +139,7 @@ Future<void> messageLongPress({
               ListTile(
                 leading: const Icon(Icons.schedule),
                 title: Text(
-                  "Sent and creation time: ${_withoutMillis(view.dateTime)}",
+                  "Sent and creation time: ${_withoutMillis(view.sentDate)}",
                 ),
               ),
             ] else ...[

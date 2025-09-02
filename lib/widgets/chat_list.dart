@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
+import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/services/client.dart';
 import 'package:taulight/widgets/chat_item.dart';
 import 'package:taulight/widgets/chats_filter.dart';
@@ -45,6 +47,7 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<MessageTimeProvider>();
     final clients = ClientService.ins.clientsList;
 
     // Collect all disconnected (but not hidden) hubs
@@ -74,8 +77,8 @@ class _ChatListState extends State<ChatList> {
     chats.sort((a, b) {
       if (a.messages.isEmpty) return 1;
       if (b.messages.isEmpty) return -1;
-      return b.messages.last.view.dateTime
-          .compareTo(a.messages.last.view.dateTime);
+      return provider.getDate(b.messages.last.view)
+          .compareTo(provider.getDate(a.messages.last.view));
     });
 
     List<Widget> list = [];
