@@ -71,24 +71,27 @@ Future<void> _saveServerKey(MethodCall call) async {
 Future<void> _savePersonalKey(MethodCall call) async {
   final args = call.arguments;
   String address = args["address"]!;
+  Nickname nickname = Nickname.checked(args["nickname"]);
   await KeyStorageService.ins.savePersonalKey(
-    address: address,
-    nickname: Nickname.checked(args["nickname"]),
-    key: PersonalKey(
-        encryption: args["encryption"]!,
-        symKey: args["sym"],
-        publicKey: args["public"],
-        privateKey: args["private"],
-        source: HubSource(address: address)),
+    PersonalKey(
+      nickname: nickname,
+      address: address,
+      encryption: args["encryption"]!,
+      symKey: args["sym"],
+      publicKey: args["public"],
+      privateKey: args["private"],
+      source: HubSource(address: address),
+    ),
   );
 }
 
 Future<void> _saveEncryptor(MethodCall call) async {
   String address = call.arguments["address"]!;
+  Nickname nickname = Nickname.checked(call.arguments["nickname"]);
   await KeyStorageService.ins.saveEncryptor(
-    address: address,
-    nickname: Nickname.checked(call.arguments["nickname"]),
-    key: EncryptorKey(
+    EncryptorKey(
+      nickname: nickname,
+      address: address,
       encryption: call.arguments["encryption"]!,
       symKey: call.arguments["sym"],
       publicKey: call.arguments["public"],
@@ -98,13 +101,16 @@ Future<void> _saveEncryptor(MethodCall call) async {
 }
 
 Future<void> _saveDEK(MethodCall call) async {
+  final firstNickname = Nickname.checked(call.arguments["m1"]["nickname"]);
   final firstAddress = call.arguments["m1"]["address"]!;
+  final secondNickname = Nickname.checked(call.arguments["m2"]["nickname"]);
+  final secondAddress = call.arguments["m2"]["address"]!;
   await KeyStorageService.ins.saveDEK(
-    firstAddress: firstAddress,
-    firstNickname: Nickname.checked(call.arguments["m1"]["nickname"]),
-    secondAddress: call.arguments["m2"]["address"]!,
-    secondNickname: Nickname.checked(call.arguments["m2"]["nickname"]),
-    dek: DEK(
+    DEK(
+      firstAddress: firstAddress,
+      firstNickname: firstNickname,
+      secondAddress: secondAddress,
+      secondNickname: secondNickname,
       keyId: UUID.fromString(call.arguments["key-id"]),
       encryption: call.arguments["encryption"]!,
       symKey: call.arguments["sym"],

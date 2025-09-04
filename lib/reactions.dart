@@ -23,7 +23,6 @@ class Reactions {
     "taulight:clown": "🤡",
     "taulight:devil": "😈",
     "taulight:angel": "😇",
-
     "taulight:ok": "👌",
     "taulight:clap": "👏",
     "taulight:wave": "👋",
@@ -33,7 +32,6 @@ class Reactions {
     "taulight:rock": "🤘",
     "taulight:handshake": "🤝",
     "taulight:middlefinger": "🖕",
-
     "taulight:100": "💯",
     "taulight:boom": "💥",
     "taulight:eyes": "👀",
@@ -48,7 +46,6 @@ class Reactions {
     "taulight:dog": "🐶",
     "taulight:frog": "🐸",
     "taulight:pig": "🐷",
-
     "taulight:pizza": "🍕",
     "taulight:burger": "🍔",
     "taulight:fries": "🍟",
@@ -58,7 +55,6 @@ class Reactions {
     "taulight:coffee": "☕",
     "taulight:beer": "🍺",
     "taulight:wine": "🍷",
-
     "taulight:music": "🎶",
     "taulight:headphones": "🎧",
     "taulight:game": "🎮",
@@ -68,7 +64,6 @@ class Reactions {
     "taulight:tv": "📺",
     "taulight:phone": "📱",
     "taulight:pc": "💻",
-
     "taulight:check": "✅",
     "taulight:x": "❌",
     "taulight:warning": "⚠️",

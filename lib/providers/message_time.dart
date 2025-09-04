@@ -4,7 +4,6 @@ import 'package:taulight/classes/chat_message_view_dto.dart';
 
 enum MessageDateOption { send, server }
 
-// TODO
 class MessageTimeProvider extends ChangeNotifier {
   MessageDateOption _dateOption = MessageDateOption.server;
 

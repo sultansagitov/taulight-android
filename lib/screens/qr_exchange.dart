@@ -88,16 +88,14 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
               : "❌ $nickname does not match stored key";
         } catch (_) {
           final ek = EncryptorKey(
+            nickname: nickname,
+            address: widget.client.address,
             encryption: enc,
             publicKey: pub,
             symKey: sym,
             source: QRSource(),
           );
-          await KeyStorageService.ins.saveEncryptor(
-            address: widget.client.address,
-            nickname: nickname,
-            key: ek,
-          );
+          await KeyStorageService.ins.saveEncryptor(ek);
           _result = "ℹ Saved new encryptor for $nickname";
         }
 

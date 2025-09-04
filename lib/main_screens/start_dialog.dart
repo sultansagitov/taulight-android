@@ -147,9 +147,9 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
       final encryption = params["encryption"]!;
 
       await KeyStorageService.ins.saveEncryptor(
-        address: address,
-        nickname: nickname,
-        key: EncryptorKey(
+        EncryptorKey(
+          nickname: nickname,
+          address: address,
           encryption: encryption,
           symKey: params["sym"],
           publicKey: params["public"],

@@ -140,7 +140,7 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
-    final provider  = context.watch<MessageTimeProvider>();
+    final provider = context.watch<MessageTimeProvider>();
 
     final decrypted = reply.decrypted != null;
     String previewText =

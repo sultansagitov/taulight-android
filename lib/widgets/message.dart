@@ -203,7 +203,7 @@ Widget _name(BuildContext context, Nickname nickname) {
 }
 
 Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
-  final provider  = context.watch<MessageTimeProvider>();
+  final provider = context.watch<MessageTimeProvider>();
 
   final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;

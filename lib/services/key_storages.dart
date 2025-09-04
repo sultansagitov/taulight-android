@@ -20,42 +20,28 @@ class KeyStorageService {
     );
   }
 
-  Future<void> savePersonalKey({
-    required String address,
-    required Nickname nickname,
-    required PersonalKey key,
-  }) async {
+  Future<void> savePersonalKey(PersonalKey key) async {
     await _storage.write(
-      key: "personal:address:$address:nickname:$nickname",
+      key: "personal:address:${key.address}:nickname:${key.nickname}",
       value: jsonEncode(key.toMap()),
     );
   }
 
-  Future<void> saveEncryptor({
-    required String address,
-    required Nickname nickname,
-    required EncryptorKey key,
-  }) async {
+  Future<void> saveEncryptor(EncryptorKey key) async {
     await _storage.write(
-      key: "encryptor:address:$address:nickname:$nickname",
+      key: "encryptor:address:${key.address}:nickname:${key.nickname}",
       value: jsonEncode(key.toMap()),
     );
   }
 
-  Future<void> saveDEK({
-    required String firstAddress,
-    required Nickname firstNickname,
-    required String secondAddress,
-    required Nickname secondNickname,
-    required DEK dek,
-  }) async {
+  Future<void> saveDEK(DEK dek) async {
     await _storage.write(
       key: "dek:id:${dek.keyId}",
       value: jsonEncode(dek.toMap()),
     );
 
-    final pair1 = "$firstAddress:$firstNickname";
-    final pair2 = "$secondAddress:$secondNickname";
+    final pair1 = "${dek.firstAddress}:${dek.firstNickname}";
+    final pair2 = "${dek.secondAddress}:${dek.secondNickname}";
     final sorted = [pair1, pair2]..sort();
 
     final key = "dek:${sorted[0]}:${sorted[1]}:id";

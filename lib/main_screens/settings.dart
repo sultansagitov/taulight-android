@@ -35,8 +35,8 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
                   icon: mode == ThemeMode.system
                       ? const Icon(Icons.phone_android)
                       : mode == ThemeMode.light
-                      ? const Icon(Icons.light_mode)
-                      : const Icon(Icons.dark_mode),
+                          ? const Icon(Icons.light_mode)
+                          : const Icon(Icons.dark_mode),
                 );
               }).toList(),
               selected: {themeProvider.themeMode},

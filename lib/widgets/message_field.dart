@@ -124,7 +124,7 @@ class _MessageFieldState extends State<MessageField> {
                             )
                           : Center(
                               child: const TauLoading(color: Colors.white),
-                      ),
+                            ),
                     ),
                     if (wrapper.loaded)
                       Positioned(

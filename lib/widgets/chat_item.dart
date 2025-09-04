@@ -59,7 +59,7 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    final provider  = context.watch<MessageTimeProvider>();
+    final provider = context.watch<MessageTimeProvider>();
 
     ChatMessageWrapperDTO? wrapper = chat.messages.lastOrNull;
 
