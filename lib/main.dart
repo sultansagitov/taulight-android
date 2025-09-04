@@ -31,6 +31,12 @@ class _TaulightAppState extends State<TaulightApp> {
   @override
   void initState() {
     super.initState();
+
+    Future.microtask(() {
+      context.read<ThemeProvider>().load();
+      context.read<MessageTimeProvider>().load();
+    });
+
     // _sub = uriLinkStream.listen((Uri? uri) {
     //   if (uri != null) {
     //     print("Received deep link: ${uri.toString()}");
