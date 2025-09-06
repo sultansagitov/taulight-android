@@ -4,12 +4,12 @@ import 'package:taulight/classes/uuid.dart';
 
 class ChatMessageViewDTO {
   UUID id;
+  DateTime? creationDate;
   UUID? keyID;
   final UUID chatID;
   final Nickname nickname;
   final String text;
   final bool isMe;
-  final DateTime creationDate;
   final DateTime sentDate;
   final bool sys;
   final List<UUID> repliedToMessages;
@@ -36,7 +36,6 @@ class ChatMessageViewDTO {
     required keyID,
     required Nickname nickname,
     required String text,
-    required DateTime creationDate,
     required DateTime sentDate,
     required bool sys,
     required List<UUID> repliedToMessages,
@@ -50,7 +49,7 @@ class ChatMessageViewDTO {
       nickname: nickname,
       text: text,
       isMe: true,
-      creationDate: creationDate, // TODO get from hub
+      creationDate: null,
       sentDate: sentDate,
       sys: sys,
       repliedToMessages: repliedToMessages,

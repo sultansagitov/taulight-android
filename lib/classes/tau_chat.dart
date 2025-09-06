@@ -31,8 +31,11 @@ class TauChat {
   void addMessage(ChatMessageWrapperDTO message) {
     if (!messages.any((m) => m.view.id == message.view.id)) {
       int index = messages.lowerBound(message, (a, b) {
-        return a.view.creationDate.compareTo(b.view.creationDate);
+        var aa = a.view.creationDate ?? a.view.sentDate;
+        var bb = b.view.creationDate ?? b.view.sentDate;
+        return aa.compareTo(bb);
       });
+
       totalCount = totalCount != null ? totalCount! + 1 : null;
       messages.insert(index, message);
     }
@@ -58,14 +61,12 @@ class TauChat {
     List<NamedFileDTO> files,
     VoidCallback callback,
   ) async {
-    final dateTime = DateTime.now();
     final message = ChatMessageViewDTO.loading(
       chatID: record.id,
       keyID: null,
       nickname: client.user!.nickname,
       text: text,
-      creationDate: dateTime,
-      sentDate: DateTime.now().add(Duration(hours: 1)),
+      sentDate: DateTime.now(),
       sys: false,
       repliedToMessages: repliedToMessages,
       reactions: {},
@@ -78,9 +79,7 @@ class TauChat {
     callback();
 
     final map = await PlatformMessagesService.ins.sendMessage(this, message);
-    wrapper.isLoading = false;
-    message.id = UUID.fromString(map["message"]!);
-    message.keyID = UUID.fromNullableString(map["key"]);
+    wrapper.onLoad(map);
     callback();
   }
 

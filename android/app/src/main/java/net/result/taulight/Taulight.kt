@@ -12,7 +12,7 @@ import net.result.sandnode.hubagent.AgentProtocol
 import net.result.sandnode.hubagent.ClientProtocol
 import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.serverclient.SandnodeClient
-import net.result.taulight.chain.sender.AndroidForwardClientChain
+import net.result.taulight.chain.sender.AndroidDownstreamClientChain
 import net.result.taulight.config.AndroidAgentConfig
 import net.result.taulight.config.AndroidClientConfig
 import net.result.taulight.dto.ChatInfoDTO
@@ -91,8 +91,8 @@ class Taulight(val methodChannel: MethodChannel) {
         val mc = MemberClient(uuid, client, link)
 
         val chainManager = BaseClientChainManager()
-        chainManager.addHandler(TauMessageTypes.FWD) {
-            AndroidForwardClientChain(client, this, mc.uuid)
+        chainManager.addHandler(TauMessageTypes.DOWNSTREAM) {
+            AndroidDownstreamClientChain(client, this, mc.uuid)
         }
         client.start(chainManager)
 

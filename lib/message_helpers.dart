@@ -163,7 +163,9 @@ Future<void> messageLongPress({
   );
 }
 
-String _withoutMillis(DateTime dt) => dt.toLocal().toString().split('.')[0];
+String _withoutMillis(DateTime? dt) {
+  return dt == null ? "Unknown for now" : dt.toLocal().toString().split('.')[0];
+}
 
 Widget _buildHeader(
   ChatMessageWrapperDTO message,

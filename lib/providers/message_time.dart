@@ -23,7 +23,7 @@ class MessageTimeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  DateTime getDate(ChatMessageViewDTO view) {
+  DateTime? getDate(ChatMessageViewDTO view) {
     switch (dateOption) {
       case MessageDateOption.send:
         return view.sentDate;

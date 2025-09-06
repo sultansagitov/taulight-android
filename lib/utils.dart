@@ -6,7 +6,9 @@ import 'package:taulight/classes/tau_chat.dart';
 
 import 'classes/chat_message_wrapper_dto.dart';
 
-String formatTime(DateTime dateTime) {
+String formatTime(DateTime? dateTime) {
+  if (dateTime == null) return "Unknown";
+
   DateTime now = DateTime.now();
 
   if (dateTime.year == now.year &&
@@ -40,7 +42,8 @@ String? formatFutureTime(DateTime dateTime) {
   return remainingTime;
 }
 
-String formatOnlyTime(DateTime dateTime) {
+String formatOnlyTime(DateTime? dateTime) {
+  if (dateTime == null) return "Unknown";
   return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
 }
 

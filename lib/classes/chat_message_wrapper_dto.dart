@@ -1,5 +1,6 @@
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/client.dart';
+import 'package:taulight/classes/uuid.dart';
 
 class ChatMessageWrapperDTO {
   final String? decrypted;
@@ -18,4 +19,11 @@ class ChatMessageWrapperDTO {
     String? decrypted,
   ]) =>
       ChatMessageWrapperDTO(message, decrypted)..isLoading = true;
+
+  void onLoad(dynamic map) {
+    isLoading = false;
+    view.id = UUID.fromString(map["id"]!);
+    view.creationDate = DateTime.parse(map["creation-date"]!).toLocal();
+    view.keyID = UUID.fromNullableString(map["key"]);
+  }
 }

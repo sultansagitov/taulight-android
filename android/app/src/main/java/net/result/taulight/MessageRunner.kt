@@ -7,11 +7,12 @@ import net.result.sandnode.encryption.interfaces.KeyStorage
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.sandnode.util.Member
-import net.result.taulight.chain.sender.ForwardRequestClientChain
 import net.result.taulight.chain.sender.MessageClientChain
+import net.result.taulight.chain.sender.UpstreamClientChain
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.dto.ChatMessageInputDTO
 import net.result.taulight.dto.ChatMessageViewDTO
+import net.result.taulight.dto.UpstreamResponseDTO
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.*
@@ -60,18 +61,16 @@ fun send(
         .setFileIDs(fileIDs)
         .setSentDatetimeNow()
 
-    val chain = ForwardRequestClientChain(client)
-    client.io().chainManager.linkChain(chain)
-    val messageID = chain.sendMessage(chat, message, content, false, false)
+    val chain = UpstreamClientChain.getNamed(client, chat.id)
+    val dto: UpstreamResponseDTO = chain.sendMessage(chat, message, content, false, false)
     client.io().chainManager.removeChain(chain)
 
-    MessageRunner.LOGGER.info("Message ID: {}", messageID)
+    MessageRunner.LOGGER.info("Message ID: {}", dto.id)
 
-    return mutableMapOf("message" to messageID.toString()).apply {
-        message.keyID?.let {
-            put("key", it.toString())
-        }
-    }
+    return mutableMapOf(
+        "id" to dto.id.toString(),
+        "creation-date" to dto.creationDate.toString(),
+    ).apply { message.keyID?.let { put("key", it.toString()) } }
 }
 
 fun loadMessages(client: SandnodeClient, chatID: UUID, index: Int, size: Int): PaginatedDTO<ChatMessageViewDTO> {

@@ -77,9 +77,13 @@ class _ChatListState extends State<ChatList> {
     chats.sort((a, b) {
       if (a.messages.isEmpty) return 1;
       if (b.messages.isEmpty) return -1;
-      return provider
-          .getDate(b.messages.last.view)
-          .compareTo(provider.getDate(a.messages.last.view));
+
+      final aa =
+        provider.getDate(a.messages.last.view) ?? a.messages.last.view.sentDate;
+      final bb =
+        provider.getDate(b.messages.last.view) ?? b.messages.last.view.sentDate;
+
+      return bb.compareTo(aa);
     });
 
     List<Widget> list = [];
