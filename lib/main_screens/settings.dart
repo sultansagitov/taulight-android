@@ -18,6 +18,8 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
     final themeProvider = context.watch<ThemeProvider>();
     final messageTimeProvider = context.watch<MessageTimeProvider>();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: TauAppBar.text("Settings"),
       body: ListView(
@@ -27,22 +29,66 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
           ListTile(
             title: const Text("Theme"),
             subtitle: Text(themeProvider.themeMode.name),
-            trailing: SegmentedButton<ThemeMode>(
-              segments: ThemeMode.values.map((mode) {
-                return ButtonSegment(
-                  value: mode,
-                  label: Text(mode.name),
-                  icon: mode == ThemeMode.system
-                      ? const Icon(Icons.phone_android)
-                      : mode == ThemeMode.light
-                          ? const Icon(Icons.light_mode)
-                          : const Icon(Icons.dark_mode),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: ThemeMode.values.map((mode) {
+                final selected = themeProvider.themeMode == mode;
+
+                Widget inner;
+                Color borderColor;
+
+                switch (mode) {
+                  case ThemeMode.system:
+                    inner = Container(
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: ClipOval(
+                        child: Column(
+                          children: [
+                            Expanded(child: Container(color: Colors.white)),
+                            Expanded(child: Container(color: Colors.black)),
+                          ],
+                        ),
+                      ),
+                    );
+                    borderColor = isDark ? Colors.white : Colors.black;
+                    break;
+                  case ThemeMode.light:
+                    inner = const DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    );
+                    borderColor = Colors.black;
+                    break;
+                  case ThemeMode.dark:
+                    inner = const DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                    );
+                    borderColor = Colors.white;
+                    break;
+                }
+
+                return GestureDetector(
+                  onTap: () => themeProvider.setTheme(mode),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: borderColor,
+                        width: selected ? 4 : 1,
+                      ),
+                    ),
+                    child: inner,
+                  ),
                 );
               }).toList(),
-              selected: {themeProvider.themeMode},
-              onSelectionChanged: (sel) {
-                themeProvider.setTheme(sel.first);
-              },
             ),
           ),
           const Divider(),
@@ -56,6 +102,29 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
                   : "Show Server Time",
             ),
             trailing: SegmentedButton<MessageDateOption>(
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                visualDensity: VisualDensity.compact,
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return isDark ? Colors.grey[800] : Colors.grey[300];
+                  }
+                  return isDark ? Colors.grey[900] : Colors.grey[200];
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return isDark ? Colors.white : Colors.black;
+                  }
+                  return isDark ? Colors.grey[400] : Colors.grey[800];
+                }),
+              ),
               segments: const [
                 ButtonSegment(
                   value: MessageDateOption.send,
@@ -73,7 +142,7 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
                 messageTimeProvider.setDateOption(sel.first);
               },
             ),
-          ),
+          )
         ],
       ),
     );
