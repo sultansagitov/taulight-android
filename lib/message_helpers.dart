@@ -139,7 +139,7 @@ Future<void> messageLongPress({
               ListTile(
                 leading: const Icon(Icons.schedule),
                 title: Text(
-                  "Sent and creation time: ${_withoutMillis(view.sentDate)}",
+                  "Sent and stored time: ${_withoutMillis(view.sentDate)}",
                 ),
               ),
             ] else ...[
@@ -150,7 +150,7 @@ Future<void> messageLongPress({
               ListTile(
                 leading: const Icon(Icons.schedule),
                 title: Text(
-                  "Creation time: ${_withoutMillis(view.creationDate)}",
+                  "Stored time: ${_withoutMillis(view.creationDate)}",
                 ),
               ),
             ],
