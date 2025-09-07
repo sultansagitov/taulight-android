@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
@@ -45,7 +44,7 @@ Future<void> _onLongPressStart(
   );
 }
 
-class ChatItem extends StatelessWidget {
+class ChatItem extends ConsumerWidget {
   final TauChat chat;
   final void Function(TauChat) onTap;
 
@@ -56,11 +55,10 @@ class ChatItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messageTimeNotifier = ref.read(messageTimeNotifierProvider.notifier);
+
     final isLight = Theme.of(context).brightness == Brightness.light;
-
-    final provider = context.watch<MessageTimeProvider>();
-
     ChatMessageWrapperDTO? wrapper = chat.messages.lastOrNull;
 
     Color? nicknameColor;
@@ -163,7 +161,7 @@ class ChatItem extends StatelessWidget {
             ),
             if (view != null) ...[
               Text(
-                "  ${formatTime(provider.getDate(view))}",
+                "  ${formatTime(messageTimeNotifier.getDate(view))}",
                 style: TextStyle(color: textColor, fontSize: 12),
               ),
             ],

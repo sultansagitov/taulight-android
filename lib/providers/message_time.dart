@@ -1,34 +1,41 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 
 enum MessageDateOption { send, server }
 
-class MessageTimeProvider extends ChangeNotifier {
-  MessageDateOption _dateOption = MessageDateOption.server;
+class MessageTimeState {
+  final MessageDateOption dateOption;
+  MessageTimeState({required this.dateOption});
+}
 
-  MessageDateOption get dateOption => _dateOption;
+class MessageTimeNotifier extends StateNotifier<MessageTimeState> {
+  MessageTimeNotifier()
+      : super(MessageTimeState(dateOption: MessageDateOption.server));
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    _dateOption = MessageDateOption
-        .values[prefs.getInt('dateOption') ?? MessageDateOption.server.index];
-    notifyListeners();
+    state = MessageTimeState(
+      dateOption: MessageDateOption
+          .values[prefs.getInt('dateOption') ?? MessageDateOption.server.index],
+    );
   }
 
   Future<void> setDateOption(MessageDateOption option) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('dateOption', option.index);
-    _dateOption = option;
-    notifyListeners();
+    state = MessageTimeState(dateOption: option);
   }
 
   DateTime? getDate(ChatMessageViewDTO view) {
-    switch (dateOption) {
-      case MessageDateOption.send:
-        return view.sentDate;
-      case MessageDateOption.server:
-        return view.creationDate;
-    }
+    return switch (state.dateOption) {
+      MessageDateOption.send => view.sentDate,
+      MessageDateOption.server => view.creationDate,
+    };
   }
 }
+
+final messageTimeNotifierProvider =
+    StateNotifierProvider<MessageTimeNotifier, MessageTimeState>(
+  (ref) => MessageTimeNotifier(),
+);

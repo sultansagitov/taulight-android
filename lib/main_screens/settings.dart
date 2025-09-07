@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/providers/theme.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 
-class SettingsScreen extends StatelessWidget implements IMainScreen {
+class SettingsScreen extends ConsumerWidget implements IMainScreen {
   const SettingsScreen({super.key});
 
   @override
@@ -14,9 +14,9 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
   String title() => "Settings";
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-    final messageTimeProvider = context.watch<MessageTimeProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeNotifierProvider);
+    final messageTimeState = ref.watch(messageTimeNotifierProvider);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -28,12 +28,11 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
 
           ListTile(
             title: const Text("Theme"),
-            subtitle: Text(themeProvider.themeMode.name),
+            subtitle: Text(themeState.themeMode.name),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: ThemeMode.values.map((mode) {
-                final selected = themeProvider.themeMode == mode;
-
+                final selected = themeState.themeMode == mode;
                 Widget inner;
                 Color borderColor;
 
@@ -73,7 +72,8 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
                 }
 
                 return GestureDetector(
-                  onTap: () => themeProvider.setTheme(mode),
+                  onTap: () =>
+                      ref.read(themeNotifierProvider.notifier).setTheme(mode),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 6),
                     width: 36,
@@ -97,7 +97,7 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
           ListTile(
             title: const Text("Message Date"),
             subtitle: Text(
-              messageTimeProvider.dateOption == MessageDateOption.send
+              messageTimeState.dateOption == MessageDateOption.send
                   ? "Show Send Time"
                   : "Show Server Time",
             ),
@@ -137,12 +137,14 @@ class SettingsScreen extends StatelessWidget implements IMainScreen {
                   icon: Icon(Icons.cloud),
                 ),
               ],
-              selected: {messageTimeProvider.dateOption},
+              selected: {messageTimeState.dateOption},
               onSelectionChanged: (sel) {
-                messageTimeProvider.setDateOption(sel.first);
+                ref
+                    .read(messageTimeNotifierProvider.notifier)
+                    .setDateOption(sel.first);
               },
             ),
-          )
+          ),
         ],
       ),
     );

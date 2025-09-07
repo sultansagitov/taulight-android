@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/classes/chat_message_view_dto.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/tau_chat.dart';
@@ -91,7 +91,7 @@ class MessageRepliesWidget extends StatelessWidget {
   }
 }
 
-class ReplyPreviewWidget extends StatelessWidget {
+class ReplyPreviewWidget extends ConsumerWidget {
   final TauChat chat;
   final ChatMessageWrapperDTO reply;
 
@@ -102,7 +102,7 @@ class ReplyPreviewWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final textColor = isLight ? Colors.black : Colors.white;
 
@@ -140,7 +140,7 @@ class ReplyPreviewWidget extends StatelessWidget {
       );
     }
 
-    final provider = context.watch<MessageTimeProvider>();
+    final messageTimeNotifier = ref.read(messageTimeNotifierProvider.notifier);
 
     final decrypted = reply.decrypted != null;
     String previewText =
@@ -176,7 +176,7 @@ class ReplyPreviewWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      formatOnlyTime(provider.getDate(message)),
+                      formatOnlyTime(messageTimeNotifier.getDate(message)),
                       style: TextStyle(
                         fontSize: 8,
                         color: textColor.withAlpha(128),

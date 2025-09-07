@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/classes/chat_message_wrapper_dto.dart';
 import 'package:taulight/classes/nickname.dart';
 import 'package:taulight/classes/tau_chat.dart';
@@ -13,7 +13,7 @@ import 'package:taulight/chat_filters.dart';
 import 'package:taulight/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MessageWidget extends StatelessWidget {
+class MessageWidget extends ConsumerWidget {
   final TauChat chat;
   final ChatMessageWrapperDTO message;
   final ChatMessageWrapperDTO? prev;
@@ -28,7 +28,7 @@ class MessageWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final view = message.view;
     if (view.sys) {
       return Padding(
@@ -134,7 +134,7 @@ class MessageWidget extends StatelessWidget {
                     ),
                   ),
                 if (hasInvite) InviteWidget(chat, url),
-                _buildFooter(context, message),
+                _buildFooter(context, ref, message),
               ],
             ),
           ),
@@ -202,8 +202,12 @@ Widget _name(BuildContext context, Nickname nickname) {
   );
 }
 
-Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
-  final provider = context.watch<MessageTimeProvider>();
+Widget _buildFooter(
+  BuildContext context,
+  WidgetRef ref,
+  ChatMessageWrapperDTO message,
+) {
+  final messageTimeNotifier = ref.read(messageTimeNotifierProvider.notifier);
 
   final theme = Theme.of(context);
   final isLight = theme.brightness == Brightness.light;
@@ -222,7 +226,7 @@ Widget _buildFooter(BuildContext context, ChatMessageWrapperDTO message) {
         const SizedBox(width: 4),
       ],
       Text(
-        formatOnlyTime(provider.getDate(message.view)),
+        formatOnlyTime(messageTimeNotifier.getDate(message.view)),
         style: TextStyle(fontSize: 10, color: subTextColor),
       ),
     ],

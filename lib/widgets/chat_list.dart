@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/chat_filters.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/classes/filter.dart';
@@ -13,7 +13,7 @@ import 'package:taulight/widgets/chats_filter.dart';
 import 'package:taulight/widgets/warning_disconnect_message.dart';
 import 'package:taulight/widgets/warning_unauthorized_message.dart';
 
-class ChatList extends StatefulWidget {
+class ChatList extends ConsumerStatefulWidget {
   final VoidCallback? updateHome;
   final bool Function(TauChat)? filter;
   final FutureOr<void> Function(TauChat chat) onChatTap;
@@ -28,10 +28,10 @@ class ChatList extends StatefulWidget {
   });
 
   @override
-  State<ChatList> createState() => _ChatListState();
+  ConsumerState<ChatList> createState() => _ChatListState();
 }
 
-class _ChatListState extends State<ChatList> {
+class _ChatListState extends ConsumerState<ChatList> {
   final manager = FilterManager();
   late final List<Filter> filters;
   List<Filter> resultFilters = [];
@@ -47,7 +47,7 @@ class _ChatListState extends State<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<MessageTimeProvider>();
+    final messageTimeNotifier = ref.read(messageTimeNotifierProvider.notifier);
     final clients = ClientService.ins.clientsList;
 
     // Collect all disconnected (but not hidden) hubs
@@ -78,10 +78,10 @@ class _ChatListState extends State<ChatList> {
       if (a.messages.isEmpty) return 1;
       if (b.messages.isEmpty) return -1;
 
-      final aa =
-        provider.getDate(a.messages.last.view) ?? a.messages.last.view.sentDate;
-      final bb =
-        provider.getDate(b.messages.last.view) ?? b.messages.last.view.sentDate;
+      final aa = messageTimeNotifier.getDate(a.messages.last.view) ??
+          a.messages.last.view.sentDate;
+      final bb = messageTimeNotifier.getDate(b.messages.last.view) ??
+          b.messages.last.view.sentDate;
 
       return bb.compareTo(aa);
     });

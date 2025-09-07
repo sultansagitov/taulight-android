@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/providers/theme.dart';
@@ -8,43 +8,31 @@ import 'package:taulight/screens/pin.dart';
 
 void main() {
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => MessageTimeProvider()),
-      ],
-      child: const TaulightApp(),
-    ),
+    const ProviderScope(child: TaulightApp()),
   );
 }
 
-class TaulightApp extends StatefulWidget {
+class TaulightApp extends ConsumerStatefulWidget {
   const TaulightApp({super.key});
 
   @override
-  State<TaulightApp> createState() => _TaulightAppState();
+  ConsumerState<TaulightApp> createState() => _TaulightAppState();
 }
 
-class _TaulightAppState extends State<TaulightApp> {
+class _TaulightAppState extends ConsumerState<TaulightApp> {
   StreamSubscription? _sub;
 
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() {
-      context.read<ThemeProvider>().load();
-      context.read<MessageTimeProvider>().load();
+      ref.read(themeNotifierProvider.notifier).load();
+      ref.read(messageTimeNotifierProvider.notifier).load();
     });
 
     // _sub = uriLinkStream.listen((Uri? uri) {
-    //   if (uri != null) {
-    //     print("Received deep link: ${uri.toString()}");
-    //     // TODO
-    //   }
-    // }, onError: (err) {
-    //   print("Error receiving deep link: $err");
-    // });
+    //   if (uri != null) print("Received deep link: ${uri.toString()}");
+    // }, onError: (err) => print("Error receiving deep link: $err"));
   }
 
   @override
@@ -55,7 +43,7 @@ class _TaulightAppState extends State<TaulightApp> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
+    final themeMode = ref.watch(themeNotifierProvider).themeMode;
 
     return MaterialApp(
       title: 'Taulight Agent',
@@ -78,7 +66,6 @@ class _TaulightAppState extends State<TaulightApp> {
         ),
         primarySwatch: Config.primarySwatch,
         useMaterial3: true,
-        brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF121212),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(fontSize: 12),
@@ -86,7 +73,7 @@ class _TaulightAppState extends State<TaulightApp> {
           titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      themeMode: themeProvider.themeMode,
+      themeMode: themeMode,
       home: const PinScreen(),
     );
   }
