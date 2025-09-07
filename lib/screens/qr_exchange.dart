@@ -48,12 +48,14 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
         nickname: myNick,
       );
       _myQR = jsonEncode({
-        "nickname": myNick,
+        "nickname": myNick.toString(),
         "encryption": pk.encryption,
         if (pk.symKey != null) "sym": pk.symKey!,
         if (pk.publicKey != null) "public": pk.publicKey!,
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       _result = "Error loading personal key";
     }
     if (mounted) setState(() {});

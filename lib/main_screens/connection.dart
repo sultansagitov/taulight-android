@@ -140,7 +140,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           Navigator.pop(context, result);
         }
       }
-    } on ConnectionException catch (e) {
+    } on ConnectionException catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       if (mounted) {
         snackBarError(context, "Cannot connect to ${e.client.address}");
       }

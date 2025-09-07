@@ -47,7 +47,9 @@ class LoginScreenState extends State<LoginScreen> {
     final Nickname nickname;
     try {
       nickname = Nickname.checked(n);
-    } on ArgumentError catch (e) {
+    } on ArgumentError catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       setState(() => _errorMessage = e.message);
       return;
     }
@@ -85,7 +87,9 @@ class LoginScreenState extends State<LoginScreen> {
     final Nickname nickname;
     try {
       nickname = Nickname.checked(n);
-    } on ArgumentError catch (e) {
+    } on ArgumentError catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
       setState(() => _errorMessage = e.message);
       return;
     }
