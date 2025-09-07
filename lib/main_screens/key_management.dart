@@ -182,6 +182,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final key = personalKeys[index];
         return KeyCard(
+          title: "${key.nickname}@${key.address}",
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -221,7 +222,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final key = encryptorKeys[index];
         return KeyCard(
-          title: key.encryption, // TODO add nickname
+          title: "${key.nickname}@${key.address}",
           subtitle: 'Encryption: ${key.encryption}',
           details: [
             if (key.symKey != null) 'Has Symmetric Key',
@@ -256,7 +257,10 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
       itemBuilder: (context, index) {
         final dek = deks[index];
         return KeyCard(
-          title: dek.keyId.toString(),
+          title: [
+            "${dek.firstNickname}@${dek.firstAddress}",
+            "${dek.secondNickname}@${dek.secondAddress}",
+          ].join(" - "),
           subtitle: 'Encryption: ${dek.encryption}',
           details: [
             if (dek.symKey != null) 'Has Symmetric Key',
