@@ -4,6 +4,7 @@ import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/providers/theme.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
+import 'package:taulight/widgets/tip.dart';
 
 class SettingsScreen extends ConsumerWidget implements IMainScreen {
   const SettingsScreen({super.key});
@@ -26,9 +27,15 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
         children: [
           const SizedBox(height: 8),
 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: const Tip("Switch between light, dark or system theme."),
+          ),
+
           ListTile(
             title: const Text("Theme"),
             subtitle: Text(themeState.themeMode.name),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: ThemeMode.values.map((mode) {
@@ -94,6 +101,16 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
           const Divider(),
 
           // Message Date
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Tip('''
+                Choose whether to display the message time
+                as the moment it was sent or the server's recorded time.
+            '''
+                .trim()
+                .replaceAll(RegExp(r'\s+'), ' ')),
+          ),
+
           ListTile(
             title: const Text("Message Date"),
             subtitle: Text(
@@ -101,11 +118,9 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
                   ? "Show Send Time"
                   : "Show Server Time",
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             trailing: SegmentedButton<MessageDateOption>(
               style: ButtonStyle(
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
                 visualDensity: VisualDensity.compact,
                 shape: WidgetStateProperty.all(
                   RoundedRectangleBorder(

@@ -11,6 +11,7 @@ import net.result.sandnode.chain.Chain
 import net.result.sandnode.dto.FileDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.link.Links
+import net.result.sandnode.message.util.NodeType
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.dto.ChatMessageInputDTO
 import org.apache.logging.log4j.LogManager
@@ -86,7 +87,7 @@ fun connect(call: MethodCall): Map<String, String> {
     val clientID = UUID.fromString(uuid)
 
     val linkString = call.argument<String>("link")!!
-    val link = Links.parse(linkString)
+    val link = Links.parse(linkString, NodeType.HUB)
 
     val address = connect(taulight!!, clientID, link)
 
