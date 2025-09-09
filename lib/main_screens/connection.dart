@@ -67,14 +67,7 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return "Please enter link";
                   }
-                  try {
-                    if (Uri.parse(value.trim()).scheme != "sandnode") {
-                      return "Enter sandnode link";
-                    }
-                    return null;
-                  } catch (_) {
-                    return "Link not valid";
-                  }
+                  return null;
                 },
               ),
             ),
