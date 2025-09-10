@@ -3,6 +3,7 @@ import 'package:taulight/classes/filter.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/classes/uuid.dart';
+import 'package:taulight/exceptions.dart';
 import 'package:taulight/services/platform/chats.dart';
 import 'package:taulight/services/platform/client.dart';
 
@@ -21,10 +22,10 @@ enum ClientStatus {
 
 class Client {
   final UUID uuid;
-  final String link;
   final String address;
   final Map<UUID, TauChat> chats = {};
 
+  String? link;
   String? realName;
   String get name => realName ?? address;
 
@@ -51,7 +52,20 @@ class Client {
     }
   }
 
-  Client({required this.uuid, required this.address, required this.link});
+  Client({required this.uuid, required this.address, this.link}) {
+    if (address.isEmpty) throw ArgumentError("Address is empty");
+    if (link != null) validateLink(link!);
+  }
+
+  static void validateLink(String link) {
+    if (!link.startsWith("sandnode://")) {
+      throw InvalidSandnodeLinkException("Not sandnode scheme");
+    }
+    
+    if (!(link.contains("encryption=") && link.contains("key="))) {
+      throw InvalidSandnodeLinkException("Link have no key");
+    }
+  }
 
   ClientStatus get status {
     if (connecting) return ClientStatus.connecting;

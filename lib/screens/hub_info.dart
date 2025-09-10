@@ -27,7 +27,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
           width: size,
           height: size,
           child: QrImageView(
-            data: widget.client.link,
+            data: widget.client.link!,
             version: QrVersions.auto,
             backgroundColor: Colors.white,
           ),
@@ -99,7 +99,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
                   ),
                 if (widget.client.realName != null)
                   _info(context, "Hub name", widget.client.name),
-                _info(context, "Link", widget.client.link),
+                _info(context, "Link", widget.client.link!),
               ],
             ),
           ),

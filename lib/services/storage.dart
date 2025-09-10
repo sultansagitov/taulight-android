@@ -45,7 +45,7 @@ class StorageService {
   Future<void> saveClient(Client client) async {
     ServerRecord server = ServerRecord(
       name: client.name,
-      link: client.link,
+      link: client.link!,
     );
     await _storage.write(
       key: 'server.${client.uuid}',

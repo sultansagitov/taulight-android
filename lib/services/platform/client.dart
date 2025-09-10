@@ -48,7 +48,7 @@ class PlatformClientService {
       throw InvalidSandnodeLinkException(link);
     }
 
-    Client client = Client(uuid: uuid, address: address, link: link);
+    Client client = Client(uuid: uuid, address: address);
     client.connecting = true;
 
     if (keep) ClientService.ins.add(client);
@@ -67,6 +67,12 @@ class PlatformClientService {
     }
 
     if (result is SuccessResult) {
+      if (result.obj is! Map) {
+        throw IncorrectFormatChannelException();
+      }
+      var resultLink = result.obj["link"] as String;
+      Client.validateLink(resultLink);
+      client.link = resultLink;
       client.connected = true;
       if (!keep) ClientService.ins.add(client);
       await client.resetName();
@@ -81,7 +87,7 @@ class PlatformClientService {
     callback?.call();
 
     UUID uuid = client.uuid;
-    String link = client.link;
+    String link = client.link!;
     Result result = await PlatformService.ins.method("connect", {
       "uuid": uuid.toString(),
       "link": link,
@@ -91,7 +97,7 @@ class PlatformClientService {
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
-        throw InvalidSandnodeLinkException(link);
+        throw InvalidSandnodeLinkException(result.msg);
       }
       throw result.getCause(client);
     }

@@ -146,11 +146,39 @@ String parseSysMessages(TauChat chat, ChatMessageWrapperDTO message) {
   return "$nickname: $text";
 }
 
-String link2address(String link) {
-  final uri = Uri.parse(link);
-  var address = uri.host;
-  if (uri.hasPort && uri.port == 52525) {
-    address += ":${uri.port}";
+String link2address(String input) {
+  final trimmed = input.trim();
+  if (trimmed.isEmpty) {
+    throw FormatException('Empty input');
   }
-  return address;
+
+  bool looksLikeBareIPv6(String s) {
+    final ipv6Chars = RegExp(r'^[0-9a-fA-F:]+$');
+    return s.contains(':') &&
+        !s.contains('[') &&
+        !s.contains(']') &&
+        !s.contains('.') &&
+        ipv6Chars.hasMatch(s);
+  }
+
+  final normalized = looksLikeBareIPv6(trimmed) ? '[$trimmed]' : trimmed;
+
+  final uri = Uri.parse(
+      normalized.contains("://") ? normalized : "dummy://$normalized"
+  );
+
+  if (uri.host.isEmpty) {
+    throw FormatException('Invalid host: $input');
+  }
+
+  var host = uri.host;
+  if (host.contains(':') && !host.startsWith('[')) {
+    host = '[${uri.host}]';
+  }
+
+  if (uri.hasPort && uri.port != 52525) {
+    host += ':${uri.port}';
+  }
+
+  return host;
 }

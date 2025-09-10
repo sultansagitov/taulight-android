@@ -89,9 +89,12 @@ fun connect(call: MethodCall): Map<String, String> {
     val linkString = call.argument<String>("link")!!
     val link = Links.parse(linkString, NodeType.HUB)
 
-    val address = connect(taulight!!, clientID, link)
+    connect(taulight!!, clientID, link)
 
-    return mapOf("address" to address.toString(52525))
+    return mapOf(
+        "link" to link.toString(),
+        "address" to link.address.toString(52525)
+    )
 }
 
 fun disconnect(call: MethodCall): String {

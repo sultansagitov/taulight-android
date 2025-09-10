@@ -76,11 +76,12 @@ class HomeScreenState extends State<HomeScreen> {
         },
         onError: (client, e) {
           if (mounted) {
-            String error = "Something went wrong";
-            if (e is ExpiredTokenException) {
-              error = "Token for \"${client.name}\" expired";
-            }
-            snackBarError(context, error);
+            snackBarError(
+              context,
+              e is ExpiredTokenException
+                  ? "Token for \"${client.name}\" expired"
+                  : "Something went wrong",
+            );
           }
         },
       ).timeout(Duration(seconds: 5));
