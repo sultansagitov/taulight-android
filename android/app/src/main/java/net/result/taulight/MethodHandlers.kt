@@ -87,9 +87,9 @@ fun connect(call: MethodCall): Map<String, String> {
     val clientID = UUID.fromString(uuid)
 
     val linkString = call.argument<String>("link")!!
-    val link = Links.parse(linkString, NodeType.HUB)
+    val argLink = Links.parse(linkString, NodeType.HUB)
 
-    connect(taulight!!, clientID, link)
+    val link = connect(taulight!!, clientID, argLink)
 
     return mapOf(
         "link" to link.toString(),

@@ -80,7 +80,7 @@ class Taulight(val methodChannel: MethodChannel) {
     }
 
 
-    fun addClient(uuid: UUID, link: SandnodeLinkRecord) {
+    fun addClient(uuid: UUID, link: SandnodeLinkRecord): MemberClient {
         val agentConfig = AndroidAgentConfig(this)
         val agent = AndroidAgent(this, uuid, agentConfig)
 
@@ -101,6 +101,7 @@ class Taulight(val methodChannel: MethodChannel) {
         ClientProtocol.sendSYM(client)
 
         clients[uuid] = mc
+        return mc;
     }
 
     fun getClient(uuid: String): MemberClient = getClient(UUID.fromString(uuid))
