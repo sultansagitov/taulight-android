@@ -99,7 +99,8 @@ class _HubInfoScreenState extends State<HubInfoScreen> {
                   ),
                 if (widget.client.realName != null)
                   _info(context, "Hub name", widget.client.name),
-                _info(context, "Link", widget.client.link!),
+                if (widget.client.link != null)
+                  _info(context, "Link", widget.client.link!),
               ],
             ),
           ),

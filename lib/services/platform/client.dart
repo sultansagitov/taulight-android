@@ -45,7 +45,7 @@ class PlatformClientService {
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);
-      throw InvalidSandnodeLinkException(link);
+      throw InvalidSandnodeLinkException("Invalid link");
     }
 
     Client client = Client(uuid: uuid, address: address);
@@ -61,7 +61,7 @@ class PlatformClientService {
 
     if (result is ExceptionResult) {
       if (invalidLinkExceptions.contains(result.name)) {
-        throw InvalidSandnodeLinkException(link);
+        throw InvalidSandnodeLinkException("Invalid link");
       }
       throw result.getCause(client);
     }
@@ -86,24 +86,27 @@ class PlatformClientService {
     client.connecting = true;
     callback?.call();
 
-    UUID uuid = client.uuid;
-    String link = client.link!;
-    Result result = await PlatformService.ins.method("connect", {
-      "uuid": uuid.toString(),
-      "link": link,
-    });
+    try {
+      UUID uuid = client.uuid;
+      String link = client.link ?? client.address;
+      Result result = await PlatformService.ins.method("connect", {
+        "uuid": uuid.toString(),
+        "link": link,
+      });
 
-    callback?.call();
+      callback?.call();
 
-    if (result is ExceptionResult) {
-      if (invalidLinkExceptions.contains(result.name)) {
-        throw InvalidSandnodeLinkException(result.msg);
+      if (result is ExceptionResult) {
+        if (invalidLinkExceptions.contains(result.name)) {
+          throw InvalidSandnodeLinkException(result.msg);
+        }
+        throw result.getCause(client);
       }
-      throw result.getCause(client);
+      client.connected = true;
+    } finally {
+      client.connecting = false;
+      callback?.call();
     }
-
-    client.connected = true;
-    callback?.call();
   }
 
   Future<String> name(Client client) async {

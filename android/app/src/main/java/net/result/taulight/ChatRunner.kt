@@ -1,12 +1,8 @@
 package net.result.taulight
 
-import android.util.Base64
 import net.result.sandnode.chain.sender.DEKClientChain
-import net.result.sandnode.dto.DEKResponseDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
 import net.result.sandnode.serverclient.SandnodeClient
-import net.result.sandnode.util.DEKUtil
-import net.result.sandnode.util.Member
 import net.result.taulight.chain.sender.ChatClientChain
 import net.result.taulight.dto.ChatInfoDTO
 import net.result.taulight.dto.ChatInfoPropDTO
@@ -26,7 +22,7 @@ fun getChats(client: SandnodeClient): List<Map<String, Any>> {
         taulight!!.addChat(it)
 
         val map: MutableMap<String, Any> = mutableMapOf(
-            "chat" to taulight!!.objectMapper.convertValue(it, Map::class.java)!!
+            "chat" to taulight!!.convertValue(it, Map::class.java)!!
         )
 
         try {
@@ -58,30 +54,11 @@ fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
 
     try {
         chat.decrypt(client)
-    } catch (e: KeyStorageNotFoundException) {
+    } catch (_: KeyStorageNotFoundException) {
         val chain = DEKClientChain(client)
         client.io().chainManager.linkChain(chain)
         val deks = chain.get()
         ChatRunner.LOGGER.debug("DEKs from hub - {}", deks)
         client.io().chainManager.removeChain(chain)
-
-        val agent = client.node().agent()
-
-        var decrypted = false
-        for (dto: DEKResponseDTO in deks) {
-            val personalKey = agent.config.loadPersonalKey(Member(client))
-            val dek = DEKUtil.decrypt(dto.dek.encryptedKey, personalKey)
-            agent.config.saveDEK(Member(client), Member(chat.otherNickname, client.address), dto.dek.id, dek)
-
-            if (dto.dek.id == chat.lastMessage!!.message.keyID) {
-                val bytes = Base64.decode(chat.lastMessage!!.message.content, Base64.NO_WRAP)
-                chat.decryptedMessage = dek.encryption().decrypt(bytes, dek)
-                decrypted = true
-            }
-        }
-
-        if (!decrypted) {
-            throw e
-        }
     }
 }

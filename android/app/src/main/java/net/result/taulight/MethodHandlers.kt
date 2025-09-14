@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 import net.result.sandnode.chain.Chain
 import net.result.sandnode.dto.FileDTO
 import net.result.sandnode.exception.error.KeyStorageNotFoundException
-import net.result.sandnode.link.Links
+import net.result.sandnode.link.SandnodeLinkRecord
 import net.result.sandnode.message.util.NodeType
 import net.result.sandnode.serverclient.SandnodeClient
 import net.result.taulight.dto.ChatMessageInputDTO
@@ -87,7 +87,7 @@ fun connect(call: MethodCall): Map<String, String> {
     val clientID = UUID.fromString(uuid)
 
     val linkString = call.argument<String>("link")!!
-    val argLink = Links.parse(linkString, NodeType.HUB)
+    val argLink = SandnodeLinkRecord.parse(linkString, NodeType.HUB)
 
     val link = connect(taulight!!, clientID, argLink)
 
@@ -141,7 +141,7 @@ fun loadMessages(call: MethodCall): Map<String, Any> {
         "count" to paginated.totalCount,
         "messages" to messages.map {
             val map: MutableMap<String, Any> = mutableMapOf(
-                "message" to taulight!!.objectMapper.convertValue(it, Map::class.java)
+                "message" to taulight!!.convertValue(it, Map::class.java)!!
             )
 
             try {
@@ -192,7 +192,7 @@ fun loadChat(call: MethodCall): Map<String, Any> {
     val chat = loadChat(client, chatID)
 
     val map: MutableMap<String, Any> = mutableMapOf(
-        "chat" to taulight!!.objectMapper.convertValue(chat, Map::class.java)!!
+        "chat" to taulight!!.convertValue(chat, Map::class.java)!!
     )
 
     chat.lastMessage?.let {
@@ -255,7 +255,7 @@ fun chain(call: MethodCall): Any? {
                 "contentType" to result.contentType(),
                 "avatarBase64" to Base64.encodeToString(result.body(), Base64.NO_WRAP)
             )
-            else -> taulight!!.objectMapper.convertValue(result, Any::class.java)
+            else -> taulight!!.convertValue(result, Any::class.java)
         }
     } catch (e: InvocationTargetException) {
         throw e.cause ?: e

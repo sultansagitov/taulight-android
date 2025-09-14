@@ -35,6 +35,10 @@ class Taulight(val methodChannel: MethodChannel) {
 
     private val handler: Handler = Handler(Looper.getMainLooper())
 
+    fun <T> convertValue(value: Any?, clazz: Class<T>): T? {
+        return objectMapper.convertValue(value, clazz)
+    }
+
     fun sendToFlutter(method: String, obj: Map<String, Any>) = handler.post { methodChannel.invokeMethod(method, obj) }
 
     fun callFromFlutter(method: String, obj: Map<String, Any>): Map<String, String> {
@@ -78,7 +82,6 @@ class Taulight(val methodChannel: MethodChannel) {
         }
         return resultMap ?: throw RuntimeException(obj.toString())
     }
-
 
     fun addClient(uuid: UUID, link: SandnodeLinkRecord): MemberClient {
         val agentConfig = AndroidAgentConfig(this)
