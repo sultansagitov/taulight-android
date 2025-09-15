@@ -36,7 +36,7 @@ fun send(
         try {
             agent.config.loadDEK(Member(client), Member(receiver, client.address))
         } catch (_: KeyStorageNotFoundException) {
-            val source = GeneratedSource()
+            val source = GeneratedSource.now()
             val key = SymmetricEncryptions.AES.generate()
             val encryptor: KeyStorage = try {
                 agent.config.loadEncryptor(Member(receiver, client.address))
