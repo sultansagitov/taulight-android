@@ -29,7 +29,7 @@ class ServerKey {
       'address': address,
       'public': publicKey,
       'encryption': encryption,
-      'source': source.toMap(),
+      'source': source.toFullMap(),
     };
   }
 }
@@ -70,7 +70,7 @@ class PersonalKey {
       'nickname': nickname.toString(),
       'address': address,
       'encryption': encryption,
-      'source': source.toMap(),
+      'source': source.toFullMap(),
       if (symKey != null) 'sym': symKey!,
       if (publicKey != null) 'public': publicKey!,
       if (privateKey != null) 'private': privateKey!,
@@ -111,7 +111,7 @@ class EncryptorKey {
       'nickname': nickname.toString(),
       'address': address,
       'encryption': encryption,
-      'source': source.toMap(),
+      'source': source.toFullMap(),
       if (symKey != null) 'sym': symKey!,
       if (publicKey != null) 'public': publicKey!,
     };
@@ -166,7 +166,7 @@ class DEK {
       'second-address': secondAddress,
       'key-id': keyId.toString(),
       'encryption': encryption,
-      'source': source.toMap(),
+      'source': source.toFullMap(),
       if (symKey != null) 'sym': symKey!,
       if (publicKey != null) 'public': publicKey!,
       if (privateKey != null) 'private': privateKey!,

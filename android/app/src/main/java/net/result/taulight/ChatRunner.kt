@@ -60,5 +60,7 @@ fun decrypt(client: SandnodeClient, chat: ChatInfoDTO) {
         val deks = chain.get()
         ChatRunner.LOGGER.debug("DEKs from hub - {}", deks)
         client.io().chainManager.removeChain(chain)
+
+        chat.decrypt(client);
     }
 }

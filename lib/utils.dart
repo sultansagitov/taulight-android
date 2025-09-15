@@ -164,7 +164,7 @@ String link2address(String input) {
   final normalized = looksLikeBareIPv6(trimmed) ? '[$trimmed]' : trimmed;
 
   final uri = Uri.parse(
-      normalized.contains("://") ? normalized : "dummy://$normalized"
+    normalized.contains("://") ? normalized : "dummy://$normalized",
   );
 
   if (uri.host.isEmpty) {

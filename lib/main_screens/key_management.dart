@@ -150,16 +150,16 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
           details: [
             'Public Key: ${_truncateKey(key.publicKey)}',
             'Source: ${key.source.type}',
-            'Added: ${formatTime(key.source.datetime)}',
+            'Added: ${formatTime(key.source.createdAt.toLocal())}',
           ],
           onTap: () => _showKeyDetails('Server Key', {
             'Address': key.address,
             'Public Key': key.publicKey,
             'Encryption': key.encryption,
             'Source Type': key.source.type,
-            'Date Added': key.source.datetime.toString(),
-            if (key.source is HubSource)
-              'Hub Address': (key.source as HubSource).address,
+            'Date Added': key.source.createdAt.toLocal().toString(),
+            if (key.source is ServerSource)
+              'Hub Address': (key.source as ServerSource).address,
           }),
         );
       },
@@ -189,7 +189,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             if (key.publicKey != null) 'Has Public Key',
             if (key.privateKey != null) 'Has Private Key',
             'Source: ${key.source.type}',
-            'Added: ${formatTime(key.source.datetime)}',
+            'Added: ${formatTime(key.source.createdAt.toLocal())}',
           ],
           onTap: () => _showKeyDetails('Personal Key', {
             'Encryption': key.encryption,
@@ -197,9 +197,9 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             if (key.publicKey != null) 'Public Key': key.publicKey!,
             if (key.privateKey != null) 'Private Key': key.privateKey!,
             'Source Type': key.source.type,
-            'Date Added': key.source.datetime.toString(),
-            if (key.source is HubSource)
-              'Hub Address': (key.source as HubSource).address,
+            'Date Added': key.source.createdAt.toLocal().toString(),
+            if (key.source is ServerSource)
+              'Hub Address': (key.source as ServerSource).address,
           }),
         );
       },
@@ -228,16 +228,16 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             if (key.symKey != null) 'Has Symmetric Key',
             if (key.publicKey != null) 'Has Public Key',
             'Source: ${key.source.type}',
-            'Added: ${formatTime(key.source.datetime)}',
+            'Added: ${formatTime(key.source.createdAt.toLocal())}',
           ],
           onTap: () => _showKeyDetails('Encryptor Key', {
             'Encryption': key.encryption,
             if (key.symKey != null) 'Symmetric Key': key.symKey!,
             if (key.publicKey != null) 'Public Key': key.publicKey!,
             'Source Type': key.source.type,
-            'Date Added': key.source.datetime.toString(),
-            if (key.source is HubSource)
-              'Hub Address': (key.source as HubSource).address,
+            'Date Added': key.source.createdAt.toLocal().toString(),
+            if (key.source is ServerSource)
+              'Hub Address': (key.source as ServerSource).address,
           }),
         );
       },
@@ -267,7 +267,7 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             if (dek.publicKey != null) 'Has Public Key',
             if (dek.privateKey != null) 'Has Private Key',
             'Source: ${dek.source.type}',
-            'Added: ${formatTime(dek.source.datetime)}',
+            'Added: ${formatTime(dek.source.createdAt.toLocal())}',
           ],
           onTap: () => _showKeyDetails('DEK', {
             'Key ID': dek.keyId.toString(),
@@ -276,9 +276,9 @@ class _KeyManagementScreenState extends State<KeyManagementScreen>
             if (dek.publicKey != null) 'Public Key': dek.publicKey!,
             if (dek.privateKey != null) 'Private Key': dek.privateKey!,
             'Source Type': dek.source.type,
-            'Date Added': dek.source.datetime.toString(),
-            if (dek.source is HubSource)
-              'Hub Address': (dek.source as HubSource).address,
+            'Date Added': dek.source.createdAt.toLocal().toString(),
+            if (dek.source is ServerSource)
+              'Hub Address': (dek.source as ServerSource).address,
           }),
         );
       },

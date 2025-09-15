@@ -61,7 +61,7 @@ class Client {
     if (!link.startsWith("sandnode://")) {
       throw InvalidSandnodeLinkException("Not sandnode scheme");
     }
-    
+
     if (!(link.contains("encryption=") && link.contains("key="))) {
       throw InvalidSandnodeLinkException("Link have no key");
     }

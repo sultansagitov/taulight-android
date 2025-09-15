@@ -153,7 +153,7 @@ class _StartDialogScreenState extends AuthState<StartDialogScreen> {
           encryption: encryption,
           symKey: params["sym"],
           publicKey: params["public"],
-          source: QRSource(),
+          source: QRSource.now(),
         ),
       );
 

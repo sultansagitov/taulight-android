@@ -95,7 +95,7 @@ class _QRExchangeScreenState extends State<QRExchangeScreen> {
             encryption: enc,
             publicKey: pub,
             symKey: sym,
-            source: QRSource(),
+            source: QRSource.now(),
           );
           await KeyStorageService.ins.saveEncryptor(ek);
           _result = "ℹ Saved new encryptor for $nickname";

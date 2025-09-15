@@ -57,13 +57,14 @@ Future<void> _disconnect(MethodCall call) async {
 }
 
 Future<void> _saveServerKey(MethodCall call) async {
-  String address = call.arguments["address"]!;
+  final args = call.arguments;
+  String address = args["address"]!;
   await KeyStorageService.ins.saveServerKey(
     ServerKey(
       address: address,
-      encryption: call.arguments["encryption"]!,
-      publicKey: call.arguments["public"]!,
-      source: HubSource(address: address),
+      encryption: args["encryption"]!,
+      publicKey: args["public"]!,
+      source: Source.fromMap(args["source"]),
     ),
   );
 }
@@ -80,43 +81,45 @@ Future<void> _savePersonalKey(MethodCall call) async {
       symKey: args["sym"],
       publicKey: args["public"],
       privateKey: args["private"],
-      source: HubSource(address: address),
+      source: Source.fromMap(args["source"]),
     ),
   );
 }
 
 Future<void> _saveEncryptor(MethodCall call) async {
-  String address = call.arguments["address"]!;
-  Nickname nickname = Nickname.checked(call.arguments["nickname"]);
+  final args = call.arguments;
+  String address = args["address"]!;
+  Nickname nickname = Nickname.checked(args["nickname"]);
   await KeyStorageService.ins.saveEncryptor(
     EncryptorKey(
       nickname: nickname,
       address: address,
-      encryption: call.arguments["encryption"]!,
-      symKey: call.arguments["sym"],
-      publicKey: call.arguments["public"],
-      source: HubSource(address: address),
+      encryption: args["encryption"]!,
+      symKey: args["sym"],
+      publicKey: args["public"],
+      source: Source.fromMap(args["source"]),
     ),
   );
 }
 
 Future<void> _saveDEK(MethodCall call) async {
-  final firstNickname = Nickname.checked(call.arguments["m1"]["nickname"]);
-  final firstAddress = call.arguments["m1"]["address"]!;
-  final secondNickname = Nickname.checked(call.arguments["m2"]["nickname"]);
-  final secondAddress = call.arguments["m2"]["address"]!;
+  final args = call.arguments;
+  final firstNickname = Nickname.checked(args["m1"]["nickname"]);
+  final firstAddress = args["m1"]["address"]!;
+  final secondNickname = Nickname.checked(args["m2"]["nickname"]);
+  final secondAddress = args["m2"]["address"]!;
   await KeyStorageService.ins.saveDEK(
     DEK(
       firstAddress: firstAddress,
       firstNickname: firstNickname,
       secondAddress: secondAddress,
       secondNickname: secondNickname,
-      keyId: UUID.fromString(call.arguments["key-id"]),
-      encryption: call.arguments["encryption"]!,
-      symKey: call.arguments["sym"],
-      publicKey: call.arguments["public"],
-      privateKey: call.arguments["private"],
-      source: HubSource(address: firstAddress), // TODO
+      keyId: UUID.fromString(args["key-id"]),
+      encryption: args["encryption"]!,
+      symKey: args["sym"],
+      publicKey: args["public"],
+      privateKey: args["private"],
+      source: Source.fromMap(args["source"]),
     ),
   );
 }
