@@ -5,6 +5,7 @@ import 'package:taulight/screens/hub_info.dart';
 import 'package:taulight/screens/login.dart';
 import 'package:taulight/screens/profile.dart';
 import 'package:taulight/services/client.dart';
+import 'package:taulight/services/platform/agent.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/chat_avatar.dart';
@@ -136,20 +137,7 @@ class HubItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: TauButton.icon(
-                  Icons.login,
-                  disable: !(client.connected &&
-                      (client.user == null || !client.user!.authorized)),
-                  onPressed: () async {
-                    final result =
-                        await moveTo(context, LoginScreen(client: client));
-                    if (result is String && result.contains("success")) {
-                      connectUpdate();
-                    }
-                  },
-                ),
-              ),
+              Expanded(child: _buildButton(context)),
               const SizedBox(width: 8),
               Expanded(
                 child: TauButton.icon(
@@ -167,5 +155,29 @@ class HubItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  TauButton _buildButton(BuildContext context) {
+    if (client.user == null || !client.user!.authorized) {
+      return TauButton.icon(
+        Icons.login,
+        disable: !client.connected,
+        onPressed: () async {
+          final result = await moveTo(context, LoginScreen(client: client));
+          if (result is String && result.contains("success")) {
+            connectUpdate();
+          }
+        },
+      );
+    } else {
+      return TauButton.icon(
+        Icons.logout,
+        disable: !client.connected,
+        onPressed: () async {
+          await PlatformAgentService.ins.logout(client);
+          connectUpdate();
+        },
+      );
+    }
   }
 }

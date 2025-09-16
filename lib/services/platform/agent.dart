@@ -104,6 +104,26 @@ class PlatformAgentService {
     throw IncorrectFormatChannelException();
   }
 
+  Future<void> logout(Client client) async {
+    client.user?.expiredToken = false;
+    Result result = await PlatformService.ins.chain(
+      "LogoutClientChain.logout",
+      client: client,
+    );
+
+    if (result is ExceptionResult) {
+      throw result.getCause(client);
+    }
+
+    if (result is SuccessResult) {
+      StorageService.ins.removeToken(client);
+      client.user = null;
+      return;
+    }
+
+    throw IncorrectFormatChannelException();
+  }
+
   Future<List<LoginHistoryDTO>> loginHistory(Client client) async {
     final result = await PlatformService.ins.method("login-history", {
       "uuid": client.uuid.toString(),
