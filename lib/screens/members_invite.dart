@@ -52,6 +52,16 @@ class MembersInviteScreen extends StatelessWidget {
           if (context.mounted) {
             snackBarError(context, "$nickname already in or have code");
           }
+        } on PermissionDeniedException {
+          if (context.mounted) {
+            snackBarError(context, "Have no permission to invite");
+          }
+        } catch (e, stackTrace) {
+          print(e);
+          print(stackTrace);
+          if (context.mounted) {
+            snackBarError(context, "Unknown error");
+          }
         }
       },
       child: Padding(

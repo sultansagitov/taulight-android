@@ -3,6 +3,7 @@ package net.result.taulight
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import net.result.sandnode.encryption.EncryptionManager
+import net.result.taulight.error.TauErrors
 import net.result.taulight.message.TauMessageTypes
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -12,6 +13,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         EncryptionManager.registerAll()
         TauMessageTypes.registerAll()
+        TauErrors.registerAll()
         setupBouncyCastle()
         MethodHandlers(flutterEngine)
     }
