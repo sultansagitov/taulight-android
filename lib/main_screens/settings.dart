@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/providers/theme.dart';
+import 'package:taulight/screens/pin.dart';
+import 'package:taulight/services/storage.dart';
+import 'package:taulight/widget_utils.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tip.dart';
 
@@ -98,6 +101,7 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
               }).toList(),
             ),
           ),
+
           const Divider(),
 
           // Message Date
@@ -157,6 +161,39 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
                 ref
                     .read(messageTimeNotifierProvider.notifier)
                     .setDateOption(sel.first);
+              },
+            ),
+          ),
+
+          const Divider(),
+
+          ListTile(
+            title: const Text("PIN Code"),
+            subtitle: FutureBuilder<String?>(
+              future: StorageService.ins.getPIN(),
+              builder: (context, snapshot) {
+                final pin = snapshot.data;
+                return Text(pin != null ? "****" : "Not set");
+              },
+            ),
+            trailing: ElevatedButton(
+              child: const Text("Set/Change"),
+              onPressed: () async {
+                final testScreen = PinScreen(
+                  useFingerprintIfExists: false,
+                  onSuccess: (context) async {
+                    Navigator.pop(context, "success");
+                    await StorageService.ins.cleanPIN();
+                  },
+                );
+                final result = await moveTo(context, testScreen);
+                if (result != "success") return;
+
+                final updatingScreen = PinScreen(
+                  useFingerprintIfExists: false,
+                  onSuccess: (context) => Navigator.pop(context),
+                );
+                await moveTo(context, updatingScreen);
               },
             ),
           ),

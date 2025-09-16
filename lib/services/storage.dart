@@ -112,6 +112,10 @@ class StorageService {
     await _storage.write(key: "pin", value: pin);
   }
 
+  Future<void> cleanPIN() async {
+    await _storage.delete(key: "pin");
+  }
+
   Future<void> clear() async {
     await _storage.deleteAll();
   }

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/providers/message_time.dart';
 import 'package:taulight/providers/theme.dart';
+import 'package:taulight/screens/home.dart';
 import 'package:taulight/screens/pin.dart';
+import 'package:taulight/widget_utils.dart';
 
 void main() {
   runApp(
@@ -74,7 +76,16 @@ class _TaulightAppState extends ConsumerState<TaulightApp> {
         ),
       ),
       themeMode: themeMode,
-      home: const PinScreen(),
+      home: PinScreen(
+        onSuccess: (BuildContext context) async {
+          await moveTo(
+            context,
+            const HomeScreen(),
+            fromBottom: true,
+            canReturn: false,
+          );
+        },
+      ),
     );
   }
 }

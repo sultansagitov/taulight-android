@@ -1,11 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:taulight/screens/home.dart';
 import 'package:taulight/services/storage.dart';
-import 'package:taulight/widget_utils.dart';
 
 class PinScreen extends StatefulWidget {
-  const PinScreen({super.key});
+  final bool useFingerprintIfExists;
+  final FutureOr<void> Function(BuildContext context) onSuccess;
+
+  const PinScreen({
+    super.key,
+    required this.onSuccess,
+    this.useFingerprintIfExists = true,
+  });
 
   @override
   State<PinScreen> createState() => _PinScreenState();
@@ -36,7 +43,9 @@ class _PinScreenState extends State<PinScreen> {
       _bio = b;
       _setPin = pin == null;
     });
-    if (pin != null && f && b) _auth();
+    if (widget.useFingerprintIfExists) {
+      if (pin != null && f && b) _auth();
+    }
   }
 
   Future<void> _auth() async {
@@ -44,7 +53,7 @@ class _PinScreenState extends State<PinScreen> {
       localizedReason: 'Auth',
       options: const AuthenticationOptions(biometricOnly: true),
     );
-    if (success) _goHome();
+    if (success) widget.onSuccess(context);
   }
 
   void _key(String v) {
@@ -75,7 +84,7 @@ class _PinScreenState extends State<PinScreen> {
       _input = '';
       _confirming = true;
     } else if (_input == _storedPin) {
-      _goHome();
+      widget.onSuccess(context);
     } else {
       setState(() {
         _error = 'Incorrect PIN';
@@ -88,7 +97,7 @@ class _PinScreenState extends State<PinScreen> {
     if (_confirm == _firstPin) {
       await StorageService.ins.setPIN(_confirm);
       await _askFinger();
-      _goHome();
+      widget.onSuccess(context);
     } else {
       setState(() {
         _error = 'Mismatch';
@@ -126,13 +135,6 @@ class _PinScreenState extends State<PinScreen> {
       await StorageService.ins.setFingerprintDisabled();
     }
   }
-
-  void _goHome() => moveTo(
-        context,
-        const HomeScreen(),
-        fromBottom: true,
-        canReturn: false,
-      );
 
   Widget _btn(String v) {
     return GestureDetector(
@@ -237,7 +239,7 @@ class _PinScreenState extends State<PinScreen> {
                   icon: const Icon(Icons.backspace),
                 );
               }
-              if (k == '' && _finger && _bio) {
+              if (widget.useFingerprintIfExists && k == '' && _finger && _bio) {
                 return IconButton(
                   onPressed: _auth,
                   icon: const Icon(Icons.fingerprint),
