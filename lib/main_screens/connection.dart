@@ -143,6 +143,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
       if (mounted) {
         snackBarError(context, e.message ?? "Invalid link or changed key");
       }
+    } on LinkDoesNotMatchException catch (e) {
+      if (mounted) {
+        snackBarError(context, e.message ?? "Link does not match");
+      }
     } catch (e, stackTrace) {
       print(e);
       print(stackTrace);

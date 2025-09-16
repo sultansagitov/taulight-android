@@ -87,6 +87,8 @@ class ExceptionResult extends Result implements Exception {
         return BusyNicknameException(client!);
       case "PermissionDeniedException":
         return PermissionDeniedException(client!);
+      case "LinkDoesNotMatchException":
+        return LinkDoesNotMatchException(msg);
       default:
         return this;
     }

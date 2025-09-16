@@ -6,7 +6,7 @@ import 'package:taulight/classes/user.dart';
 import 'package:taulight/classes/uuid.dart';
 
 class FakeClient extends Client {
-  FakeClient() : super(uuid: UUID.nil, address: 'example.com', link: '');
+  FakeClient() : super(uuid: UUID.nil, address: 'example.com');
 
   @override
   get user => FakeUser(this);

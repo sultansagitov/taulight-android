@@ -76,6 +76,10 @@ class PermissionDeniedException extends ClientException {
   PermissionDeniedException(super.client);
 }
 
+class LinkDoesNotMatchException extends ExceptionMessage {
+  LinkDoesNotMatchException([super.message]);
+}
+
 class NotFoundException extends ClientException {
   dynamic object;
 
