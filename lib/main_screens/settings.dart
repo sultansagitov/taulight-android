@@ -182,10 +182,23 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
             title: const Text("Use key from server"),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             trailing: Switch(
-                value: serverKeyState.fetch,
-                onChanged: (fetch) {
-                  ref.read(serverKeyNotifierProvider.notifier).setFetch(fetch);
-                }),
+              value: serverKeyState.fetch,
+              onChanged: (fetch) {
+                ref.read(serverKeyNotifierProvider.notifier).setFetch(fetch);
+              },
+              trackColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return isDark ? Colors.grey[700] : Colors.grey[400];
+                }
+                return isDark ? Colors.grey[900] : Colors.grey[300];
+              }),
+              thumbColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return isDark ? Colors.white : Colors.black;
+                }
+                return isDark ? Colors.grey[500] : Colors.grey[600];
+              }),
+            ),
           ),
 
           const Divider(),
@@ -200,6 +213,25 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
               },
             ),
             trailing: ElevatedButton(
+              style: ButtonStyle(
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed)) {
+                    return isDark ? Colors.grey[700] : Colors.grey[400];
+                  }
+                  return isDark ? Colors.grey[800] : Colors.grey[300];
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith((states) {
+                  return isDark ? Colors.white : Colors.black;
+                }),
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
               child: const Text("Set/Change"),
               onPressed: () async {
                 final testScreen = PinScreen(
