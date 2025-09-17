@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taulight/classes/tau_chat.dart';
 import 'package:taulight/classes/user.dart';
 import 'package:taulight/exceptions.dart';
@@ -9,21 +10,29 @@ import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/services/storage.dart';
 import 'package:taulight/widget_utils.dart';
 
-Future<void> start(
-  BuildContext context,
-  MethodCallHandler methodCallHandler,
-  VoidCallback callback,
-) async {
+Future<void> start({
+  required BuildContext context,
+  required MethodCallHandler methodCallHandler,
+  required VoidCallback callback,
+}) async {
   await PlatformClientService.ins.loadClients();
   final map = await StorageService.ins.getClients();
 
   final notConnected = map.keys.toSet().difference(ClientService.ins.keys);
 
+  final prefs = await SharedPreferences.getInstance();
+  var fetch = prefs.getBool('fetch') ?? false;
+
   for (final uuid in notConnected) {
     final sr = map[uuid]!;
     try {
       final link = sr.link;
-      await PlatformClientService.ins.connectWithUUID(uuid, link, keep: true);
+      await PlatformClientService.ins.connectWithUUID(
+        uuid: uuid,
+        link: link,
+        fetch: fetch,
+        keep: true,
+      );
     } on ConnectionException {
       if (context.mounted) {
         snackBarError(context, "Connection error: ${sr.name}");

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/providers/message_time.dart';
+import 'package:taulight/providers/server_key.dart';
 import 'package:taulight/providers/theme.dart';
 import 'package:taulight/screens/home.dart';
 import 'package:taulight/screens/pin.dart';
@@ -30,6 +31,7 @@ class _TaulightAppState extends ConsumerState<TaulightApp> {
     Future.microtask(() {
       ref.read(themeNotifierProvider.notifier).load();
       ref.read(messageTimeNotifierProvider.notifier).load();
+      ref.read(serverKeyNotifierProvider.notifier).load();
     });
 
     // _sub = uriLinkStream.listen((Uri? uri) {

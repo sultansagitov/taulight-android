@@ -107,9 +107,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text("Login History", style: theme.textTheme.titleMedium),
             ),
             const SizedBox(height: 8),
-            Tip("The IP address and device name, "
-                "except for the timestamp, are encrypted on the "
-                "server to ensure data security."),
+            Tip("""
+              The IP address and device name, 
+              except for the timestamp, are encrypted on the 
+              server to ensure data security.
+            """),
             const SizedBox(height: 8),
             if (widget.client.connected)
               LoginList(widget.client)

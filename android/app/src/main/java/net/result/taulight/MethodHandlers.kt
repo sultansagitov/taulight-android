@@ -89,7 +89,9 @@ fun connect(call: MethodCall): Map<String, String> {
     val linkString = call.argument<String>("link")!!
     val argLink = SandnodeLinkRecord.parse(linkString, NodeType.HUB)
 
-    val link = connect(taulight!!, clientID, argLink)
+    val fetch = call.argument<String>("fetch") == "true"
+
+    val link = connect(taulight!!, clientID, argLink, fetch)
 
     return mapOf(
         "link" to link.toString(),

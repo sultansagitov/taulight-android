@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/config.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/main_screens/main_screen.dart';
+import 'package:taulight/providers/server_key.dart';
 import 'package:taulight/services/platform/client.dart';
 import 'package:taulight/widget_utils.dart';
 import 'package:taulight/screens/login.dart';
@@ -11,7 +13,7 @@ import 'package:taulight/widgets/flat_rect_button.dart';
 import 'package:taulight/widgets/tau_app_bar.dart';
 import 'package:taulight/widgets/tau_button.dart';
 
-class ConnectionScreen extends StatefulWidget implements IMainScreen {
+class ConnectionScreen extends ConsumerStatefulWidget implements IMainScreen {
   final VoidCallback? connectUpdate;
 
   const ConnectionScreen({super.key, this.connectUpdate});
@@ -22,10 +24,10 @@ class ConnectionScreen extends StatefulWidget implements IMainScreen {
   String title() => "Connect";
 
   @override
-  State<ConnectionScreen> createState() => _ConnectionScreenState();
+  ConsumerState<ConnectionScreen> createState() => _ConnectionScreenState();
 }
 
-class _ConnectionScreenState extends State<ConnectionScreen> {
+class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   final _linkController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -41,6 +43,9 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final serverKeyState = ref.watch(serverKeyNotifierProvider);
+    final fetch = serverKeyState.fetch;
+
     return Scaffold(
       appBar: TauAppBar.text("Connect Hubs", actions: [
         TauButton.icon(
@@ -48,7 +53,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
           onPressed: () async {
             final result = await moveTo(context, QrScannerScreen());
             if (result is String) {
-              _connect(result, index: -1);
+              _connect(
+                link: result,
+                fetch: fetch,
+                index: -1,
+              );
             }
           },
         ),
@@ -81,7 +90,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                   disable: loading != null,
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _connect(_linkController.text.trim(), index: -1);
+                      _connect(
+                        link: _linkController.text.trim(),
+                        fetch: fetch,
+                        index: -1,
+                      );
                     }
                   },
                 );
@@ -106,7 +119,11 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
                       loading: loading == index,
                       disable: loading != null,
                       width: double.infinity,
-                      onPressed: () => _connect(recommended.link, index: index),
+                      onPressed: () => _connect(
+                        link: recommended.link,
+                        fetch: fetch,
+                        index: index,
+                      ),
                     );
                   }).toList(),
                 );
@@ -118,11 +135,16 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     );
   }
 
-  Future<void> _connect(String link, {required int index}) async {
+  Future<void> _connect({
+    required String link,
+    required bool fetch,
+    required int index,
+  }) async {
     try {
       _loading.value = index;
       final client = await PlatformClientService.ins.connect(
-        link,
+        link: link,
+        fetch: fetch,
         connectUpdate: widget.connectUpdate,
       );
       await StorageService.ins.saveClient(client);
@@ -146,6 +168,10 @@ class _ConnectionScreenState extends State<ConnectionScreen> {
     } on LinkDoesNotMatchException catch (e) {
       if (mounted) {
         snackBarError(context, e.message ?? "Link does not match");
+      }
+    } on KeyStorageNotFoundException {
+      if (mounted) {
+        snackBarError(context, "Key is not stored and not found in link");
       }
     } catch (e, stackTrace) {
       print(e);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/classes/client.dart';
 import 'package:taulight/exceptions.dart';
 import 'package:taulight/main_screens/create_group.dart';
@@ -22,14 +23,14 @@ import 'package:taulight/widgets/not_logged_in.dart';
 import 'package:taulight/widgets/hubs_empty.dart';
 import 'package:taulight/widgets/tau_loading.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
   HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends ConsumerState<HomeScreen> {
   final chatKey = GlobalKey<ChatScreenState>();
   late final MethodCallHandler methodCallHandler;
 
@@ -58,9 +59,13 @@ class HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() => _fullLoading = true);
       try {
-        await start(context, methodCallHandler, () {
-          if (mounted) setState(() => _fullLoading = false);
-        });
+        await start(
+          context: context,
+          methodCallHandler: methodCallHandler,
+          callback: () {
+            if (mounted) setState(() => _fullLoading = false);
+          },
+        );
       } finally {
         if (mounted) setState(() => _fullLoading = false);
       }

@@ -83,7 +83,7 @@ class Taulight(val methodChannel: MethodChannel) {
         return resultMap ?: throw RuntimeException(obj.toString())
     }
 
-    fun addClient(uuid: UUID, link: SandnodeLinkRecord): MemberClient {
+    fun addClient(uuid: UUID, link: SandnodeLinkRecord, useServerSource: Boolean): MemberClient {
         val agentConfig = AndroidAgentConfig(this)
         val agent = AndroidAgent(this, uuid, agentConfig)
 
@@ -92,14 +92,21 @@ class Taulight(val methodChannel: MethodChannel) {
 
         LOGGER.info("Saving client of {} with uuid {}", client.address, uuid)
         val mc = MemberClient(uuid, client, link)
-
         val chainManager = BaseClientChainManager()
+        val serverKey = if (useServerSource) {
+            client.start(chainManager)
+            AgentProtocol.loadOrFetchServerKey(client, link)!!
+        } else {
+            val sk = AgentProtocol.loadServerKey(client, link)
+                ?: throw KeyStorageNotFoundException(client.address.toString())
+            client.start(chainManager)
+            sk
+        }
+
         chainManager.addHandler(TauMessageTypes.DOWNSTREAM) {
             AndroidDownstreamClientChain(client, this, mc.uuid)
         }
-        client.start(chainManager)
 
-        val serverKey = AgentProtocol.loadOrFetchServerKey(client, link)
         client.io().setServerKey(serverKey)
         ClientProtocol.sendSYM(client)
 

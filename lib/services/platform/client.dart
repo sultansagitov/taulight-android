@@ -20,22 +20,25 @@ class PlatformClientService {
   static PlatformClientService get ins => _instance;
   PlatformClientService._internal();
 
-  Future<Client> connect(
-    String link, {
+  Future<Client> connect({
+    required String link,
+    required bool fetch,
     VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
     return await connectWithUUID(
-      UUID.random(),
-      link,
+      uuid: UUID.random(),
+      link: link,
+      fetch: fetch,
       connectUpdate: connectUpdate,
       keep: keep,
     );
   }
 
-  Future<Client> connectWithUUID(
-    UUID uuid,
-    String link, {
+  Future<Client> connectWithUUID({
+    required UUID uuid,
+    required String link,
+    required bool fetch,
     VoidCallback? connectUpdate,
     bool keep = false,
   }) async {
@@ -57,6 +60,7 @@ class PlatformClientService {
     Result result = await PlatformService.ins.method("connect", {
       "uuid": uuid.toString(),
       "link": link,
+      "fetch": fetch.toString(),
     });
 
     if (result is ExceptionResult) {

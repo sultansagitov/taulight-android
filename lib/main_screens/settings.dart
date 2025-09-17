@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taulight/main_screens/main_screen.dart';
 import 'package:taulight/providers/message_time.dart';
+import 'package:taulight/providers/server_key.dart';
 import 'package:taulight/providers/theme.dart';
 import 'package:taulight/screens/pin.dart';
 import 'package:taulight/services/storage.dart';
@@ -21,6 +22,7 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeNotifierProvider);
     final messageTimeState = ref.watch(messageTimeNotifierProvider);
+    final serverKeyState = ref.watch(serverKeyNotifierProvider);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -108,11 +110,9 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Tip('''
-                Choose whether to display the message time
-                as the moment it was sent or the server's recorded time.
-            '''
-                .trim()
-                .replaceAll(RegExp(r'\s+'), ' ')),
+              Choose whether to display the message time
+              as the moment it was sent or the server's recorded time.
+            '''),
           ),
 
           ListTile(
@@ -163,6 +163,29 @@ class SettingsScreen extends ConsumerWidget implements IMainScreen {
                     .setDateOption(sel.first);
               },
             ),
+          ),
+
+          const Divider(),
+
+          // Use key from server
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Tip('''
+              When enabled, the decryption key is retrieved from the server
+              together with the shared link (text or QR). This method is not
+              secure, as the key is transmitted without encryption and may be
+              exposed to man-in-the-middle attacks.
+            '''),
+          ),
+
+          ListTile(
+            title: const Text("Use key from server"),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            trailing: Switch(
+                value: serverKeyState.fetch,
+                onChanged: (fetch) {
+                  ref.read(serverKeyNotifierProvider.notifier).setFetch(fetch);
+                }),
           ),
 
           const Divider(),

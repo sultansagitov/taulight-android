@@ -89,6 +89,8 @@ class ExceptionResult extends Result implements Exception {
         return PermissionDeniedException(client!);
       case "LinkDoesNotMatchException":
         return LinkDoesNotMatchException(msg);
+      case "KeyStorageNotFoundException":
+        return KeyStorageNotFoundException(msg);
       default:
         return this;
     }
