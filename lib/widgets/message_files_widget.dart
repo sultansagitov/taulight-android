@@ -118,9 +118,9 @@ class _ImageGridState extends State<_ImageGrid> {
                   );
                   snackBar(context, 'Image saved');
                   await _refreshStatuses();
-                } catch (e, snackTrace) {
+                } catch (e, stackTrace) {
                   print(e);
-                  print(snackTrace);
+                  print(stackTrace);
                   snackBarError(context, 'Download failed');
                 }
               },
@@ -274,9 +274,9 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
       });
 
       snackBar(context, 'File saved to $path');
-    } catch (e, snackTrace) {
+    } catch (e, stackTrace) {
       print(e);
-      print(snackTrace);
+      print(stackTrace);
       snackBarError(context, 'File not saved');
       if (mounted) setState(() => isLoading = false);
     }
@@ -285,9 +285,9 @@ class _DownloadFileRowState extends State<_DownloadFileRow> {
   Future<void> _openFile() async {
     try {
       await FileMessageService.ins.openFile(widget.file);
-    } catch (e, snackTrace) {
+    } catch (e, stackTrace) {
       print(e);
-      print(snackTrace);
+      print(stackTrace);
       snackBarError(context, 'File opening error');
     }
   }

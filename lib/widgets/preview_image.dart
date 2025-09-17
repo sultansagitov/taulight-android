@@ -57,9 +57,9 @@ class PreviewImage extends StatelessWidget {
       final filePath = '${directory.path}/$filename';
       final file = File(filePath);
       await file.writeAsBytes(bytes);
-    } catch (e, snackTrace) {
+    } catch (e, stackTrace) {
       print(e);
-      print(snackTrace);
+      print(stackTrace);
       snackBarError(context, "Cannot save to gallery");
     }
   }
