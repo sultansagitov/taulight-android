@@ -44,7 +44,10 @@ void main() {
     });
 
     test('https scheme with port and query params', () {
-      expect(link2address('https://example.com:8080?foo=bar&baz=qux'), 'example.com:8080');
+      expect(
+        link2address('https://example.com:8080?foo=bar&baz=qux'),
+        'example.com:8080',
+      );
     });
   });
 
